@@ -1,0 +1,4493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手速测试器</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.3.0/dist/chartjs-plugin-zoom.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 1000px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #667eea, #764ba2, #f5576c);
+            z-index: 1;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            background: rgba(248, 249, 250, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            font-weight: 600;
+            min-width: 90px;
+            flex: 1;
+            max-width: 130px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            min-width: auto;
+            flex: none;
+            max-width: none;
+        }
+        
+        .btn-settings {
+            background: linear-gradient(to right, #FF9800, #F57C00);
+        }
+        
+        .btn-clear {
+            background: linear-gradient(to right, #ff6b6b, #ff4757);
+            margin-top: 20px;
+            width: auto;
+            min-width: 160px;
+            max-width: 220px;
+            padding: 12px 25px;
+        }
+        
+        .btn-export {
+            background: linear-gradient(to right, #36D1DC, #5B86E5);
+        }
+        
+        .btn-import {
+            background: linear-gradient(to right, #9C27B0, #673AB7);
+        }
+        
+        .countdown {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 10px 0;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .click-area {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 25px 0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 15px 30px rgba(102, 126, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        .click-area:active {
+            transform: scale(0.98);
+        }
+        
+        .click-area.disabled {
+            background: #e0e0e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .click-area.ready {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 
+                0 15px 30px rgba(79, 172, 254, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .click-text {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+            padding: 0 10px;
+            text-align: center;
+        }
+        
+        .key-hint {
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            z-index: 2;
+            padding: 0 10px;
+            text-align: center;
+        }
+        
+        .real-time-chart-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.8;
+            z-index: 1;
+        }
+        
+        .chart-settings-btn {
+            position: absolute;
+            top: 8px;
+            right: 70px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border: none;
+            border-radius: 6px;
+            padding: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-settings-btn:hover {
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .wave-animation {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(255,255,255,0.3) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 
+                0 4px 6px rgba(0, 0, 0, 0.05),
+                0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 24px rgba(0, 0, 0, 0.1),
+                0 6px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #764ba2;
+            line-height: 1.2;
+        }
+        
+        .stat-unit {
+            font-size: 0.85rem;
+            color: #666;
+            margin-left: 2px;
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history {
+            margin-top: 25px;
+            text-align: left;
+            background: rgba(248, 249, 250, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .history h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        #history-list {
+            list-style-type: none;
+            max-height: 250px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-right: 10px;
+        }
+        
+        .history-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .history-item:hover {
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .history-header > div {
+            width: 100%;
+        }
+        
+        .history-header .btn-small {
+            align-self: flex-end;
+        }
+        
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .settings-modal-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        
+        .setting-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .setting-group h4 {
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+        
+        .setting-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .setting-option {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .setting-option.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .key-option {
+            min-width: 70px;
+        }
+        
+        .time-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .time-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            outline: none;
+        }
+        
+        .custom-key-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 140px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-key-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            outline: none;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            height: 280px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(221, 221, 221, 0.3);
+        }
+        
+        .chart-wrapper:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chart-fullscreen-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-fullscreen-btn:hover {
+            background: rgba(102, 126, 234, 1);
+            transform: scale(1.1);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            height: 95vh;
+            max-width: 100%;
+            overflow-y: auto;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(221, 221, 221, 0.5);
+        }
+        
+        .modal-header h2 {
+            font-size: 1.5rem;
+            flex: 1;
+            min-width: 250px;
+            font-weight: 600;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .close-btn {
+            background: linear-gradient(to right, #ff6b6b, #ff4757);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
+        }
+        
+        .click-data-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid rgba(221, 221, 221, 0.5);
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .click-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.85rem;
+        }
+        
+        .click-data-table th {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            font-size: 0.8rem;
+        }
+        
+        .click-data-table td {
+            padding: 8px 6px;
+            text-align: center;
+            border-bottom: 1px solid rgba(221, 221, 221, 0.3);
+        }
+        
+        .click-data-table tr:nth-child(even) {
+            background: rgba(248, 249, 250, 0.5);
+        }
+        
+        .analysis-results {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin: 15px 0;
+        }
+        
+        .analysis-card {
+            background: rgba(248, 249, 250, 0.8);
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .analysis-card.warning {
+            border-left-color: #FF9800;
+        }
+        
+        .analysis-card.danger {
+            border-left-color: #f44336;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            flex: 1;
+            min-width: 0;
+            justify-content: center;
+            max-width: 160px;
+            transition: all 0.3s ease;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .export-file {
+            background: linear-gradient(to right, #36D1DC, #5B86E5);
+            color: white;
+        }
+        
+        .export-image {
+            background: linear-gradient(to right, #FF9800, #FF5722);
+            color: white;
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            padding: 18px;
+            background: rgba(240, 244, 255, 0.8);
+            border-radius: 12px;
+            text-align: left;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 6px 0;
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .progress-chart {
+            margin-top: 15px;
+            height: 250px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .fullscreen-chart-container {
+            width: 100%;
+            height: calc(100% - 50px);
+            position: relative;
+        }
+
+        .fullscreen-chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .detail-chart-settings-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            display: none;
+            position: absolute;
+            top: 35px;
+            right: 0;
+            z-index: 25;
+            width: 240px;
+            text-align: left;
+            border: 1px solid rgba(221, 221, 221, 0.5);
+        }
+        
+        .detail-chart-settings-panel.active {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .chart-setting-group {
+            margin-bottom: 12px;
+        }
+        
+        .chart-setting-group h5 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .chart-setting-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .chart-setting-option {
+            padding: 6px 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+        }
+        
+        .chart-setting-option.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+        
+        .chart-setting-input {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            width: 70px;
+            text-align: center;
+        }
+        
+        .import-section {
+            margin: 20px 0;
+            padding: 18px;
+            background: rgba(240, 244, 255, 0.8);
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .import-section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .file-upload {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+        }
+        
+        .file-upload:hover {
+            background: linear-gradient(to right, #5a6fd8, #6a48a5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .file-upload input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 1;
+        }
+        
+        .settings-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(to right, #ff6b6b, #ff4757);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            transition: all 0.3s ease;
+        }
+        
+        .settings-close-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .export-mode-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .export-mode-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            width: 500px;
+            text-align: center;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        
+        .export-mode-content h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .export-mode-content p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .export-mode-buttons {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+        
+        .export-mode-btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .export-mode-btn.import {
+            background: linear-gradient(to right, #36D1DC, #5B86E5);
+            color: white;
+        }
+        
+        .export-mode-btn.view {
+            background: linear-gradient(to right, #FF9800, #FF5722);
+            color: white;
+        }
+        
+        .export-mode-btn.normal {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .export-mode-btn.cancel {
+            background: #f0f0f0;
+            color: #666;
+            flex-basis: 100%;
+            margin-top: 15px;
+        }
+        
+        .export-mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .view-detail-content {
+            max-height: 85vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .speed-with-max {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .speed-with-max .analysis-card {
+            flex: 1;
+            margin: 0;
+        }
+        
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .confirm-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 90%;
+            width: 420px;
+            text-align: center;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        
+        .confirm-content h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .confirm-content p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+        
+        .confirm-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-btn.yes {
+            background: linear-gradient(to right, #ff6b6b, #ff4757);
+            color: white;
+        }
+        
+        .confirm-btn.no {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chart-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9rem;
+            color: #666;
+            display: none;
+        }
+
+        .chart-wrapper.loading .chart-loading {
+            display: block;
+        }
+
+        .chart-wrapper.loading canvas {
+            opacity: 0.3;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                padding: 40px;
+                max-width: 800px;
+                border-radius: 24px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .click-area {
+                height: 250px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .history-header {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .history-header .btn-small {
+                align-self: center;
+            }
+            
+            .detail-chart-settings-panel {
+                width: 260px;
+            }
+            
+            .speed-with-max {
+                flex-direction: row;
+            }
+            
+            .export-mode-buttons {
+                flex-wrap: nowrap;
+            }
+            
+            .export-mode-btn.cancel {
+                flex-basis: auto;
+                margin-top: 0;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .analysis-results {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+                padding: 50px;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .analysis-results {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .detail-chart-settings-panel {
+                width: 300px;
+            }
+            
+            .export-mode-content {
+                width: 500px;
+            }
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            button:hover {
+                transform: none;
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+            
+            .click-area {
+                cursor: default;
+            }
+            
+            .chart-settings-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+                right: 75px;
+            }
+            
+            .chart-fullscreen-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            
+            .detail-chart-settings-panel {
+                width: 280px;
+                padding: 18px;
+            }
+            
+            .chart-setting-option {
+                padding: 10px 12px;
+                font-size: 0.95rem;
+            }
+            
+            .file-upload {
+                padding: 15px 25px;
+                font-size: 1.05rem;
+                min-height: 50px;
+            }
+            
+            .export-mode-btn {
+                padding: 18px 30px;
+                font-size: 1.05rem;
+                min-height: 55px;
+            }
+            
+            .speed-with-max {
+                flex-direction: column;
+            }
+            
+            .export-mode-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        @media (max-width: 360px) {
+            .controls {
+                gap: 6px;
+            }
+            
+            button {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+                min-width: 75px;
+            }
+            
+            .btn-clear {
+                min-width: 140px;
+                padding: 10px 15px;
+            }
+            
+            .click-text {
+                font-size: 1.5rem;
+            }
+            
+            .key-hint {
+                font-size: 0.9rem;
+            }
+            
+            .setting-option {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .detail-chart-settings-panel {
+                width: 220px;
+                right: -10px;
+            }
+            
+            .export-mode-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .speed-with-max {
+                flex-direction: column;
+            }
+            
+            .export-mode-buttons {
+                flex-direction: column;
+            }
+            
+            .export-mode-btn {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) and (orientation: landscape) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+            }
+            
+            .click-area {
+                height: 180px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 12px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .fullscreen-chart-container {
+                height: calc(100% - 40px);
+            }
+            
+            .detail-chart-settings-panel {
+                width: 240px;
+                top: 30px;
+                right: 0;
+            }
+            
+            .export-mode-content {
+                width: 95%;
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+        }
+        
+        @media (max-width: 768px) and (orientation: portrait) {
+            .container {
+                padding: 20px;
+                max-width: 100%;
+            }
+            
+            .fullscreen-chart-container {
+                height: calc(100% - 40px);
+            }
+            
+            .detail-chart-settings-panel {
+                width: 260px;
+                top: 30px;
+                right: 0;
+            }
+            
+            .export-mode-content {
+                width: 98%;
+            }
+        }
+        
+        .chart-fullscreen-landscape {
+            transform: rotate(-90deg);
+            transform-origin: center center;
+            width: 100vh;
+            height: 100vw;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -50vw;
+            margin-left: -50vh;
+        }
+        
+        .landscape-chart-wrapper {
+            width: 100% !important;
+            height: 100% !important;
+            position: relative;
+        }
+        
+        .modal, .settings-modal, .confirm-dialog, .export-mode-dialog {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .footer-buttons {
+            margin-top: 30px;
+        }
+        
+        .container {
+            border: 1px solid rgba(234, 234, 234, 0.3);
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.8);
+            border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(193, 193, 193, 0.8);
+            border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 168, 168, 0.8);
+        }
+    </style>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div class="container">
+        <h1>手速测试器</h1>
+        <p class="subtitle">专业手速分析与训练系统</p>
+        
+        <div class="controls">
+            <button id="start-btn">开始测试</button>
+            <button id="stop-btn" disabled>结束测试</button>
+            <button id="reset-btn">重置</button>
+            <button id="settings-btn" class="btn-settings">高级设置</button>
+        </div>
+        
+        <div class="countdown" id="countdown"></div>
+        <div class="timer" id="timer">10</div>
+        
+        <div class="click-area disabled" id="click-area">
+            <div class="real-time-chart-container">
+                <canvas id="real-time-chart"></canvas>
+            </div>
+            <div class="wave-animation" id="wave-animation"></div>
+            <div class="click-text" id="click-text">点击开始测试</div>
+            <div class="key-hint" id="key-hint">使用空格键进行测试</div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>点击次数</h3>
+                <div class="stat-value" id="click-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>平均手速</h3>
+                <div class="stat-value" id="avg-speed">0<span class="stat-unit">次/秒</span></div>
+            </div>
+            <div class="stat-card">
+                <h3>最高手速</h3>
+                <div class="stat-value" id="max-speed">0<span class="stat-unit">次/秒</span></div>
+            </div>
+            <div class="stat-card">
+                <h3>稳定性</h3>
+                <div class="stat-value" id="stability">0<span class="stat-unit">%</span></div>
+            </div>
+        </div>
+        
+        <div class="history">
+            <h3>测试历史</h3>
+            <ul id="history-list"></ul>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ol>
+                <li>点击"开始测试"按钮开始手速测试</li>
+                <li>等待3秒倒计时结束后开始点击</li>
+                <li>根据设置使用相应按键进行测试</li>
+                <li>手机端可选择音量键进行测试</li>
+                <li>测试时间可在设置中调整(1秒-24小时)</li>
+                <li>开启高级功能可获得更详细的分析报告</li>
+                <li>注意：清空所有数据将删除全部历史记录</li>
+                <li>导入文件支持两种模式：导入数据和仅查看</li>
+            </ol>
+        </div>
+        
+        <div class="footer-buttons">
+            <button id="clear-all-btn" class="btn-clear">清空所有数据</button>
+        </div>
+        
+        <div class="import-section">
+            <h4>导入文件</h4>
+            <div class="file-upload">
+                选择文件
+                <input type="file" id="import-file" accept=".txt">
+            </div>
+            <button id="import-btn" class="btn-import">导入文件</button>
+            <div id="import-status" style="margin-top: 12px; font-size: 0.9rem; color: #666;"></div>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settings-modal">
+        <div class="settings-modal-content">
+            <div class="modal-header">
+                <h2>高级设置</h2>
+                <button class="close-btn" onclick="closeSettingsModal()">关闭</button>
+            </div>
+            
+            <div class="setting-group">
+                <h4>⏱️ 测试时间设置</h4>
+                <div class="setting-options">
+                    <input type="number" id="test-time-input" class="time-input" value="10" min="1" max="86400">
+                    <span style="margin-left: 10px; line-height: 40px;">秒 (1-86400)</span>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h4>⌨️ 测试按键设置</h4>
+                <div class="setting-options" id="key-options-container">
+                    <div class="setting-option key-option" data-key="click">鼠标点击</div>
+                    <div class="setting-option key-option active" data-key="space">空格键</div>
+                    <div class="setting-option key-option" data-key="a">A键</div>
+                    <div class="setting-option key-option" data-key="s">S键</div>
+                    <div class="setting-option key-option" data-key="d">D键</div>
+                    <div class="setting-option key-option" data-key="f">F键</div>
+                    <div class="setting-option key-option" data-key="custom">自定义</div>
+                </div>
+                <div id="custom-key-container" style="display: none; margin-top: 12px;">
+                    <input type="text" id="custom-key-input" class="custom-key-input" placeholder="输入按键名称" maxlength="1">
+                    <span style="margin-left: 10px; line-height: 40px;">例如: j, k, l, 等</span>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h4>🎵 音效反馈</h4>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="sound-feedback">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>点击音效反馈</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="speed-sound">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>手速音调变化</span>
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <h4>📊 高级分析功能</h4>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="real-time-wave" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>实时手速波形图</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="real-time-chart-display" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>实时手速曲线图</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="stability-analysis" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>手速稳定性分析</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="fatigue-analysis" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>疲劳度分析</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="pattern-recognition" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>点击模式识别</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="progress-tracking" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>长期进步追踪</span>
+                </label>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="ai-analysis" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>AI智能分析</span>
+                </label>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button onclick="saveSettings()" style="flex: 1; padding: 12px; font-weight: 600;">保存设置</button>
+                <button onclick="closeSettingsModal()" style="flex: 1; background: #cccccc; color: #666; padding: 12px; font-weight: 600;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detail-modal-title">详细测试分析报告</h2>
+                <button class="close-btn" onclick="closeDetailModal()">关闭</button>
+            </div>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="chart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="chart-modal-title">图表详情</h2>
+                <button class="close-btn" onclick="closeChartModal()">关闭</button>
+            </div>
+            <div id="chart-modal-content" class="fullscreen-chart-container"></div>
+        </div>
+    </div>
+
+    <div class="confirm-dialog" id="confirm-dialog">
+        <div class="confirm-content">
+            <h3>⚠️ 确认清空所有数据</h3>
+            <p>此操作将永久删除所有测试历史记录、统计数据和设置。清空后无法恢复，确定要继续吗？</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn yes" id="confirm-yes">确定清空</button>
+                <button class="confirm-btn no" id="confirm-no">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="export-mode-dialog" id="export-mode-dialog">
+        <div class="export-mode-content">
+            <h3>选择导出模式</h3>
+            <p>请选择您想要的导出模式：</p>
+            <div class="export-mode-buttons">
+                <button class="export-mode-btn import" id="export-for-import">用于导入数据</button>
+                <button class="export-mode-btn view" id="export-for-view">仅用于查看</button>
+                <button class="export-mode-btn normal" id="export-normal">正常导出</button>
+                <button class="export-mode-btn cancel" id="export-cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="view-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>查看模式 - 测试分析报告</h2>
+                <button class="close-btn" onclick="closeViewDetailModal()">关闭</button>
+            </div>
+            <div id="view-modal-content" class="view-detail-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFileInput = document.getElementById('import-file');
+        const importStatus = document.getElementById('import-status');
+        const settingsModal = document.getElementById('settings-modal');
+        const clickArea = document.getElementById('click-area');
+        const clickText = document.getElementById('click-text');
+        const keyHint = document.getElementById('key-hint');
+        const waveAnimation = document.getElementById('wave-animation');
+        const countdownDisplay = document.getElementById('countdown');
+        const timerDisplay = document.getElementById('timer');
+        const clickCountDisplay = document.getElementById('click-count');
+        const avgSpeedDisplay = document.getElementById('avg-speed');
+        const maxSpeedDisplay = document.getElementById('max-speed');
+        const stabilityDisplay = document.getElementById('stability');
+        const historyList = document.getElementById('history-list');
+        const detailModal = document.getElementById('detail-modal');
+        const chartModal = document.getElementById('chart-modal');
+        const confirmDialog = document.getElementById('confirm-dialog');
+        const confirmYesBtn = document.getElementById('confirm-yes');
+        const confirmNoBtn = document.getElementById('confirm-no');
+        const modalContent = document.getElementById('modal-content');
+        const chartModalContent = document.getElementById('chart-modal-content');
+        const chartModalTitle = document.getElementById('chart-modal-title');
+        const testTimeInput = document.getElementById('test-time-input');
+        const customKeyContainer = document.getElementById('custom-key-container');
+        const customKeyInput = document.getElementById('custom-key-input');
+        const realTimeChartCanvas = document.getElementById('real-time-chart');
+        const exportModeDialog = document.getElementById('export-mode-dialog');
+        const exportForImportBtn = document.getElementById('export-for-import');
+        const exportForViewBtn = document.getElementById('export-for-view');
+        const exportNormalBtn = document.getElementById('export-normal');
+        const exportCancelBtn = document.getElementById('export-cancel');
+        const viewDetailModal = document.getElementById('view-detail-modal');
+        const viewModalContent = document.getElementById('view-modal-content');
+        const detailModalTitle = document.getElementById('detail-modal-title');
+        const keyOptionsContainer = document.getElementById('key-options-container');
+        
+        // 音效元素
+        let audioContext;
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.log('音频上下文初始化失败:', e);
+        }
+        
+        // 测试变量
+        let clickCount = 0;
+        let testActive = false;
+        let countdownActive = false;
+        let startTime = 0;
+        let timer = 10;
+        let timerInterval;
+        let countdownInterval;
+        let clickTimes = [];
+        let history = [];
+        let waveData = [];
+        let charts = {};
+        let fullscreenChart = null;
+        let currentDetailTestId = null;
+        let currentExportTestId = null;
+        let currentViewTestData = null;
+        let maxInstantSpeed = 0;
+        
+        // 音量键事件处理变量
+        let volumeKeyActive = false;
+        let volumeKeyPressTime = 0;
+        
+        // 详情图表设置
+        let detailChartSettings = {
+            axisType: 'sequence',
+            sequenceInterval: 2,
+            showAvgSpeed: true,
+            dataSampling: 'average'
+        };
+        
+        // 实时折线图变量
+        let realTimeChart = null;
+        let realTimeChartData = {
+            labels: [],
+            instantSpeedData: [],
+            avgSpeedData: []
+        };
+        let chartUpdateInterval = null;
+
+        // 设置变量
+        let settings = {
+            testTime: 10,
+            testKey: 'space',
+            customKey: '',
+            soundFeedback: false,
+            speedSound: false,
+            realTimeWave: true,
+            realTimeChartDisplay: true,
+            stabilityAnalysis: true,
+            fatigueAnalysis: true,
+            patternRecognition: true,
+            progressTracking: true,
+            aiAnalysis: true
+        };
+        
+        // 移动端设备检测
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                   (window.innerWidth <= 768);
+        }
+        
+        // 添加手机端音量键选项
+        function addMobileKeyOptions() {
+            if (isMobileDevice()) {
+                const volumeKeyOption = document.createElement('div');
+                volumeKeyOption.className = 'setting-option key-option';
+                volumeKeyOption.dataset.key = 'volume';
+                volumeKeyOption.textContent = '音量键';
+                keyOptionsContainer.appendChild(volumeKeyOption);
+                
+                rebindKeyOptions();
+            }
+        }
+        
+        // 重新绑定按键选项事件
+        function rebindKeyOptions() {
+            const newKeyOptions = document.querySelectorAll('.key-option');
+            newKeyOptions.forEach(option => {
+                option.replaceWith(option.cloneNode(true));
+            });
+            
+            document.querySelectorAll('.key-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.key-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.dataset.key === 'custom') {
+                        customKeyContainer.style.display = 'block';
+                    } else {
+                        customKeyContainer.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // 打开设置模态框
+        function openSettingsModal() {
+            settingsModal.style.display = 'flex';
+        }
+        
+        // 关闭设置模态框
+        function closeSettingsModal() {
+            settingsModal.style.display = 'none';
+        }
+        
+        // 显示导出模式选择对话框
+        function showExportModeDialog(testId) {
+            currentExportTestId = testId;
+            exportModeDialog.style.display = 'flex';
+        }
+        
+        // 隐藏导出模式选择对话框
+        function hideExportModeDialog() {
+            exportModeDialog.style.display = 'none';
+            currentExportTestId = null;
+        }
+        
+        // 显示查看模式详情
+        function showViewDetailModal(testData) {
+            currentViewTestData = testData;
+            
+            const keyName = getKeyName(testData.settings.testKey, testData.settings.customKey);
+            const analysis = generateAnalysisReport(testData);
+            
+            // 计算最高手速（基于瞬时速度）
+            const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
+            
+            viewModalContent.innerHTML = `
+                <div class="history-header">
+                    <h3>测试时间: ${testData.time} | 总点击: ${testData.clicks}次</h3>
+                    <p>测试设置: ${keyName} | ${testData.settings.testTime}秒</p>
+                </div>
+                
+                <div class="speed-with-max">
+                    <div class="analysis-card">
+                        <h4>平均手速</h4>
+                        <p>${testData.speed} 次/秒</p>
+                        <small>整个测试期间的平均点击速度</small>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>最高手速</h4>
+                        <p>${maxSpeed} 次/秒</p>
+                        <small>测试期间达到的最高瞬时手速</small>
+                    </div>
+                </div>
+                
+                <div class="analysis-results">
+                    ${analysis.cards.map(card => `
+                        <div class="analysis-card ${card.type || ''}">
+                            <h4>${card.title}</h4>
+                            <p>${card.value}</p>
+                            ${card.description ? `<small>${card.description}</small>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <h4>点击详细数据:</h4>
+                <div class="click-data-container">
+                    <table class="click-data-table">
+                        <thead>
+                            <tr>
+                                <th>点击序号</th>
+                                <th>时间 (秒)</th>
+                                <th>间隔 (ms)</th>
+                                <th>瞬时速度 (次/秒)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${testData.clickTimes.slice(0, 20).map((click, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${click.timeFromStart.toFixed(2)}</td>
+                                    <td>${click.interval}</td>
+                                    <td>${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                            ${testData.clickTimes.length > 20 ? `
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #666;">
+                                        还有 ${testData.clickTimes.length - 20} 条记录未显示...
+                                    </td>
+                                </tr>
+                            ` : ''}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openViewChartFullscreen('view-speed-chart', '手速变化趋势')">🔍</button>
+                        <canvas id="view-speed-chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openViewChartFullscreen('view-click-chart', '点击数量累计')">🔍</button>
+                        <canvas id="view-click-chart"></canvas>
+                    </div>
+                    ${settings.aiAnalysis ? `
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openViewChartFullscreen('view-pattern-chart', '点击模式分析')">🔍</button>
+                        <canvas id="view-pattern-chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openViewChartFullscreen('view-fatigue-chart', '疲劳度分析')">🔍</button>
+                        <canvas id="view-fatigue-chart"></canvas>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                ${settings.progressTracking ? `
+                <div class="progress-chart">
+                    <h4>长期进步趋势</h4>
+                    <canvas id="view-progress-chart"></canvas>
+                </div>
+                ` : ''}
+            `;
+            
+            viewDetailModal.style.display = 'flex';
+            
+            // 渲染查看模式图表
+            setTimeout(() => {
+                renderViewDetailCharts(testData);
+            }, 100);
+        }
+        
+        // 渲染查看模式图表
+        function renderViewDetailCharts(testData) {
+            // 销毁现有查看图表
+            if (charts.viewCharts) {
+                Object.values(charts.viewCharts).forEach(chart => {
+                    if (chart && typeof chart.destroy === 'function') {
+                        chart.destroy();
+                    }
+                });
+                charts.viewCharts = {};
+            }
+            
+            // 1. 手速变化趋势图
+            const speedCtx = document.getElementById('view-speed-chart');
+            if (speedCtx) {
+                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                const speeds = intervals.map(interval => interval > 0 ? (1000/interval) : 0);
+                
+                const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+                const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
+                const avgSpeeds = timePoints.map((time, i) => {
+                    const elapsedSeconds = parseFloat(time);
+                    return elapsedSeconds > 0 ? (cumulativeClicks[i] / elapsedSeconds) : 0;
+                });
+                
+                // 创建图表 - 注意数据集顺序：平均手速在前
+                const viewSpeedChart = new Chart(speedCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timePoints.slice(1),
+                        datasets: [
+                            {
+                                label: '平均手速 (次/秒)',
+                                data: avgSpeeds.slice(1),
+                                borderColor: '#f5576c',
+                                backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 0,
+                                borderWidth: 3
+                            },
+                            {
+                                label: '瞬时手速 (次/秒)',
+                                data: speeds,
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                                tension: 0.4,
+                                fill: false,
+                                pointRadius: 0,
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '手速变化趋势',
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '时间 (秒)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '手速 (次/秒)'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                charts.viewCharts = charts.viewCharts || {};
+                charts.viewCharts.speedChart = viewSpeedChart;
+            }
+            
+            // 2. 点击数量累计图
+            const clickCtx = document.getElementById('view-click-chart');
+            if (clickCtx) {
+                const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
+                const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+                
+                const viewClickChart = new Chart(clickCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timePoints,
+                        datasets: [{
+                            label: '累计点击次数',
+                            data: cumulativeClicks,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '点击数量累计',
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '时间 (秒)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '点击次数'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                charts.viewCharts.clickChart = viewClickChart;
+            }
+            
+            // 3. 长期进步趋势图（如果有）
+            if (settings.progressTracking) {
+                const progressCtx = document.getElementById('view-progress-chart');
+                if (progressCtx) {
+                    const recentTests = history.slice(0, 10).reverse();
+                    
+                    const progressChart = new Chart(progressCtx, {
+                        type: 'line',
+                        data: {
+                            labels: recentTests.map((test, i) => `测试${i+1}`),
+                            datasets: [{
+                                label: '平均手速',
+                                data: recentTests.map(test => parseFloat(test.speed)),
+                                borderColor: '#9C27B0',
+                                backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '近期进步趋势',
+                                    font: { size: 14 }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '手速 (次/秒)'
+                                    },
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    
+                    charts.viewCharts.progressChart = progressChart;
+                }
+            }
+            
+            // 4. 附加图表（AI分析相关）
+            if (settings.aiAnalysis) {
+                renderAdditionalViewCharts(testData);
+            }
+        }
+        
+        // 渲染查看模式的附加图表
+        function renderAdditionalViewCharts(testData) {
+            // 点击模式分析图
+            const patternCtx = document.getElementById('view-pattern-chart');
+            if (patternCtx) {
+                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                
+                const patternChart = new Chart(patternCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: intervals.map((_, i) => i+1),
+                        datasets: [{
+                            label: '点击间隔 (ms)',
+                            data: intervals,
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '点击间隔分布',
+                                font: { size: 14 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '间隔时间 (ms)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                charts.viewCharts.patternChart = patternChart;
+            }
+            
+            // 疲劳度分析图
+            const fatigueCtx = document.getElementById('view-fatigue-chart');
+            if (fatigueCtx) {
+                const segmentSize = Math.max(1, Math.floor(testData.clickTimes.length / 5));
+                const segments = [];
+                
+                for (let i = 0; i < testData.clickTimes.length; i += segmentSize) {
+                    const segment = testData.clickTimes.slice(i, i + segmentSize);
+                    const avgSpeed = segment.reduce((sum, click) => sum + click.instantSpeed, 0) / segment.length;
+                    segments.push(avgSpeed || 0);
+                }
+                
+                const fatigueChart = new Chart(fatigueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: segments.map((_, i) => `阶段${i+1}`),
+                        datasets: [{
+                            label: '平均手速',
+                            data: segments,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '分段手速变化',
+                                font: { size: 14 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '手速 (次/秒)'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                charts.viewCharts.fatigueChart = fatigueChart;
+            }
+        }
+        
+        // 打开查看模式图表全屏
+        function openViewChartFullscreen(chartId, title) {
+            if (!charts.viewCharts) return;
+            
+            let originalChart = null;
+            
+            // 根据图表ID获取对应的图表
+            const chartMap = {
+                'view-speed-chart': charts.viewCharts.speedChart,
+                'view-click-chart': charts.viewCharts.clickChart,
+                'view-pattern-chart': charts.viewCharts.patternChart,
+                'view-fatigue-chart': charts.viewCharts.fatigueChart,
+                'view-progress-chart': charts.viewCharts.progressChart
+            };
+            
+            originalChart = chartMap[chartId];
+            
+            if (!originalChart) {
+                console.error('找不到图表:', chartId);
+                return;
+            }
+            
+            openChartFullscreenInModal(originalChart, title);
+        }
+        
+        // 在模态框中打开图表全屏
+        function openChartFullscreenInModal(originalChart, title) {
+            chartModalTitle.textContent = title;
+            chartModalContent.innerHTML = '<canvas id="fullscreenChartCanvas"></canvas>';
+            
+            const fullscreenCanvas = document.getElementById('fullscreenChartCanvas');
+            
+            const fullscreenConfig = {
+                type: originalChart.config.type,
+                data: JSON.parse(JSON.stringify(originalChart.config.data)),
+                options: {
+                    ...JSON.parse(JSON.stringify(originalChart.config.options)),
+                    maintainAspectRatio: false,
+                    responsive: true
+                }
+            };
+            
+            const fullscreenChart = new Chart(fullscreenCanvas, fullscreenConfig);
+            chartModal.style.display = 'flex';
+            
+            // 手机端横屏优化
+            if (window.innerWidth <= 768) {
+                chartModalContent.classList.add('chart-fullscreen-landscape');
+                chartModalContent.innerHTML = '<div class="landscape-chart-wrapper"><canvas id="fullscreenChartCanvas"></canvas></div>';
+                
+                const landscapeCanvas = document.getElementById('fullscreenChartCanvas');
+                new Chart(landscapeCanvas, fullscreenConfig);
+                
+                chartModalTitle.style.display = 'none';
+                document.querySelector('#chart-modal .close-btn').style.display = 'none';
+                
+                chartModalContent.onclick = function() {
+                    closeChartModal();
+                };
+            }
+        }
+        
+        // 关闭查看模式详情
+        function closeViewDetailModal() {
+            if (charts.viewCharts) {
+                Object.values(charts.viewCharts).forEach(chart => {
+                    if (chart && typeof chart.destroy === 'function') {
+                        chart.destroy();
+                    }
+                });
+                charts.viewCharts = null;
+            }
+            
+            viewDetailModal.style.display = 'none';
+            currentViewTestData = null;
+        }
+        
+        // 音量键处理函数
+        function handleVolumeKey(event) {
+            if (!testActive || settings.testKey !== 'volume') return;
+            
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const currentTime = Date.now();
+            if (currentTime - volumeKeyPressTime < 50) {
+                return;
+            }
+            volumeKeyPressTime = currentTime;
+            
+            recordClick();
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
+            clickArea.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                if (testActive) {
+                    clickArea.style.transform = 'scale(1)';
+                }
+            }, 100);
+        }
+        
+        // 音效函数
+        function playClickSound(speed = 1) {
+            if (!settings.soundFeedback || !audioContext) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                if (settings.speedSound) {
+                    const frequency = 200 + (speed * 100);
+                    oscillator.frequency.setValueAtTime(Math.min(frequency, 1000), audioContext.currentTime);
+                } else {
+                    oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                }
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('音效播放失败:', e);
+            }
+        }
+        
+        // 实时折线图初始化 - 修改：平均手速在前，瞬时手速在后
+        function initRealTimeChart() {
+            if (!settings.realTimeChartDisplay) return;
+            
+            const ctx = realTimeChartCanvas.getContext('2d');
+            
+            if (realTimeChart) {
+                realTimeChart.destroy();
+            }
+            
+            realTimeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: realTimeChartData.labels,
+                    datasets: [
+                        {
+                            label: '平均手速',
+                            data: realTimeChartData.avgSpeedData,
+                            borderColor: '#4facfe',
+                            backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 3
+                        },
+                        {
+                            label: '瞬时手速',
+                            data: realTimeChartData.instantSpeedData,
+                            borderColor: '#f5576c',
+                            backgroundColor: 'rgba(245, 87, 108, 0.05)',
+                            borderWidth: 1,
+                            tension: 0.4,
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false,
+                            beginAtZero: true
+                        }
+                    },
+                    animation: {
+                        duration: 0
+                    },
+                    elements: {
+                        line: {
+                            tension: 0.4
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 更新实时折线图
+        function updateRealTimeChart(timeFromStart, instantSpeed, avgSpeed) {
+            if (!settings.realTimeChartDisplay || !realTimeChart) return;
+            
+            realTimeChartData.labels.push(timeFromStart.toFixed(1));
+            realTimeChartData.instantSpeedData.push(instantSpeed);
+            realTimeChartData.avgSpeedData.push(avgSpeed);
+            
+            const maxDataPoints = 20;
+            if (realTimeChartData.labels.length > maxDataPoints) {
+                realTimeChartData.labels.shift();
+                realTimeChartData.instantSpeedData.shift();
+                realTimeChartData.avgSpeedData.shift();
+            }
+            
+            realTimeChart.update('none');
+        }
+        
+        // 波形动画
+        function updateWaveAnimation(speed) {
+            if (!settings.realTimeWave) return;
+            
+            const intensity = Math.min(speed / 15, 1);
+            waveAnimation.style.opacity = intensity;
+            waveAnimation.style.background = `linear-gradient(to top, 
+                rgba(255,255,255,${0.1 + intensity * 0.4}) 0%, 
+                transparent 100%)`;
+        }
+        
+        // 初始化
+        function init() {
+            addMobileKeyOptions();
+            
+            loadSettings();
+            updateKeyHint();
+            loadHistory();
+            
+            initRealTimeChart();
+            
+            clickArea.addEventListener('touchstart', function(e) {
+                if (testActive && settings.testKey === 'click') {
+                    e.preventDefault();
+                    recordClick();
+                }
+            }, { passive: false });
+            
+            clearAllBtn.addEventListener('click', showConfirmDialog);
+            confirmYesBtn.addEventListener('click', clearAllData);
+            confirmNoBtn.addEventListener('click', hideConfirmDialog);
+            
+            settingsBtn.addEventListener('click', openSettingsModal);
+            
+            settingsModal.addEventListener('click', function(e) {
+                if (e.target === settingsModal) {
+                    closeSettingsModal();
+                }
+            });
+            
+            exportForImportBtn.addEventListener('click', function() {
+                if (currentExportTestId) {
+                    exportData(currentExportTestId, 'compressed');
+                    hideExportModeDialog();
+                }
+            });
+            
+            exportForViewBtn.addEventListener('click', function() {
+                if (currentExportTestId) {
+                    exportData(currentExportTestId, 'view');
+                    hideExportModeDialog();
+                }
+            });
+            
+            exportNormalBtn.addEventListener('click', function() {
+                if (currentExportTestId) {
+                    exportData(currentExportTestId, 'normal');
+                    hideExportModeDialog();
+                }
+            });
+            
+            exportCancelBtn.addEventListener('click', hideExportModeDialog);
+            
+            importBtn.addEventListener('click', importData);
+            
+            document.querySelector('.file-upload').addEventListener('click', function(e) {
+                if (e.target !== importFileInput) {
+                    importFileInput.click();
+                }
+            });
+            
+            importFileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const fileSize = (this.files[0].size / 1024).toFixed(2);
+                    importStatus.textContent = `已选择文件: ${this.files[0].name} (${fileSize}KB)`;
+                    importStatus.style.color = '#36D1DC';
+                    
+                    if (isMobileDevice() && this.files[0].size > 1024 * 1024) {
+                        setTimeout(() => {
+                            if (confirm('文件较大，处理可能需要一些时间，是否继续？')) {
+                                importData();
+                            }
+                        }, 100);
+                    }
+                }
+            });
+            
+            if (isMobileDevice()) {
+                const instructions = document.querySelector('.instructions ol');
+                const li = document.createElement('li');
+                li.textContent = '移动端：长按文件上传区域可查看文件详细信息';
+                instructions.appendChild(li);
+                
+                const fileUpload = document.querySelector('.file-upload');
+                fileUpload.title = '点击选择文件，长按查看文件信息';
+                
+                let longPressTimer;
+                fileUpload.addEventListener('touchstart', function(e) {
+                    longPressTimer = setTimeout(function() {
+                        const file = importFileInput.files[0];
+                        if (file) {
+                            alert(`文件信息：\n名称: ${file.name}\n大小: ${(file.size / 1024).toFixed(2)}KB\n类型: ${file.type || '未知'}`);
+                        } else {
+                            alert('请先选择文件');
+                        }
+                    }, 1000);
+                }, { passive: true });
+                
+                fileUpload.addEventListener('touchend', function(e) {
+                    clearTimeout(longPressTimer);
+                });
+            }
+        }
+        
+        // 显示确认对话框
+        function showConfirmDialog() {
+            confirmDialog.style.display = 'flex';
+        }
+        
+        // 隐藏确认对话框
+        function hideConfirmDialog() {
+            confirmDialog.style.display = 'none';
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            history = [];
+            saveHistory();
+            updateHistoryDisplay();
+            
+            resetTest();
+            
+            hideConfirmDialog();
+            
+            alert('所有历史数据已成功清空！');
+            
+            updateInstructions();
+        }
+        
+        // 更新使用说明
+        function updateInstructions() {
+            const instructions = document.querySelector('.instructions');
+            if (history.length === 0) {
+                instructions.querySelector('li:nth-child(6)').textContent = '注意：当前没有历史记录数据';
+            } else {
+                instructions.querySelector('li:nth-child(6)').textContent = '注意：清空所有数据将删除全部历史记录';
+            }
+        }
+        
+        // 导出数据函数
+        function exportData(testId, type) {
+            const testData = history.find(item => item.id === testId);
+            if (!testData) {
+                alert('未找到测试数据！');
+                return;
+            }
+            
+            let content = '';
+            let filename = '';
+            
+            if (type === 'compressed') {
+                // 计算最高瞬时手速
+                const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
+                
+                const clickData = testData.clickTimes.map(click => 
+                    `${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
+                ).join(';');
+                
+                const exportData = {
+                    version: '2.1',
+                    mode: 'import',
+                    time: testData.time,
+                    clicks: testData.clicks,
+                    speed: testData.speed,
+                    maxSpeed: maxSpeed,
+                    duration: testData.duration.toFixed(1),
+                    testTime: testData.settings.testTime,
+                    testKey: testData.settings.testKey,
+                    customKey: testData.settings.customKey || '',
+                    clickData: clickData
+                };
+                
+                content = `HAND_SPEED_TEST_COMPRESSED_V2.1\n${JSON.stringify(exportData)}`;
+                filename = `手速测试_导入数据_${testId}.txt`;
+                downloadFile(content, filename);
+                alert('压缩文件已导出，可用于导入数据！');
+            } else if (type === 'view') {
+                // 计算最高瞬时手速
+                const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
+                
+                const simplifiedClicks = testData.clickTimes.slice(0, 20).map((click, index) => 
+                    `${index + 1}:${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
+                ).join(';');
+                
+                const viewData = {
+                    version: '2.1',
+                    mode: 'view-only',
+                    time: testData.time,
+                    clicks: testData.clicks,
+                    speed: testData.speed,
+                    maxSpeed: maxSpeed,
+                    duration: testData.duration.toFixed(1),
+                    testTime: testData.settings.testTime,
+                    testKey: testData.settings.testKey,
+                    customKey: testData.settings.customKey || '',
+                    clickData: simplifiedClicks,
+                    exportTime: new Date().toISOString()
+                };
+                
+                content = `HAND_SPEED_TEST_VIEW_V2.1\n${JSON.stringify(viewData)}`;
+                filename = `手速测试_仅查看_${testId}.txt`;
+                downloadFile(content, filename);
+                alert('查看文件已导出，此文件仅用于查看，不能导入数据！');
+            } else if (type === 'normal') {
+                content = generatePlainTextReport(testData);
+                filename = `手速测试_${testId}.txt`;
+                downloadFile(content, filename);
+                alert('普通文件已导出，可直接打开查看！');
+            }
+        }
+        
+        // 导出图片函数
+        function exportImage(testId) {
+            const testData = history.find(item => item.id === testId);
+            if (!testData) {
+                alert('未找到测试数据！');
+                return;
+            }
+            
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 800;
+            tempCanvas.height = 800;
+            const ctx = tempCanvas.getContext('2d');
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 28px Microsoft YaHei';
+            ctx.fillText('手速测试分析报告', 40, 50);
+            
+            ctx.font = '16px Microsoft YaHei';
+            ctx.fillStyle = '#666';
+            ctx.fillText(`测试时间: ${testData.time}`, 40, 90);
+            ctx.fillText(`总点击次数: ${testData.clicks}次`, 40, 120);
+            ctx.fillText(`平均手速: ${testData.speed} 次/秒`, 40, 150);
+            ctx.fillText(`最高手速: ${Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1)} 次/秒`, 40, 180);
+            ctx.fillText(`测试时长: ${testData.duration.toFixed(1)} 秒`, 40, 210);
+            
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(40, 250, 720, 450);
+            
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 18px Microsoft YaHei';
+            ctx.fillText('手速变化趋势', 60, 280);
+            
+            const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+            const speeds = intervals.map(interval => interval > 0 ? (1000/interval) : 0);
+            
+            const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+            const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
+            const avgSpeeds = timePoints.map((time, i) => {
+                const elapsedSeconds = parseFloat(time);
+                return elapsedSeconds > 0 ? (cumulativeClicks[i] / elapsedSeconds) : 0;
+            });
+            
+            if (speeds.length > 1) {
+                const maxSpeed = Math.max(...speeds, ...avgSpeeds.filter(s => !isNaN(s)));
+                const chartHeight = 350;
+                const chartWidth = 680;
+                const startX = 60;
+                const startY = 650;
+                
+                ctx.strokeStyle = '#999';
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(startX + chartWidth, startY);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(startX, startY - chartHeight);
+                ctx.stroke();
+                
+                ctx.strokeStyle = '#eee';
+                ctx.lineWidth = 0.5;
+                
+                for (let i = 0; i <= 5; i++) {
+                    const y = startY - (i / 5) * chartHeight;
+                    ctx.beginPath();
+                    ctx.moveTo(startX, y);
+                    ctx.lineTo(startX + chartWidth, y);
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = '#666';
+                    ctx.font = '12px Microsoft YaHei';
+                    ctx.fillText(`${Math.round((i / 5) * maxSpeed)}`, startX - 20, y + 4);
+                }
+                
+                // 绘制平均手速（线宽更粗）
+                ctx.strokeStyle = '#4facfe';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let i = 0; i < avgSpeeds.length; i++) {
+                    const x = startX + (i / (avgSpeeds.length - 1)) * chartWidth;
+                    const y = startY - (avgSpeeds[i] / maxSpeed) * chartHeight;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+                
+                // 绘制瞬时手速（线宽更细）
+                ctx.strokeStyle = '#f5576c';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                
+                for (let i = 0; i < speeds.length; i++) {
+                    const x = startX + (i / (speeds.length - 1)) * chartWidth;
+                    const y = startY - (speeds[i] / maxSpeed) * chartHeight;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+                
+                ctx.fillStyle = '#4facfe';
+                ctx.fillRect(startX + 140, startY - chartHeight - 30, 15, 8);
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Microsoft YaHei';
+                ctx.fillText('平均手速', startX + 160, startY - chartHeight - 22);
+                
+                ctx.fillStyle = '#f5576c';
+                ctx.fillRect(startX + 230, startY - chartHeight - 30, 15, 8);
+                ctx.fillStyle = '#333';
+                ctx.fillText('瞬时手速', startX + 250, startY - chartHeight - 22);
+                
+                ctx.fillStyle = '#4facfe';
+                for (let i = 0; i < avgSpeeds.length; i += Math.max(1, Math.floor(avgSpeeds.length / 10))) {
+                    const x = startX + (i / (avgSpeeds.length - 1)) * chartWidth;
+                    const y = startY - (avgSpeeds[i] / maxSpeed) * chartHeight;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                ctx.fillStyle = '#f5576c';
+                for (let i = 0; i < speeds.length; i += Math.max(1, Math.floor(speeds.length / 10))) {
+                    const x = startX + (i / (speeds.length - 1)) * chartWidth;
+                    const y = startY - (speeds[i] / maxSpeed) * chartHeight;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            ctx.fillStyle = '#999';
+            ctx.font = '12px Microsoft YaHei';
+            ctx.fillText('生成时间: ' + new Date().toLocaleString('zh-CN'), 40, 730);
+            ctx.fillText('手速测试器 v2.1', 650, 730);
+            
+            const choice = confirm('选择图片导出方式：\n确定 - 下载图片\n取消 - 复制到剪贴板');
+            
+            if (choice) {
+                const link = document.createElement('a');
+                link.download = `手速测试_${testId}.png`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+                alert('图片已下载！');
+            } else {
+                tempCanvas.toBlob(function(blob) {
+                    const item = new ClipboardItem({ 'image/png': blob });
+                    navigator.clipboard.write([item]).then(function() {
+                        alert('图片已复制到剪贴板！');
+                    }, function() {
+                        alert('复制失败，请尝试下载图片。');
+                    });
+                });
+            }
+        }
+        
+        // 解析压缩格式文件
+        function parseCompressedFile(compressedData) {
+            try {
+                const data = JSON.parse(compressedData);
+                
+                if (data.version !== '2.1' || data.mode !== 'import') {
+                    return null;
+                }
+                
+                const clickTimes = data.clickData.split(';').map(item => {
+                    const parts = item.split(':');
+                    return {
+                        timeFromStart: parseFloat(parts[0]),
+                        interval: parseInt(parts[1]),
+                        instantSpeed: parseFloat(parts[2])
+                    };
+                });
+                
+                return {
+                    id: Date.now(),
+                    time: data.time,
+                    clicks: data.clicks,
+                    speed: data.speed,
+                    duration: parseFloat(data.duration),
+                    settings: {
+                        testTime: data.testTime,
+                        testKey: data.testKey,
+                        customKey: data.customKey || ''
+                    },
+                    clickTimes: clickTimes,
+                    timestamp: Date.now()
+                };
+            } catch (e) {
+                console.error('解析压缩文件失败:', e);
+                return null;
+            }
+        }
+        
+        // 解析查看模式文件
+        function parseViewFile(viewData) {
+            try {
+                const data = JSON.parse(viewData);
+                
+                if (data.mode !== 'view-only') {
+                    return null;
+                }
+                
+                const clickTimes = data.clickData.split(';').map(item => {
+                    const parts = item.split(':');
+                    return {
+                        timeFromStart: parseFloat(parts[1]),
+                        interval: parseInt(parts[2]),
+                        instantSpeed: parseFloat(parts[3])
+                    };
+                });
+                
+                return {
+                    id: Date.now(),
+                    time: data.time,
+                    clicks: data.clicks,
+                    speed: data.speed,
+                    duration: parseFloat(data.duration),
+                    settings: {
+                        testTime: data.testTime,
+                        testKey: data.testKey,
+                        customKey: data.customKey || ''
+                    },
+                    clickTimes: clickTimes,
+                    timestamp: Date.now(),
+                    isViewOnly: true
+                };
+            } catch (e) {
+                console.error('解析查看文件失败:', e);
+                return null;
+            }
+        }
+        
+        // 生成普通文本报告
+        function generatePlainTextReport(testData) {
+            let report = '='.repeat(50) + '\n';
+            report += '手速测试报告\n';
+            report += '='.repeat(50) + '\n\n';
+            
+            report += `测试时间: ${testData.time}\n`;
+            report += `总点击次数: ${testData.clicks}\n`;
+            report += `平均手速: ${testData.speed} 次/秒\n`;
+            report += `最高手速: ${Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1)} 次/秒\n`;
+            report += `测试时长: ${testData.duration.toFixed(1)} 秒\n`;
+            report += `测试按键: ${getKeyName(testData.settings.testKey, testData.settings.customKey)}\n`;
+            report += `测试时间设置: ${testData.settings.testTime} 秒\n\n`;
+            
+            report += '-'.repeat(50) + '\n';
+            report += '详细点击数据:\n';
+            report += '-'.repeat(50) + '\n';
+            report += '序号\t时间(秒)\t间隔(ms)\t瞬时速度(次/秒)\n';
+            
+            testData.clickTimes.forEach((click, index) => {
+                report += `${index + 1}\t${click.timeFromStart.toFixed(2)}\t${click.interval}\t${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : 'N/A'}\n`;
+            });
+            
+            report += '\n' + '='.repeat(50) + '\n';
+            report += '报告结束\n';
+            report += '='.repeat(50) + '\n';
+            
+            return report;
+        }
+        
+        // 下载文件函数
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // 导入数据
+        function importData() {
+            const file = importFileInput.files[0];
+            if (!file) {
+                importStatus.textContent = '请先选择文件！';
+                importStatus.style.color = '#ff6b6b';
+                return;
+            }
+            
+            if (isMobileDevice() && file.size > 5 * 1024 * 1024) {
+                importStatus.textContent = '文件过大，移动端建议导入小于5MB的文件！';
+                importStatus.style.color = '#ff6b6b';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    
+                    if (lines.length < 2) {
+                        importStatus.textContent = '文件内容不完整！';
+                        importStatus.style.color = '#ff6b6b';
+                        return;
+                    }
+                    
+                    const fileHeader = lines[0].trim();
+                    
+                    if (fileHeader === 'HAND_SPEED_TEST_COMPRESSED_V2.1') {
+                        const compressedData = lines[1];
+                        
+                        const testData = parseCompressedFile(compressedData);
+                        
+                        if (!testData) {
+                            importStatus.textContent = '数据解析失败！';
+                            importStatus.style.color = '#ff6b6b';
+                            return;
+                        }
+                        
+                        if (!testData.time || !testData.clicks || !testData.speed) {
+                            importStatus.textContent = '数据格式不正确！';
+                            importStatus.style.color = '#ff6b6b';
+                            return;
+                        }
+                        
+                        testData.id = Date.now();
+                        history.unshift(testData);
+                        saveHistory();
+                        updateHistoryDisplay();
+                        
+                        importStatus.textContent = '数据导入成功！';
+                        importStatus.style.color = '#4CAF50';
+                        
+                        importFileInput.value = '';
+                        
+                        setTimeout(() => {
+                            importStatus.textContent = '';
+                        }, 3000);
+                        
+                    } else if (fileHeader === 'HAND_SPEED_TEST_VIEW_V2.1') {
+                        const viewData = lines[1];
+                        
+                        const testData = parseViewFile(viewData);
+                        
+                        if (!testData) {
+                            importStatus.textContent = '查看文件解析失败！';
+                            importStatus.style.color = '#ff6b6b';
+                            return;
+                        }
+                        
+                        showViewDetailModal(testData);
+                        
+                        importStatus.textContent = '文件已打开（查看模式）';
+                        importStatus.style.color = '#FF9800';
+                        
+                        importFileInput.value = '';
+                        
+                    } else {
+                        if (lines.length >= 3 && (fileHeader === 'HAND_SPEED_TEST_COMPRESSED_V1.0' || fileHeader === 'HAND_SPEED_TEST_COMPRESSED_V2.0')) {
+                            const compressedData = lines[1];
+                            const clickData = lines[2];
+                            
+                            try {
+                                const data = JSON.parse(compressedData);
+                                const clickTimes = clickData.split(';').map(item => {
+                                    const parts = item.split(':');
+                                    return {
+                                        timeFromStart: parseFloat(parts[0]),
+                                        interval: parseInt(parts[1]),
+                                        instantSpeed: parseFloat(parts[2])
+                                    };
+                                });
+                                
+                                const testData = {
+                                    id: Date.now(),
+                                    time: data.t || data.time || '未知时间',
+                                    clicks: data.c || data.clicks || 0,
+                                    speed: data.s || data.speed || '0',
+                                    duration: parseFloat(data.d || data.duration || 0),
+                                    settings: {
+                                        testTime: data.st || data.testTime || 10,
+                                        testKey: data.k || data.testKey || 'space',
+                                        customKey: data.ck || data.customKey || ''
+                                    },
+                                    clickTimes: clickTimes,
+                                    timestamp: Date.now()
+                                };
+                                
+                                history.unshift(testData);
+                                saveHistory();
+                                updateHistoryDisplay();
+                                
+                                importStatus.textContent = '旧格式数据导入成功！';
+                                importStatus.style.color = '#4CAF50';
+                                
+                                importFileInput.value = '';
+                                
+                                setTimeout(() => {
+                                    importStatus.textContent = '';
+                                }, 3000);
+                            } catch (error) {
+                                importStatus.textContent = '旧格式文件解析失败！';
+                                importStatus.style.color = '#ff6b6b';
+                            }
+                        } else {
+                            importStatus.textContent = '文件格式不支持！';
+                            importStatus.style.color = '#ff6b6b';
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('导入失败:', error);
+                    importStatus.textContent = '导入失败，文件可能已损坏！';
+                    importStatus.style.color = '#ff6b6b';
+                }
+            };
+            
+            reader.onerror = function() {
+                importStatus.textContent = '文件读取失败！';
+                importStatus.style.color = '#ff6b6b';
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 加载设置
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('speedTestSettings');
+            if (savedSettings) {
+                const parsedSettings = JSON.parse(savedSettings);
+                settings = {...settings, ...parsedSettings};
+                
+                testTimeInput.value = settings.testTime;
+                timer = settings.testTime;
+                timerDisplay.textContent = timer;
+                
+                document.getElementById('sound-feedback').checked = settings.soundFeedback;
+                document.getElementById('speed-sound').checked = settings.speedSound;
+                document.getElementById('real-time-wave').checked = settings.realTimeWave;
+                document.getElementById('real-time-chart-display').checked = settings.realTimeChartDisplay;
+                document.getElementById('stability-analysis').checked = settings.stabilityAnalysis;
+                document.getElementById('fatigue-analysis').checked = settings.fatigueAnalysis;
+                document.getElementById('pattern-recognition').checked = settings.patternRecognition;
+                document.getElementById('progress-tracking').checked = settings.progressTracking;
+                document.getElementById('ai-analysis').checked = settings.aiAnalysis;
+                
+                document.querySelectorAll('.key-option').forEach(option => {
+                    if (option.dataset.key === settings.testKey) {
+                        option.classList.add('active');
+                        if (option.dataset.key === 'custom') {
+                            customKeyContainer.style.display = 'block';
+                            customKeyInput.value = settings.customKey || '';
+                        }
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            settings.testTime = parseInt(testTimeInput.value) || 10;
+            settings.testTime = Math.max(1, Math.min(86400, settings.testTime));
+            
+            settings.soundFeedback = document.getElementById('sound-feedback').checked;
+            settings.speedSound = document.getElementById('speed-sound').checked;
+            settings.realTimeWave = document.getElementById('real-time-wave').checked;
+            settings.realTimeChartDisplay = document.getElementById('real-time-chart-display').checked;
+            settings.stabilityAnalysis = document.getElementById('stability-analysis').checked;
+            settings.fatigueAnalysis = document.getElementById('fatigue-analysis').checked;
+            settings.patternRecognition = document.getElementById('pattern-recognition').checked;
+            settings.progressTracking = document.getElementById('progress-tracking').checked;
+            settings.aiAnalysis = document.getElementById('ai-analysis').checked;
+            
+            const activeKeyOption = document.querySelector('.key-option.active');
+            if (activeKeyOption) {
+                settings.testKey = activeKeyOption.dataset.key;
+                
+                if (settings.testKey === 'custom') {
+                    settings.customKey = customKeyInput.value.trim().toLowerCase();
+                    if (settings.customKey.length === 0) {
+                        alert('请输入自定义按键！');
+                        return;
+                    }
+                } else {
+                    settings.customKey = '';
+                }
+            }
+            
+            localStorage.setItem('speedTestSettings', JSON.stringify(settings));
+            timer = settings.testTime;
+            timerDisplay.textContent = timer;
+            updateKeyHint();
+            closeSettingsModal();
+            
+            alert('设置已保存！');
+        }
+        
+        // 更新按键提示
+        function updateKeyHint() {
+            let hintText = '';
+            let keyName = '';
+            
+            switch(settings.testKey) {
+                case 'click': 
+                    hintText = '点击测试区域进行测试';
+                    keyName = '鼠标点击';
+                    break;
+                case 'space': 
+                    hintText = '使用空格键进行测试';
+                    keyName = '空格键';
+                    break;
+                case 'a': 
+                    hintText = '使用A键进行测试';
+                    keyName = 'A键';
+                    break;
+                case 's': 
+                    hintText = '使用S键进行测试';
+                    keyName = 'S键';
+                    break;
+                case 'd': 
+                    hintText = '使用D键进行测试';
+                    keyName = 'D键';
+                    break;
+                case 'f': 
+                    hintText = '使用F键进行测试';
+                    keyName = 'F键';
+                    break;
+                case 'custom': 
+                    hintText = `使用${settings.customKey ? settings.customKey.toUpperCase() : ''}键进行测试`;
+                    keyName = `${settings.customKey ? settings.customKey.toUpperCase() : ''}键`;
+                    break;
+                case 'volume':
+                    hintText = '使用音量键进行测试';
+                    keyName = '音量键';
+                    break;
+            }
+            keyHint.textContent = hintText;
+            return keyName;
+        }
+        
+        // 按键选择
+        document.querySelectorAll('.key-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.key-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                if (this.dataset.key === 'custom') {
+                    customKeyContainer.style.display = 'block';
+                } else {
+                    customKeyContainer.style.display = 'none';
+                }
+            });
+        });
+        
+        // 开始测试
+        startBtn.addEventListener('click', startTest);
+        stopBtn.addEventListener('click', stopTest);
+        resetBtn.addEventListener('click', resetTest);
+        clickArea.addEventListener('click', handleClick);
+        
+        // 键盘按键事件监听
+        function handleKeyPress(event) {
+            if (!testActive) return;
+            
+            let keyPressed = '';
+            if (event.code === 'Space') keyPressed = 'space';
+            else if (event.code === 'KeyA') keyPressed = 'a';
+            else if (event.code === 'KeyS') keyPressed = 's';
+            else if (event.code === 'KeyD') keyPressed = 'd';
+            else if (event.code === 'KeyF') keyPressed = 'f';
+            else if (settings.testKey === 'custom' && event.key.toLowerCase() === settings.customKey) {
+                keyPressed = 'custom';
+            }
+            
+            if (keyPressed === settings.testKey) {
+                event.preventDefault();
+                recordClick();
+                
+                clickArea.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    if (testActive) {
+                        clickArea.style.transform = 'scale(1)';
+                    }
+                }, 100);
+            }
+        }
+        
+        // 音量键事件监听（移动端）
+        function setupVolumeKeyListeners() {
+            window.addEventListener('keydown', function(event) {
+                if (settings.testKey === 'volume' && testActive) {
+                    if (event.code === 'VolumeUp' || event.code === 'VolumeDown') {
+                        handleVolumeKey(event);
+                    }
+                }
+            });
+            
+            if (isMobileDevice()) {
+                document.addEventListener('keydown', function(event) {
+                    if (settings.testKey === 'volume' && testActive) {
+                        if (event.key === 'VolumeUp' || event.key === 'VolumeDown') {
+                            handleVolumeKey(event);
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 移除音量键事件监听
+        function removeVolumeKeyListeners() {
+            window.removeEventListener('keydown', handleVolumeKey);
+            document.removeEventListener('keydown', handleVolumeKey);
+        }
+        
+        function startTest() {
+            if (testActive || countdownActive) return;
+            
+            countdownActive = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = true;
+            settingsBtn.disabled = true;
+            clickArea.classList.add('disabled');
+            clickText.textContent = '准备开始...';
+            
+            // 重置变量
+            realTimeChartData = {
+                labels: [],
+                instantSpeedData: [],
+                avgSpeedData: []
+            };
+            waveData = [];
+            waveAnimation.style.opacity = '0';
+            maxInstantSpeed = 0;
+            
+            if (settings.realTimeChartDisplay) {
+                initRealTimeChart();
+            }
+            
+            let countdown = 3;
+            countdownDisplay.textContent = countdown;
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                countdownDisplay.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownDisplay.textContent = '开始！';
+                    countdownActive = false;
+                    startActualTest();
+                    
+                    setTimeout(() => {
+                        countdownDisplay.textContent = '';
+                    }, 1000);
+                }
+            }, 1000);
+        }
+        
+        function startActualTest() {
+            clickCount = 0;
+            clickTimes = [];
+            timer = settings.testTime;
+            testActive = true;
+            startTime = Date.now();
+            
+            stopBtn.disabled = false;
+            clickArea.classList.remove('disabled');
+            clickArea.classList.add('ready');
+            
+            if (settings.testKey === 'click') {
+                clickText.textContent = '疯狂点击！';
+            } else if (settings.testKey === 'volume') {
+                clickText.textContent = '疯狂按音量键！';
+            } else {
+                clickText.textContent = '疯狂按键！';
+            }
+            
+            timerDisplay.textContent = timer;
+            clickCountDisplay.textContent = clickCount;
+            avgSpeedDisplay.innerHTML = '0<span class="stat-unit">次/秒</span>';
+            maxSpeedDisplay.innerHTML = '0<span class="stat-unit">次/秒</span>';
+            stabilityDisplay.innerHTML = '0<span class="stat-unit">%</span>';
+            
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            if (settings.testKey === 'volume') {
+                setupVolumeKeyListeners();
+            } else {
+                document.addEventListener('keydown', handleKeyPress);
+            }
+            
+            if (chartUpdateInterval) {
+                clearInterval(chartUpdateInterval);
+            }
+            chartUpdateInterval = setInterval(updateChartFromData, 500);
+        }
+        
+        function updateTimer() {
+            timer--;
+            timerDisplay.textContent = timer;
+            
+            if (timer <= 0) {
+                stopTest();
+            }
+        }
+        
+        function handleClick() {
+            if (!testActive || settings.testKey !== 'click') return;
+            recordClick();
+        }
+        
+        function recordClick() {
+            clickCount++;
+            clickCountDisplay.textContent = clickCount;
+            
+            const currentTime = Date.now();
+            const timeFromStart = (currentTime - startTime) / 1000;
+            const interval = clickTimes.length > 0 ? (currentTime - clickTimes[clickTimes.length - 1].time) : 0;
+            const instantSpeed = interval > 0 ? (1000/interval) : 0;
+            
+            // 更新最高瞬时手速
+            if (instantSpeed > maxInstantSpeed) {
+                maxInstantSpeed = instantSpeed;
+                maxSpeedDisplay.innerHTML = `${instantSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
+            }
+            
+            const clickData = {
+                time: currentTime,
+                timeFromStart: timeFromStart,
+                interval: interval,
+                instantSpeed: instantSpeed
+            };
+            clickTimes.push(clickData);
+            
+            playClickSound(instantSpeed);
+            updateWaveAnimation(instantSpeed);
+            calculateSpeed();
+        }
+        
+        function calculateSpeed() {
+            if (clickTimes.length < 2) return;
+            
+            const currentTime = Date.now();
+            const oneSecondAgo = currentTime - 1000;
+            
+            // 计算最近1秒内的点击次数（瞬时速度）
+            let recentClicks = 0;
+            for (let i = clickTimes.length - 1; i >= 0; i--) {
+                if (clickTimes[i].time >= oneSecondAgo) {
+                    recentClicks++;
+                } else {
+                    break;
+                }
+            }
+            
+            // 计算平均手速
+            const elapsedSeconds = (currentTime - startTime) / 1000;
+            const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds).toFixed(1) : 0;
+            avgSpeedDisplay.innerHTML = `${avgSpeed}<span class="stat-unit">次/秒</span>`;
+            
+            // 计算稳定性
+            if (settings.stabilityAnalysis && clickTimes.length > 5) {
+                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed);
+                const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+                const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
+                const stability = Math.max(0, 100 - (variance / avg * 100));
+                stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
+            }
+            
+            return {
+                instantSpeed: recentClicks,
+                avgSpeed: parseFloat(avgSpeed)
+            };
+        }
+        
+        // 从数据更新图表
+        function updateChartFromData() {
+            if (!testActive || clickTimes.length < 2) return;
+            
+            const speeds = calculateSpeed();
+            if (!speeds) return;
+            
+            const currentTime = Date.now();
+            const timeFromStart = (currentTime - startTime) / 1000;
+            
+            updateRealTimeChart(timeFromStart, speeds.instantSpeed, speeds.avgSpeed);
+        }
+        
+        function stopTest() {
+            if (!testActive) return;
+            
+            testActive = false;
+            clearInterval(timerInterval);
+            if (chartUpdateInterval) {
+                clearInterval(chartUpdateInterval);
+                chartUpdateInterval = null;
+            }
+            
+            const endTime = Date.now();
+            const totalTime = (endTime - startTime) / 1000;
+            const avgSpeed = totalTime > 0 ? (clickCount / totalTime).toFixed(1) : 0;
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            settingsBtn.disabled = false;
+            clickArea.classList.add('disabled');
+            clickArea.classList.remove('ready');
+            clickText.textContent = '测试结束';
+            
+            document.removeEventListener('keydown', handleKeyPress);
+            removeVolumeKeyListeners();
+            
+            avgSpeedDisplay.innerHTML = `${avgSpeed}<span class="stat-unit">次/秒</span>`;
+            
+            addToHistory(clickCount, avgSpeed, totalTime);
+        }
+        
+        function addToHistory(clicks, speed, duration) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('zh-CN');
+            const testId = Date.now();
+            
+            const testData = {
+                id: testId,
+                time: timeString,
+                clicks: clicks,
+                speed: speed,
+                duration: duration,
+                maxInstantSpeed: maxInstantSpeed,
+                settings: {...settings},
+                clickTimes: [...clickTimes],
+                timestamp: now.getTime()
+            };
+            history.unshift(testData);
+            
+            saveHistory();
+            
+            const keyName = getKeyName(settings.testKey, settings.customKey);
+            
+            const historyItem = document.createElement('li');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-header">
+                    <div>
+                        <strong>${timeString}</strong> - 
+                        ${clicks}次点击 | 平均${speed}次/秒 | ${duration.toFixed(1)}秒
+                        <br><small>按键: ${keyName} | 时间: ${settings.testTime}秒</small>
+                    </div>
+                    <div>
+                        <button class="btn-small" onclick="showTestDetails(${testId})">查看详情</button>
+                    </div>
+                </div>
+            `;
+            
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            updateInstructions();
+        }
+        
+        function saveHistory() {
+            localStorage.setItem('speedTestHistory', JSON.stringify(history.slice(0, 50)));
+        }
+        
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('speedTestHistory');
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+                updateHistoryDisplay();
+            }
+            updateInstructions();
+        }
+        
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+            history.forEach(testData => {
+                const keyName = getKeyName(testData.settings.testKey, testData.settings.customKey);
+                const historyItem = document.createElement('li');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-header">
+                        <div>
+                            <strong>${testData.time}</strong> - 
+                            ${testData.clicks}次点击 | 平均${testData.speed}次/秒 | ${testData.duration.toFixed(1)}秒
+                            <br><small>按键: ${keyName} | 时间: ${testData.settings.testTime}秒</small>
+                        </div>
+                        <div>
+                            <button class="btn-small" onclick="showTestDetails(${testData.id})">查看详情</button>
+                        </div>
+                    </div>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        function getKeyName(key, customKey = '') {
+            const keyNames = {
+                'click': '鼠标点击',
+                'space': '空格键',
+                'a': 'A键',
+                's': 'S键',
+                'd': 'D键',
+                'f': 'F键',
+                'custom': customKey ? `${customKey.toUpperCase()}键` : '自定义键',
+                'volume': '音量键'
+            };
+            return keyNames[key] || key;
+        }
+        
+        // 详情图表设置功能
+        function createDetailChartSettings(testId) {
+            currentDetailTestId = testId;
+            
+            const settingsPanel = document.createElement('div');
+            settingsPanel.className = 'detail-chart-settings-panel';
+            settingsPanel.id = 'detail-chart-settings-panel';
+            settingsPanel.innerHTML = `
+                <div class="chart-setting-group">
+                    <h5>横轴类型</h5>
+                    <div class="chart-setting-options">
+                        <div class="chart-setting-option ${detailChartSettings.axisType === 'time' ? 'active' : ''}" data-axis="time">时间</div>
+                        <div class="chart-setting-option ${detailChartSettings.axisType === 'sequence' ? 'active' : ''}" data-axis="sequence">点击序数</div>
+                    </div>
+                </div>
+                <div class="chart-setting-group" id="detail-sequence-settings" style="${detailChartSettings.axisType === 'sequence' ? '' : 'display: none;'}">
+                    <h5>取值间隔</h5>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span>每</span>
+                        <input type="number" id="detail-sequence-interval" class="chart-setting-input" value="${detailChartSettings.sequenceInterval}" min="1" max="20">
+                        <span>次</span>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <h5>取值方式</h5>
+                        <div class="chart-setting-options">
+                            <div class="chart-setting-option ${detailChartSettings.dataSampling === 'average' ? 'active' : ''}" data-sampling="average">平均值</div>
+                            <div class="chart-setting-option ${detailChartSettings.dataSampling === 'percent' ? 'active' : ''}" data-sampling="percent">百分比</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-setting-group">
+                    <h5>显示平均手速</h5>
+                    <label class="toggle-label" style="font-size: 0.85rem;">
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="detail-show-avg-speed" ${detailChartSettings.showAvgSpeed ? 'checked' : ''}>
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <span>显示平均手速线</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 12px;">
+                    <button onclick="applyDetailChartSettings(${testId})" style="padding: 8px 14px; font-size: 0.8rem; flex: 1; font-weight: 600;">应用设置</button>
+                    <button onclick="closeDetailChartSettings()" style="padding: 8px 14px; font-size: 0.8rem; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">关闭</button>
+                </div>
+            `;
+            
+            return settingsPanel;
+        }
+        
+        // 关闭详情图表设置面板
+        function closeDetailChartSettings() {
+            const settingsPanel = document.getElementById('detail-chart-settings-panel');
+            if (settingsPanel) {
+                settingsPanel.classList.remove('active');
+            }
+        }
+        
+        // 应用详情图表设置
+        function applyDetailChartSettings(testId) {
+            const axisType = document.querySelector('#detail-chart-settings-panel .chart-setting-option.active[data-axis]').dataset.axis;
+            const sequenceInterval = parseInt(document.getElementById('detail-sequence-interval').value) || 2;
+            const dataSampling = document.querySelector('#detail-chart-settings-panel .chart-setting-option.active[data-sampling]')?.dataset.sampling || 'average';
+            const showAvgSpeed = document.getElementById('detail-show-avg-speed').checked;
+            
+            detailChartSettings = {
+                axisType,
+                sequenceInterval,
+                showAvgSpeed,
+                dataSampling
+            };
+            
+            localStorage.setItem('detailChartSettings', JSON.stringify(detailChartSettings));
+            
+            closeDetailChartSettings();
+            
+            renderDetailChart(testId);
+        }
+        
+        // 根据设置处理详情图表数据
+        function processDetailChartData(testData) {
+            const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+            const speeds = intervals.map(interval => interval > 0 ? (1000/interval) : 0);
+            
+            let labels = [];
+            let processedSpeeds = [];
+            
+            if (detailChartSettings.axisType === 'time') {
+                labels = testData.clickTimes.slice(1).map((click, i) => click.timeFromStart.toFixed(1));
+                processedSpeeds = speeds;
+            } else {
+                const interval = detailChartSettings.sequenceInterval;
+                
+                if (detailChartSettings.dataSampling === 'average') {
+                    for (let i = 0; i < speeds.length; i += interval) {
+                        const endIdx = Math.min(i + interval, speeds.length);
+                        const slice = speeds.slice(i, endIdx);
+                        const avg = slice.reduce((a, b) => a + b, 0) / slice.length;
+                        // 简化标签为单个数字
+                        labels.push(`${i+1}`);
+                        processedSpeeds.push(avg);
+                    }
+                } else {
+                    for (let i = 0; i < speeds.length; i += interval) {
+                        const endIdx = Math.min(i + interval, speeds.length);
+                        const slice = speeds.slice(i, endIdx);
+                        const maxVal = Math.max(...slice);
+                        labels.push(`${i+1}`);
+                        processedSpeeds.push(maxVal);
+                    }
+                }
+            }
+            
+            return { labels, speeds: processedSpeeds };
+        }
+        
+        // 渲染详情图表
+        function renderDetailChart(testId) {
+            const testData = history.find(item => item.id === testId);
+            if (!testData) return;
+            
+            const speedCtx = document.getElementById('speedChart');
+            if (!speedCtx) return;
+            
+            if (charts.speedChart) {
+                charts.speedChart.destroy();
+            }
+            
+            const processedData = processDetailChartData(testData);
+            
+            const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+            const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
+            const avgSpeeds = timePoints.map((time, i) => {
+                const elapsedSeconds = parseFloat(time);
+                return elapsedSeconds > 0 ? (cumulativeClicks[i] / elapsedSeconds) : 0;
+            });
+            
+            let processedAvgSpeeds = [];
+            if (detailChartSettings.axisType === 'time') {
+                processedAvgSpeeds = avgSpeeds;
+            } else {
+                const interval = detailChartSettings.sequenceInterval;
+                if (detailChartSettings.dataSampling === 'average') {
+                    for (let i = 0; i < avgSpeeds.length; i += interval) {
+                        const endIdx = Math.min(i + interval, avgSpeeds.length);
+                        const slice = avgSpeeds.slice(i, endIdx);
+                        const avg = slice.reduce((a, b) => a + b, 0) / slice.length;
+                        processedAvgSpeeds.push(avg);
+                    }
+                } else {
+                    for (let i = 0; i < avgSpeeds.length; i += interval) {
+                        const endIdx = Math.min(i + interval, avgSpeeds.length);
+                        const slice = avgSpeeds.slice(i, endIdx);
+                        const maxVal = Math.max(...slice);
+                        processedAvgSpeeds.push(maxVal);
+                    }
+                }
+            }
+            
+            const datasets = [
+                {
+                    label: '平均手速 (次/秒)',
+                    data: processedAvgSpeeds,
+                    borderColor: '#f5576c',
+                    backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#f5576c',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 3
+                },
+                {
+                    label: '瞬时手速 (次/秒)',
+                    data: processedData.speeds,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                    tension: 0.4,
+                    fill: false,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 1
+                }
+            ];
+            
+            if (!detailChartSettings.showAvgSpeed) {
+                datasets.shift(); // 移除平均手速数据集
+            }
+            
+            charts.speedChart = new Chart(speedCtx, {
+                type: 'line',
+                data: {
+                    labels: processedData.labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '瞬时手速变化',
+                            font: { size: 14 }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: detailChartSettings.axisType === 'time' ? '时间 (秒)' : '点击序列'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '手速 (次/秒)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showTestDetails(testId) {
+            const testData = history.find(item => item.id === testId);
+            if (!testData) return;
+            
+            const savedSettings = localStorage.getItem('detailChartSettings');
+            if (savedSettings) {
+                const parsedSettings = JSON.parse(savedSettings);
+                detailChartSettings = {...detailChartSettings, ...parsedSettings};
+            }
+            
+            const analysis = generateAnalysisReport(testData);
+            const keyName = getKeyName(testData.settings.testKey, testData.settings.customKey);
+            
+            const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
+            
+            detailModalTitle.textContent = `详细测试分析报告 - ${testData.time}`;
+            
+            modalContent.innerHTML = `
+                <div class="history-header">
+                    <h3>测试时间: ${testData.time} | 总点击: ${testData.clicks}次</h3>
+                    <p>测试设置: ${keyName} | ${testData.settings.testTime}秒</p>
+                </div>
+                
+                <div class="speed-with-max">
+                    <div class="analysis-card">
+                        <h4>平均手速</h4>
+                        <p>${testData.speed} 次/秒</p>
+                        <small>整个测试期间的平均点击速度</small>
+                    </div>
+                    <div class="analysis-card">
+                        <h4>最高手速</h4>
+                        <p>${maxSpeed} 次/秒</p>
+                        <small>测试期间达到的最高瞬时手速</small>
+                    </div>
+                </div>
+                
+                <div class="analysis-results">
+                    ${analysis.cards.map(card => `
+                        <div class="analysis-card ${card.type || ''}">
+                            <h4>${card.title}</h4>
+                            <p>${card.value}</p>
+                            ${card.description ? `<small>${card.description}</small>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="export-buttons">
+                    <button class="export-btn export-file" onclick="showExportModeDialog(${testId})">
+                        <span>导出文件</span>
+                    </button>
+                    <button class="export-btn export-image" onclick="exportImage(${testId})">
+                        <span>导出图片</span>
+                    </button>
+                </div>
+                
+                <h4>点击详细数据:</h4>
+                <div class="click-data-container">
+                    <table class="click-data-table">
+                        <thead>
+                            <tr>
+                                <th>点击序号</th>
+                                <th>时间 (秒)</th>
+                                <th>间隔 (ms)</th>
+                                <th>瞬时速度 (次/秒)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${testData.clickTimes.map((click, index) => `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${click.timeFromStart.toFixed(2)}</td>
+                                    <td>${click.interval}</td>
+                                    <td>${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <button class="chart-settings-btn" id="detail-chart-settings-btn">⚙️</button>
+                        <button class="chart-fullscreen-btn" onclick="openChartFullscreen('speedChart', '瞬时手速变化')">🔍</button>
+                        <canvas id="speedChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openChartFullscreen('clickChart', '点击数量累计')">🔍</button>
+                        <canvas id="clickChart"></canvas>
+                    </div>
+                    ${analysis.additionalCharts || ''}
+                </div>
+                
+                ${settings.progressTracking ? `
+                <div class="progress-chart">
+                    <h4>长期进步趋势</h4>
+                    <canvas id="progressChart"></canvas>
+                </div>
+                ` : ''}
+            `;
+            
+            detailModal.style.display = 'flex';
+            
+            const chartWrapper = document.querySelector('.chart-wrapper');
+            const settingsPanel = createDetailChartSettings(testId);
+            chartWrapper.appendChild(settingsPanel);
+            
+            const detailChartSettingsBtn = document.getElementById('detail-chart-settings-btn');
+            if (detailChartSettingsBtn) {
+                detailChartSettingsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    settingsPanel.classList.toggle('active');
+                });
+            }
+            
+            settingsPanel.querySelectorAll('.chart-setting-option[data-axis]').forEach(option => {
+                option.addEventListener('click', function() {
+                    settingsPanel.querySelectorAll('.chart-setting-option[data-axis]').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const sequenceSettings = document.getElementById('detail-sequence-settings');
+                    if (this.dataset.axis === 'sequence') {
+                        sequenceSettings.style.display = 'block';
+                    } else {
+                        sequenceSettings.style.display = 'none';
+                    }
+                });
+            });
+            
+            renderDetailChart(testId);
+            renderDetailCharts(testData);
+            
+            if (settings.progressTracking) {
+                renderProgressChart();
+            }
+        }
+        
+        function generateAnalysisReport(testData) {
+            const analysis = {
+                cards: [],
+                additionalCharts: ''
+            };
+            
+            if (settings.stabilityAnalysis && testData.clickTimes.length > 5) {
+                const speeds = testData.clickTimes.map(click => click.instantSpeed).filter(s => s > 0);
+                const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+                const variance = speeds.reduce((a, b) => a + Math.pow(b - avgSpeed, 2), 0) / speeds.length;
+                const stability = Math.max(0, 100 - (variance / avgSpeed * 100));
+                
+                analysis.cards.push({
+                    title: '手速稳定性',
+                    value: `${stability.toFixed(1)}%`,
+                    description: stability > 80 ? '非常稳定' : stability > 60 ? '比较稳定' : '需要提高稳定性',
+                    type: stability > 80 ? '' : stability > 60 ? 'warning' : 'danger'
+                });
+            }
+            
+            if (settings.fatigueAnalysis && testData.clickTimes.length > 10) {
+                const firstHalf = testData.clickTimes.slice(0, Math.floor(testData.clickTimes.length / 2));
+                const secondHalf = testData.clickTimes.slice(Math.floor(testData.clickTimes.length / 2));
+                
+                const firstAvg = firstHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / firstHalf.length;
+                const secondAvg = secondHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / secondHalf.length;
+                
+                const fatigueRate = ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1);
+                
+                analysis.cards.push({
+                    title: '疲劳度',
+                    value: `${fatigueRate}%`,
+                    description: fatigueRate > 10 ? '明显疲劳' : fatigueRate > 5 ? '轻微疲劳' : '状态良好',
+                    type: fatigueRate > 10 ? 'danger' : fatigueRate > 5 ? 'warning' : ''
+                });
+            }
+            
+            if (settings.patternRecognition) {
+                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                const trend = detectClickPattern(intervals);
+                
+                analysis.cards.push({
+                    title: '点击模式',
+                    value: trend.pattern,
+                    description: trend.description
+                });
+            }
+            
+            if (settings.aiAnalysis) {
+                analysis.cards.push({
+                    title: 'AI建议',
+                    value: '专业分析',
+                    description: generateAIAdvice(testData)
+                });
+                
+                analysis.additionalCharts = `
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openChartFullscreen('patternChart', '点击模式分析')">🔍</button>
+                        <canvas id="patternChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <button class="chart-fullscreen-btn" onclick="openChartFullscreen('fatigueChart', '疲劳度分析')">🔍</button>
+                        <canvas id="fatigueChart"></canvas>
+                    </div>
+                `;
+            }
+            
+            return analysis;
+        }
+        
+        function detectClickPattern(intervals) {
+            if (intervals.length < 3) {
+                return { pattern: '数据不足', description: '需要更多点击数据进行分析' };
+            }
+            
+            const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+            const variance = intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length;
+            
+            if (variance < 1000) {
+                return { pattern: '匀速型', description: '点击节奏非常稳定' };
+            }
+            
+            const firstThird = intervals.slice(0, Math.floor(intervals.length / 3));
+            const lastThird = intervals.slice(-Math.floor(intervals.length / 3));
+            const firstAvg = firstThird.reduce((a, b) => a + b, 0) / firstThird.length;
+            const lastAvg = lastThird.reduce((a, b) => a + b, 0) / lastThird.length;
+            
+            if (lastAvg < firstAvg * 0.8) {
+                return { pattern: '加速型', description: '测试后期点击速度加快' };
+            } else if (lastAvg > firstAvg * 1.2) {
+                return { pattern: '减速型', description: '测试后期点击速度减慢' };
+            } else {
+                return { pattern: '波动型', description: '点击节奏有一定波动' };
+            }
+        }
+        
+        function generateAIAdvice(testData) {
+            const speed = parseFloat(testData.speed);
+            const clicks = testData.clicks;
+            
+            let advice = '';
+            
+            if (speed < 5) {
+                advice = '建议从基础练习开始，注重节奏感培养';
+            } else if (speed < 8) {
+                advice = '不错的基础水平，可以尝试提高点击稳定性';
+            } else if (speed < 12) {
+                advice = '良好的手速表现，继续保持并挑战更高难度';
+            } else {
+                advice = '优秀的手速水平！可以考虑参加专业比赛';
+            }
+            
+            if (testData.clickTimes.length > 10) {
+                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                const consistency = intervals.filter(i => i > 50 && i < 200).length / intervals.length;
+                
+                if (consistency < 0.6) {
+                    advice += '。注意点击节奏的稳定性';
+                }
+            }
+            
+            return advice;
+        }
+        
+        function renderDetailCharts(testData) {
+            Object.keys(charts).forEach(key => {
+                if (key !== 'speedChart' && charts[key] && typeof charts[key].destroy === 'function') {
+                    charts[key].destroy();
+                }
+            });
+            
+            const { speedChart, ...otherCharts } = charts;
+            charts = { speedChart };
+            
+            const clickCtx = document.getElementById('clickChart');
+            if (clickCtx) {
+                const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
+                const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+                
+                charts.clickChart = new Chart(clickCtx, {
+                    type: 'line',
+                    data: {
+                        labels: timePoints,
+                        datasets: [{
+                            label: '累计点击次数',
+                            data: cumulativeClicks,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '点击数量累计',
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '时间 (秒)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '点击次数'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (settings.aiAnalysis) {
+                renderAdditionalCharts(testData);
+            }
+        }
+        
+        function renderAdditionalCharts(testData) {
+            const patternCtx = document.getElementById('patternChart');
+            if (patternCtx) {
+                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                
+                charts.patternChart = new Chart(patternCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: intervals.map((_, i) => i+1),
+                        datasets: [{
+                            label: '点击间隔 (ms)',
+                            data: intervals,
+                            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '点击间隔分布',
+                                font: { size: 14 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '间隔时间 (ms)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            const fatigueCtx = document.getElementById('fatigueChart');
+            if (fatigueCtx) {
+                const segmentSize = Math.max(1, Math.floor(testData.clickTimes.length / 5));
+                const segments = [];
+                
+                for (let i = 0; i < testData.clickTimes.length; i += segmentSize) {
+                    const segment = testData.clickTimes.slice(i, i + segmentSize);
+                    const avgSpeed = segment.reduce((sum, click) => sum + click.instantSpeed, 0) / segment.length;
+                    segments.push(avgSpeed || 0);
+                }
+                
+                charts.fatigueChart = new Chart(fatigueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: segments.map((_, i) => `阶段${i+1}`),
+                        datasets: [{
+                            label: '平均手速',
+                            data: segments,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '分段手速变化',
+                                font: { size: 14 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '手速 (次/秒)'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function renderProgressChart() {
+            const progressCtx = document.getElementById('progressChart');
+            if (progressCtx) {
+                const recentTests = history.slice(0, 10).reverse();
+                
+                charts.progressChart = new Chart(progressCtx, {
+                    type: 'line',
+                    data: {
+                        labels: recentTests.map((test, i) => `测试${i+1}`),
+                        datasets: [{
+                            label: '平均手速',
+                            data: recentTests.map(test => parseFloat(test.speed)),
+                            borderColor: '#9C27B0',
+                            backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '近期进步趋势',
+                                font: { size: 14 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '手速 (次/秒)'
+                                },
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function openChartFullscreen(chartId, title) {
+            if (fullscreenChart) {
+                fullscreenChart.destroy();
+                fullscreenChart = null;
+            }
+            
+            chartModalTitle.textContent = title;
+            chartModalContent.innerHTML = '<canvas id="fullscreenChartCanvas"></canvas>';
+            
+            const fullscreenCanvas = document.getElementById('fullscreenChartCanvas');
+            
+            const originalChart = charts[chartId];
+            if (!originalChart) {
+                console.error('找不到图表:', chartId);
+                return;
+            }
+            
+            const fullscreenConfig = {
+                type: originalChart.config.type,
+                data: JSON.parse(JSON.stringify(originalChart.config.data)),
+                options: {
+                    ...JSON.parse(JSON.stringify(originalChart.config.options)),
+                    maintainAspectRatio: false,
+                    responsive: true
+                }
+            };
+            
+            fullscreenChart = new Chart(fullscreenCanvas, fullscreenConfig);
+            chartModal.style.display = 'flex';
+            
+            if (window.innerWidth <= 768) {
+                chartModalContent.classList.add('chart-fullscreen-landscape');
+                chartModalContent.innerHTML = '<div class="landscape-chart-wrapper"><canvas id="fullscreenChartCanvas"></canvas></div>';
+                
+                const landscapeCanvas = document.getElementById('fullscreenChartCanvas');
+                fullscreenChart = new Chart(landscapeCanvas, fullscreenConfig);
+                
+                chartModalTitle.style.display = 'none';
+                document.querySelector('#chart-modal .close-btn').style.display = 'none';
+                
+                chartModalContent.onclick = function() {
+                    closeChartModal();
+                };
+            } else {
+                chartModalContent.classList.remove('chart-fullscreen-landscape');
+                chartModalTitle.style.display = 'block';
+                document.querySelector('#chart-modal .close-btn').style.display = 'block';
+                chartModalContent.onclick = null;
+            }
+        }
+        
+        function closeChartModal() {
+            if (fullscreenChart) {
+                fullscreenChart.destroy();
+                fullscreenChart = null;
+            }
+            chartModal.style.display = 'none';
+            
+            chartModalTitle.style.display = 'block';
+            document.querySelector('#chart-modal .close-btn').style.display = 'block';
+            chartModalContent.classList.remove('chart-fullscreen-landscape');
+        }
+        
+        function closeDetailModal() {
+            detailModal.style.display = 'none';
+        }
+        
+        function resetTest() {
+            if (testActive) {
+                clearInterval(timerInterval);
+                testActive = false;
+            }
+            if (countdownActive) {
+                clearInterval(countdownInterval);
+                countdownActive = false;
+            }
+            
+            if (chartUpdateInterval) {
+                clearInterval(chartUpdateInterval);
+                chartUpdateInterval = null;
+            }
+            
+            clickCount = 0;
+            clickTimes = [];
+            timer = settings.testTime;
+            maxInstantSpeed = 0;
+            
+            document.removeEventListener('keydown', handleKeyPress);
+            removeVolumeKeyListeners();
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            settingsBtn.disabled = false;
+            clickArea.classList.add('disabled');
+            clickArea.classList.remove('ready');
+            clickText.textContent = '点击开始测试';
+            countdownDisplay.textContent = '';
+            timerDisplay.textContent = timer;
+            clickCountDisplay.textContent = clickCount;
+            avgSpeedDisplay.innerHTML = '0<span class="stat-unit">次/秒</span>';
+            maxSpeedDisplay.innerHTML = '0<span class="stat-unit">次/秒</span>';
+            stabilityDisplay.innerHTML = '0<span class="stat-unit">%</span>';
+            
+            waveAnimation.style.opacity = '0';
+            
+            realTimeChartData = {
+                labels: [],
+                instantSpeedData: [],
+                avgSpeedData: []
+            };
+            if (realTimeChart) {
+                realTimeChart.update();
+            }
+        }
+        
+        // 点击模态框外部关闭
+        detailModal.addEventListener('click', function(e) {
+            if (e.target === detailModal) {
+                closeDetailModal();
+            }
+        });
+        
+        chartModal.addEventListener('click', function(e) {
+            if (e.target === chartModal) {
+                closeChartModal();
+            }
+        });
+        
+        confirmDialog.addEventListener('click', function(e) {
+            if (e.target === confirmDialog) {
+                hideConfirmDialog();
+            }
+        });
+        
+        exportModeDialog.addEventListener('click', function(e) {
+            if (e.target === exportModeDialog) {
+                hideExportModeDialog();
+            }
+        });
+        
+        viewDetailModal.addEventListener('click', function(e) {
+            if (e.target === viewDetailModal) {
+                closeViewDetailModal();
+            }
+        });
+        
+        // 初始化
+        init();
+    </script>
+</body>
+</html>

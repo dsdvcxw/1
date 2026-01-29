@@ -19,24 +19,24 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 0;
         }
         
         .container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px;
+            border-radius: 0;
             box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.1),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
+                0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 1000px;
-            padding: 30px;
+            max-width: 100%;
+            padding: 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            min-height: 100vh;
         }
         
         .container::before {
@@ -45,7 +45,7 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 2px; /* 减小边框宽度 */
+            height: 2px;
             background: linear-gradient(to right, #667eea, #764ba2, #f5576c);
             z-index: 1;
         }
@@ -285,7 +285,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 2px; /* 减小边框宽度 */
+            width: 2px;
             height: 100%;
             background: linear-gradient(to bottom, #667eea, #764ba2);
         }
@@ -354,7 +354,7 @@
             margin: 8px 0;
             background: white;
             border-radius: 10px;
-            border-left: 2px solid #667eea; /* 减小边框宽度 */
+            border-left: 2px solid #667eea;
             font-size: 0.9rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -419,7 +419,7 @@
             padding: 15px;
             background: rgba(248, 249, 250, 0.8);
             border-radius: 12px;
-            border-left: 2px solid #667eea; /* 减小边框宽度 */
+            border-left: 2px solid #667eea;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
@@ -720,7 +720,7 @@
             background: rgba(248, 249, 250, 0.8);
             padding: 12px;
             border-radius: 10px;
-            border-left: 2px solid #4CAF50; /* 减小边框宽度 */
+            border-left: 2px solid #4CAF50;
             font-size: 0.9rem;
             transition: all 0.3s ease;
         }
@@ -731,11 +731,11 @@
         }
         
         .analysis-card.warning {
-            border-left: 2px solid #FF9800; /* 减小边框宽度 */
+            border-left: 2px solid #FF9800;
         }
         
         .analysis-card.danger {
-            border-left: 2px solid #f44336; /* 减小边框宽度 */
+            border-left: 2px solid #f44336;
         }
         
         .export-buttons {
@@ -1226,7 +1226,7 @@
             background: rgba(248, 249, 250, 0.9);
             border-radius: 12px;
             padding: 20px;
-            border-left: 2px solid #667eea; /* 减小边框宽度 */
+            border-left: 2px solid #667eea;
             text-align: left;
         }
         
@@ -1285,9 +1285,9 @@
         
         @media (min-width: 768px) {
             .container {
-                padding: 40px;
-                max-width: 800px;
-                border-radius: 24px;
+                padding: 30px;
+                max-width: 100%;
+                border-radius: 0;
             }
             
             h1 {
@@ -1343,8 +1343,8 @@
         
         @media (min-width: 1024px) {
             .container {
-                max-width: 1000px;
-                padding: 50px;
+                max-width: 100%;
+                padding: 40px;
             }
             
             .charts-container {
@@ -1600,10 +1600,6 @@
         
         .footer-buttons {
             margin-top: 30px;
-        }
-        
-        .container {
-            border: 1px solid rgba(234, 234, 234, 0.3);
         }
         
         ::-webkit-scrollbar {

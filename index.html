@@ -1283,6 +1283,83 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
+        /* 新增：浏览量统计相关样式 */
+        .visit-counter-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .visit-counter-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .visit-counter-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .visit-counter-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #764ba2;
+            line-height: 1.2;
+        }
+        
+        .visit-counter-hint {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .stats-visits-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .visits-chart-container {
+            margin-top: 20px;
+        }
+        
+        .visits-chart-wrapper {
+            height: 250px;
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+        
+        .stats-daily-chart {
+            height: 220px;
+        }
+        
+        .stats-weekly-chart {
+            height: 220px;
+        }
+        
+        .visits-stats-section {
+            margin-bottom: 25px;
+        }
+        
+        .visits-stats-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
         @media (min-width: 768px) {
             .container {
                 padding: 30px;
@@ -1338,6 +1415,20 @@
             
             .result-content {
                 width: 450px;
+            }
+            
+            .stats-visits-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .visits-chart-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            
+            .visits-chart-wrapper {
+                margin-bottom: 0;
             }
         }
         
@@ -1498,6 +1589,11 @@
             .result-btn {
                 min-width: 100%;
             }
+            
+            .stats-visits-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
         }
         
         @media (max-width: 768px) and (orientation: landscape) {
@@ -1543,6 +1639,14 @@
                 width: 95%;
                 max-height: 85vh;
                 overflow-y: auto;
+            }
+            
+            .stats-visits-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .visits-chart-container {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -1619,6 +1723,243 @@
         
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(168, 168, 168, 0.8);
+        }
+        
+        /* 新增：移动端详情卡片布局和字体调整 */
+        @media (max-width: 768px) {
+            /* 移动端详情卡片布局 - 两行三列 */
+            .analysis-results {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            /* 移动端卡片字体调小 */
+            .analysis-card {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            
+            .analysis-card h4 {
+                font-size: 0.75rem;
+                margin-bottom: 4px;
+                font-weight: 600;
+            }
+            
+            .analysis-card p {
+                font-size: 0.9rem;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }
+            
+            .analysis-card small {
+                font-size: 0.65rem;
+                line-height: 1.2;
+                display: block;
+            }
+            
+            /* 移动端详情标题字体调小 */
+            .modal-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .modal-header h3 {
+                font-size: 1rem;
+            }
+            
+            /* 移动端速度卡片布局调整 */
+            .speed-with-max {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+            
+            .speed-with-max .analysis-card {
+                width: 100%;
+            }
+            
+            /* 移动端表格字体调小 */
+            .click-data-table {
+                font-size: 0.75rem;
+            }
+            
+            .click-data-table th {
+                padding: 6px 4px;
+                font-size: 0.7rem;
+            }
+            
+            .click-data-table td {
+                padding: 5px 3px;
+            }
+            
+            /* 移动端导出按钮字体调小 */
+            .export-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            /* 移动端图表区域调整 */
+            .chart-wrapper {
+                height: 240px;
+                padding: 12px;
+            }
+            
+            .progress-chart {
+                height: 220px;
+                padding: 12px;
+            }
+            
+            /* 移动端详情内容整体字体调整 */
+            #modal-content {
+                font-size: 0.9rem;
+            }
+            
+            /* 移动端浏览量统计调整 */
+            .stats-visits-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .visit-counter-value {
+                font-size: 1.3rem;
+            }
+            
+            .visits-chart-wrapper {
+                height: 200px;
+                padding: 12px;
+            }
+        }
+        
+        /* 小屏幕手机进一步调整 */
+        @media (max-width: 480px) {
+            /* 卡片进一步缩小 */
+            .analysis-results {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            
+            .analysis-card {
+                padding: 6px;
+                font-size: 0.7rem;
+            }
+            
+            .analysis-card h4 {
+                font-size: 0.7rem;
+            }
+            
+            .analysis-card p {
+                font-size: 0.8rem;
+            }
+            
+            .analysis-card small {
+                font-size: 0.6rem;
+            }
+            
+            /* 表格进一步缩小 */
+            .click-data-table {
+                font-size: 0.7rem;
+            }
+            
+            /* 图表进一步缩小 */
+            .chart-wrapper {
+                height: 200px;
+                padding: 10px;
+            }
+            
+            /* 浏览量统计进一步缩小 */
+            .stats-visits-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+            
+            .visit-counter-container {
+                padding: 10px;
+            }
+            
+            .visit-counter-value {
+                font-size: 1.2rem;
+            }
+            
+            .visits-chart-wrapper {
+                height: 180px;
+                padding: 10px;
+            }
+        }
+        
+        /* 横屏模式调整 */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .analysis-results {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .analysis-card {
+                padding: 8px;
+                font-size: 0.75rem;
+            }
+            
+            .analysis-card h4 {
+                font-size: 0.75rem;
+            }
+            
+            .analysis-card p {
+                font-size: 0.85rem;
+            }
+            
+            .analysis-card small {
+                font-size: 0.65rem;
+            }
+            
+            .stats-visits-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+        }
+        
+        /* 超小屏幕手机特殊处理 */
+        @media (max-width: 320px) {
+            .analysis-results {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+            
+            .analysis-card {
+                padding: 4px;
+                font-size: 0.65rem;
+            }
+            
+            .analysis-card h4 {
+                font-size: 0.65rem;
+                margin-bottom: 2px;
+            }
+            
+            .analysis-card p {
+                font-size: 0.75rem;
+            }
+            
+            .analysis-card small {
+                font-size: 0.55rem;
+            }
+            
+            .stats-visits-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+            }
+            
+            .visit-counter-container {
+                padding: 8px 4px;
+            }
+            
+            .visit-counter-value {
+                font-size: 1rem;
+            }
+            
+            .visit-counter-label {
+                font-size: 0.8rem;
+            }
+            
+            .visit-counter-hint {
+                font-size: 0.7rem;
+            }
         }
     </style>
     
@@ -1700,6 +2041,13 @@
             </div>
             <button id="import-btn" class="btn-import">导入文件</button>
             <div id="import-status" style="margin-top: 12px; font-size: 0.9rem; color: #666;"></div>
+        </div>
+        
+        <!-- 新增：全局浏览量统计 -->
+        <div class="visit-counter-container" id="visit-counter">
+            <div class="visit-counter-label">全局浏览量</div>
+            <div class="visit-counter-value" id="total-visits-counter">加载中...</div>
+            <div class="visit-counter-hint">点击5次查看详细统计</div>
         </div>
     </div>
 
@@ -1876,6 +2224,50 @@
         </div>
     </div>
 
+    <!-- 新增：全局浏览量统计模态框 -->
+    <div class="modal" id="visits-stats-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>全局浏览量统计</h2>
+                <button class="close-btn" onclick="closeVisitsStatsModal()">关闭</button>
+            </div>
+            <div id="visits-stats-content">
+                <div class="stats-visits-grid">
+                    <div class="stat-card">
+                        <h3>今日浏览量</h3>
+                        <div class="stat-value" id="today-visits">加载中...</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>本周浏览量</h3>
+                        <div class="stat-value" id="week-visits">加载中...</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>总浏览量</h3>
+                        <div class="stat-value" id="alltime-visits">加载中...</div>
+                    </div>
+                </div>
+                
+                <div class="visits-chart-container">
+                    <div class="visits-chart-wrapper">
+                        <h4>今日浏览量趋势</h4>
+                        <canvas id="today-visits-chart" class="stats-daily-chart"></canvas>
+                    </div>
+                    <div class="visits-chart-wrapper">
+                        <h4>本周浏览量趋势</h4>
+                        <canvas id="week-visits-chart" class="stats-weekly-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="visits-stats-section">
+                    <h3>详细统计信息</h3>
+                    <div class="analysis-results" id="visits-analysis">
+                        <!-- 分析卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 获取DOM元素
         const startBtn = document.getElementById('start-btn');
@@ -1925,6 +2317,17 @@
         const resultDetailBtn = document.getElementById('result-detail-btn');
         const resultExitBtn = document.getElementById('result-exit-btn');
         
+        // 新增：浏览量统计相关元素
+        const visitCounter = document.getElementById('visit-counter');
+        const totalVisitsCounter = document.getElementById('total-visits-counter');
+        const visitsStatsModal = document.getElementById('visits-stats-modal');
+        const todayVisitsElement = document.getElementById('today-visits');
+        const weekVisitsElement = document.getElementById('week-visits');
+        const alltimeVisitsElement = document.getElementById('alltime-visits');
+        const todayVisitsChartCanvas = document.getElementById('today-visits-chart');
+        const weekVisitsChartCanvas = document.getElementById('week-visits-chart');
+        const visitsAnalysisElement = document.getElementById('visits-analysis');
+        
         // 音效元素
         let audioContext;
         try {
@@ -1951,6 +2354,462 @@
         let currentViewTestData = null;
         let maxInstantSpeed = 0;
         let lastTestData = null;
+        
+        // 浏览量统计变量
+        let visitClickCount = 0;
+        let lastVisitClickTime = 0;
+        let visitsData = {
+            total: 0,
+            today: 0,
+            week: 0,
+            todayHourly: {},
+            weekDaily: {}
+        };
+        let visitsCharts = {};
+        
+        // CountAPI配置
+        const COUNTAPI_NAMESPACE = 'handspeedtest';
+        const COUNTAPI_TOTAL_KEY = 'total_visits';
+        const COUNTAPI_TODAY_KEY = () => {
+            const today = new Date();
+            return `visits_${today.getFullYear()}_${today.getMonth() + 1}_${today.getDate()}`;
+        };
+        const COUNTAPI_WEEK_KEY = () => {
+            const today = new Date();
+            const week = getWeekNumber(today);
+            return `visits_week_${today.getFullYear()}_${week}`;
+        };
+        const COUNTAPI_TODAY_HOURLY_KEY = (hour) => {
+            const today = new Date();
+            return `visits_${today.getFullYear()}_${today.getMonth() + 1}_${today.getDate()}_hour_${hour}`;
+        };
+        const COUNTAPI_WEEK_DAILY_KEY = (dateStr) => {
+            return `visits_${dateStr}`;
+        };
+        
+        // 获取周数
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+        }
+        
+        // 获取日期字符串（YYYY_MM_DD）
+        function getDateString(date) {
+            return `${date.getFullYear()}_${date.getMonth() + 1}_${date.getDate()}`;
+        }
+        
+        // 获取一周的日期范围
+        function getWeekDateRange() {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // 调整周一为第一天
+            const monday = new Date(today.setDate(diff));
+            
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                weekDates.push(getDateString(date));
+            }
+            return weekDates;
+        }
+        
+        // CountAPI请求函数
+        async function countAPIRequest(endpoint, method = 'GET') {
+            try {
+                const response = await fetch(endpoint, { method });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                return data.value || 0;
+            } catch (error) {
+                console.error('CountAPI请求失败:', error);
+                return 0;
+            }
+        }
+        
+        // 增加浏览量
+        async function incrementVisitCount() {
+            try {
+                // 增加总浏览量
+                const totalEndpoint = `https://api.countapi.xyz/hit/${COUNTAPI_NAMESPACE}/${COUNTAPI_TOTAL_KEY}`;
+                visitsData.total = await countAPIRequest(totalEndpoint);
+                
+                // 增加今日浏览量
+                const todayEndpoint = `https://api.countapi.xyz/hit/${COUNTAPI_NAMESPACE}/${COUNTAPI_TODAY_KEY()}`;
+                visitsData.today = await countAPIRequest(todayEndpoint);
+                
+                // 增加本周浏览量
+                const weekEndpoint = `https://api.countapi.xyz/hit/${COUNTAPI_NAMESPACE}/${COUNTAPI_WEEK_KEY()}`;
+                visitsData.week = await countAPIRequest(weekEndpoint);
+                
+                // 增加当前小时浏览量
+                const currentHour = new Date().getHours();
+                const hourlyEndpoint = `https://api.countapi.xyz/hit/${COUNTAPI_NAMESPACE}/${COUNTAPI_TODAY_HOURLY_KEY(currentHour)}`;
+                await countAPIRequest(hourlyEndpoint);
+                
+                // 更新显示
+                updateVisitCounterDisplay();
+                
+                // 保存到本地存储（用于离线时显示）
+                localStorage.setItem('lastVisitUpdate', Date.now().toString());
+                localStorage.setItem('cachedVisitsData', JSON.stringify(visitsData));
+                
+            } catch (error) {
+                console.error('增加浏览量失败:', error);
+                // 使用本地缓存
+                const cached = localStorage.getItem('cachedVisitsData');
+                if (cached) {
+                    visitsData = JSON.parse(cached);
+                    updateVisitCounterDisplay();
+                }
+            }
+        }
+        
+        // 获取浏览量数据
+        async function fetchVisitsData() {
+            try {
+                // 获取总浏览量
+                const totalEndpoint = `https://api.countapi.xyz/get/${COUNTAPI_NAMESPACE}/${COUNTAPI_TOTAL_KEY}`;
+                visitsData.total = await countAPIRequest(totalEndpoint);
+                
+                // 获取今日浏览量
+                const todayEndpoint = `https://api.countapi.xyz/get/${COUNTAPI_NAMESPACE}/${COUNTAPI_TODAY_KEY()}`;
+                visitsData.today = await countAPIRequest(todayEndpoint);
+                
+                // 获取本周浏览量
+                const weekEndpoint = `https://api.countapi.xyz/get/${COUNTAPI_NAMESPACE}/${COUNTAPI_WEEK_KEY()}`;
+                visitsData.week = await countAPIRequest(weekEndpoint);
+                
+                // 获取今日每小时浏览量
+                visitsData.todayHourly = {};
+                for (let hour = 0; hour < 24; hour++) {
+                    const hourlyEndpoint = `https://api.countapi.xyz/get/${COUNTAPI_NAMESPACE}/${COUNTAPI_TODAY_HOURLY_KEY(hour)}`;
+                    visitsData.todayHourly[hour] = await countAPIRequest(hourlyEndpoint);
+                }
+                
+                // 获取本周每天浏览量
+                visitsData.weekDaily = {};
+                const weekDates = getWeekDateRange();
+                for (const dateStr of weekDates) {
+                    const dailyEndpoint = `https://api.countapi.xyz/get/${COUNTAPI_NAMESPACE}/${COUNTAPI_WEEK_DAILY_KEY(dateStr)}`;
+                    visitsData.weekDaily[dateStr] = await countAPIRequest(dailyEndpoint);
+                }
+                
+                // 更新显示
+                updateVisitCounterDisplay();
+                
+                // 保存到本地存储
+                localStorage.setItem('cachedVisitsData', JSON.stringify(visitsData));
+                localStorage.setItem('lastVisitFetch', Date.now().toString());
+                
+            } catch (error) {
+                console.error('获取浏览量数据失败:', error);
+                // 使用本地缓存
+                const cached = localStorage.getItem('cachedVisitsData');
+                if (cached) {
+                    visitsData = JSON.parse(cached);
+                    updateVisitCounterDisplay();
+                }
+            }
+        }
+        
+        // 更新浏览量显示
+        function updateVisitCounterDisplay() {
+            if (visitsData.total > 0) {
+                totalVisitsCounter.textContent = formatNumber(visitsData.total);
+            }
+        }
+        
+        // 格式化数字（添加千位分隔符）
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // 显示浏览量统计模态框
+        async function showVisitsStatsModal() {
+            // 先更新数据
+            await fetchVisitsData();
+            
+            // 更新统计数字
+            todayVisitsElement.textContent = formatNumber(visitsData.today);
+            weekVisitsElement.textContent = formatNumber(visitsData.week);
+            alltimeVisitsElement.textContent = formatNumber(visitsData.total);
+            
+            // 渲染图表
+            renderVisitsCharts();
+            
+            // 生成分析报告
+            generateVisitsAnalysis();
+            
+            // 显示模态框
+            visitsStatsModal.style.display = 'flex';
+        }
+        
+        // 关闭浏览量统计模态框
+        function closeVisitsStatsModal() {
+            visitsStatsModal.style.display = 'none';
+            // 重置点击计数
+            visitClickCount = 0;
+        }
+        
+        // 渲染浏览量图表
+        function renderVisitsCharts() {
+            // 今日每小时浏览量图表
+            if (visitsCharts.today) {
+                visitsCharts.today.destroy();
+            }
+            
+            const todayCtx = todayVisitsChartCanvas.getContext('2d');
+            const todayLabels = [];
+            const todayData = [];
+            
+            for (let hour = 0; hour < 24; hour++) {
+                todayLabels.push(`${hour}:00`);
+                todayData.push(visitsData.todayHourly[hour] || 0);
+            }
+            
+            visitsCharts.today = new Chart(todayCtx, {
+                type: 'bar',
+                data: {
+                    labels: todayLabels,
+                    datasets: [{
+                        label: '每小时浏览量',
+                        data: todayData,
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '浏览量'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 本周每天浏览量图表
+            if (visitsCharts.week) {
+                visitsCharts.week.destroy();
+            }
+            
+            const weekCtx = weekVisitsChartCanvas.getContext('2d');
+            const weekDates = getWeekDateRange();
+            const weekLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const weekData = [];
+            
+            for (const dateStr of weekDates) {
+                weekData.push(visitsData.weekDaily[dateStr] || 0);
+            }
+            
+            visitsCharts.week = new Chart(weekCtx, {
+                type: 'line',
+                data: {
+                    labels: weekLabels,
+                    datasets: [{
+                        label: '每日浏览量',
+                        data: weekData,
+                        backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                        borderColor: 'rgba(245, 87, 108, 1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: 'rgba(245, 87, 108, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '浏览量'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 生成浏览量分析报告
+        function generateVisitsAnalysis() {
+            const analysisCards = [];
+            
+            // 计算今日最高小时
+            let maxHour = 0;
+            let maxHourValue = 0;
+            for (let hour = 0; hour < 24; hour++) {
+                if ((visitsData.todayHourly[hour] || 0) > maxHourValue) {
+                    maxHourValue = visitsData.todayHourly[hour] || 0;
+                    maxHour = hour;
+                }
+            }
+            
+            // 计算今日平均每小时
+            let todayTotal = 0;
+            let todayHoursWithData = 0;
+            for (let hour = 0; hour < 24; hour++) {
+                const value = visitsData.todayHourly[hour] || 0;
+                if (value > 0) {
+                    todayTotal += value;
+                    todayHoursWithData++;
+                }
+            }
+            const todayAvg = todayHoursWithData > 0 ? Math.round(todayTotal / todayHoursWithData) : 0;
+            
+            // 计算本周最高日
+            const weekDates = getWeekDateRange();
+            let maxDay = '';
+            let maxDayValue = 0;
+            let weekTotal = 0;
+            for (const dateStr of weekDates) {
+                const value = visitsData.weekDaily[dateStr] || 0;
+                weekTotal += value;
+                if (value > maxDayValue) {
+                    maxDayValue = value;
+                    const dateParts = dateStr.split('_');
+                    maxDay = `${dateParts[1]}/${dateParts[2]}`;
+                }
+            }
+            const weekAvg = Math.round(weekTotal / 7);
+            
+            // 今日活跃度分析
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentHourVisits = visitsData.todayHourly[currentHour] || 0;
+            let activityLevel = '低';
+            if (currentHourVisits > todayAvg * 1.5) activityLevel = '高';
+            else if (currentHourVisits > todayAvg) activityLevel = '中';
+            
+            // 生成分析卡片
+            analysisCards.push({
+                title: '今日最高时段',
+                value: `${maxHour}:00`,
+                description: `浏览量: ${maxHourValue}次`
+            });
+            
+            analysisCards.push({
+                title: '今日平均每小时',
+                value: `${todayAvg}次`,
+                description: `当前时段: ${currentHourVisits}次`
+            });
+            
+            analysisCards.push({
+                title: '本周最高日',
+                value: maxDay || '无数据',
+                description: `浏览量: ${maxDayValue}次`
+            });
+            
+            analysisCards.push({
+                title: '本周平均每日',
+                value: `${weekAvg}次`,
+                description: `总计: ${weekTotal}次`
+            });
+            
+            analysisCards.push({
+                title: '当前活跃度',
+                value: activityLevel,
+                description: `当前时段浏览量: ${currentHourVisits}次`,
+                type: activityLevel === '高' ? '' : activityLevel === '中' ? 'warning' : 'danger'
+            });
+            
+            analysisCards.push({
+                title: '总浏览量趋势',
+                value: visitsData.total > 1000 ? '快速增长' : '平稳增长',
+                description: `每日平均: ${Math.round(visitsData.total / 30)}次`
+            });
+            
+            // 渲染分析卡片
+            visitsAnalysisElement.innerHTML = analysisCards.map(card => `
+                <div class="analysis-card ${card.type || ''}">
+                    <h4>${card.title}</h4>
+                    <p>${card.value}</p>
+                    ${card.description ? `<small>${card.description}</small>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // 处理浏览量统计区域点击事件
+        function handleVisitCounterClick() {
+            const now = Date.now();
+            
+            // 防止快速连续点击
+            if (now - lastVisitClickTime < 300) {
+                return;
+            }
+            lastVisitClickTime = now;
+            
+            // 增加点击计数
+            visitClickCount++;
+            
+            // 添加点击反馈
+            visitCounter.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                visitCounter.style.transform = 'scale(1)';
+            }, 100);
+            
+            // 每点击一次，更新提示
+            const hintElement = visitCounter.querySelector('.visit-counter-hint');
+            if (hintElement) {
+                if (visitClickCount >= 5) {
+                    hintElement.textContent = '即将打开统计面板...';
+                    hintElement.style.color = '#f5576c';
+                } else {
+                    hintElement.textContent = `点击${5 - visitClickCount}次查看详细统计`;
+                }
+            }
+            
+            // 点击5次后打开统计面板
+            if (visitClickCount >= 5) {
+                setTimeout(() => {
+                    showVisitsStatsModal();
+                    // 重置提示
+                    if (hintElement) {
+                        hintElement.textContent = '点击5次查看详细统计';
+                        hintElement.style.color = '#999';
+                    }
+                }, 300);
+                
+                // 重置点击计数
+                setTimeout(() => {
+                    visitClickCount = 0;
+                }, 1000);
+            }
+        }
         
         // 音量键事件处理变量
         let volumeKeyActive = false;
@@ -2297,6 +3156,9 @@
             
             initRealTimeChart();
             
+            // 初始化浏览量统计
+            initVisitCounter();
+            
             clickArea.addEventListener('touchstart', function(e) {
                 if (testActive && settings.testKey === 'click') {
                     e.preventDefault();
@@ -2413,6 +3275,24 @@
                 fileUpload.addEventListener('touchend', function(e) {
                     clearTimeout(longPressTimer);
                 });
+            }
+        }
+        
+        // 初始化浏览量统计
+        async function initVisitCounter() {
+            // 添加点击事件监听
+            visitCounter.addEventListener('click', handleVisitCounterClick);
+            
+            // 检查是否需要增加浏览量
+            const lastUpdate = localStorage.getItem('lastVisitUpdate');
+            const now = Date.now();
+            
+            // 如果超过30分钟没有更新，或者第一次访问，则增加浏览量
+            if (!lastUpdate || (now - parseInt(lastUpdate)) > 30 * 60 * 1000) {
+                await incrementVisitCount();
+            } else {
+                // 否则只获取数据
+                await fetchVisitsData();
             }
         }
         
@@ -4236,6 +5116,13 @@
         exportModeDialog.addEventListener('click', function(e) {
             if (e.target === exportModeDialog) {
                 hideExportModeDialog();
+            }
+        });
+        
+        // 新增：浏览量统计模态框点击外部关闭
+        visitsStatsModal.addEventListener('click', function(e) {
+            if (e.target === visitsStatsModal) {
+                closeVisitsStatsModal();
             }
         });
         

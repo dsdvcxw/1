@@ -1283,228 +1283,6 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
-        /* 新增：浏览量统计系统样式 */
-        .views-container {
-            margin: 30px 0 20px 0;
-            padding: 20px;
-            background: rgba(248, 249, 250, 0.9);
-            border-radius: 16px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .views-container:hover {
-            background: rgba(240, 244, 255, 0.9);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
-        
-        .views-title {
-            color: #555;
-            font-size: 0.95rem;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        
-        .views-count {
-            font-size: 2.8rem;
-            font-weight: bold;
-            color: #667eea;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-            padding: 5px 15px;
-            border-radius: 10px;
-            display: inline-block;
-        }
-        
-        .views-count:hover {
-            color: #764ba2;
-            transform: scale(1.05);
-            background: rgba(102, 126, 234, 0.05);
-        }
-        
-        .views-count:active {
-            transform: scale(0.98);
-        }
-        
-        .views-hint {
-            color: #999;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            font-style: italic;
-        }
-        
-        .stats-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .stats-modal-content {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px;
-            width: 100%;
-            max-width: 800px;
-            max-height: 85vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-        }
-        
-        .stats-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(221, 221, 221, 0.5);
-        }
-        
-        .stats-modal-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-        }
-        
-        .stats-close-btn {
-            background: linear-gradient(to right, #ff6b6b, #ff4757);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .stats-close-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
-        }
-        
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        
-        .stats-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 
-                0 4px 6px rgba(0, 0, 0, 0.05),
-                0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.1);
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 
-                0 12px 24px rgba(0, 0, 0, 0.1),
-                0 6px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stats-card h3 {
-            color: #555;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        
-        .stats-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #764ba2;
-            line-height: 1.2;
-        }
-        
-        .stats-unit {
-            font-size: 0.9rem;
-            color: #666;
-            margin-left: 2px;
-        }
-        
-        .stats-card-description {
-            color: #888;
-            font-size: 0.8rem;
-            margin-top: 8px;
-        }
-        
-        .stats-chart-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            height: 300px;
-        }
-        
-        .stats-refresh-btn {
-            background: linear-gradient(to right, #36D1DC, #5B86E5);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .stats-refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(54, 209, 220, 0.3);
-        }
-        
-        .stats-info {
-            color: #666;
-            font-size: 0.85rem;
-            margin-top: 15px;
-            padding: 12px;
-            background: rgba(248, 249, 250, 0.8);
-            border-radius: 8px;
-            border-left: 3px solid #667eea;
-        }
-        
-        .click-feedback {
-            position: absolute;
-            pointer-events: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 100;
-        }
-        
         @keyframes floatUp {
             0% {
                 opacity: 1;
@@ -1572,16 +1350,6 @@
             .result-content {
                 width: 450px;
             }
-            
-            /* 新增：浏览量统计响应式样式 */
-            .stats-cards {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
-            }
-            
-            .views-count {
-                font-size: 3.2rem;
-            }
         }
         
         @media (min-width: 1024px) {
@@ -1608,15 +1376,6 @@
             
             .result-content {
                 width: 480px;
-            }
-            
-            /* 新增：浏览量统计响应式样式 */
-            .stats-modal-content {
-                max-width: 850px;
-            }
-            
-            .stats-chart-container {
-                height: 350px;
             }
         }
         
@@ -1677,17 +1436,6 @@
             
             .export-mode-buttons {
                 flex-direction: column;
-            }
-            
-            /* 新增：浏览量统计移动端样式 */
-            .views-count {
-                padding: 10px 20px;
-                font-size: 2.5rem;
-            }
-            
-            .stats-cards {
-                grid-template-columns: 1fr;
-                gap: 12px;
             }
         }
         
@@ -1761,20 +1509,6 @@
             .result-btn {
                 min-width: 100%;
             }
-            
-            /* 新增：浏览量统计小屏幕样式 */
-            .views-count {
-                font-size: 2.2rem;
-                padding: 8px 15px;
-            }
-            
-            .stats-cards {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-value {
-                font-size: 2rem;
-            }
         }
         
         @media (max-width: 768px) and (orientation: landscape) {
@@ -1821,15 +1555,6 @@
                 max-height: 85vh;
                 overflow-y: auto;
             }
-            
-            /* 新增：浏览量统计横屏样式 */
-            .stats-cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .stats-modal-content {
-                max-height: 90vh;
-            }
         }
         
         @media (max-width: 768px) and (orientation: portrait) {
@@ -1854,11 +1579,6 @@
             
             .result-content {
                 width: 98%;
-            }
-            
-            /* 新增：浏览量统计竖屏样式 */
-            .stats-cards {
-                grid-template-columns: 1fr;
             }
         }
         
@@ -1912,15 +1632,13 @@
             background: rgba(168, 168, 168, 0.8);
         }
         
-        /* 新增：移动端详情卡片布局和字体调整 */
+        /* 移动端详情卡片布局和字体调整 */
         @media (max-width: 768px) {
-            /* 移动端详情卡片布局 - 两行三列 */
             .analysis-results {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
             }
             
-            /* 移动端卡片字体调小 */
             .analysis-card {
                 padding: 8px;
                 font-size: 0.8rem;
@@ -1944,7 +1662,6 @@
                 display: block;
             }
             
-            /* 移动端详情标题字体调小 */
             .modal-header h2 {
                 font-size: 1.2rem;
             }
@@ -1953,7 +1670,6 @@
                 font-size: 1rem;
             }
             
-            /* 移动端速度卡片布局调整 */
             .speed-with-max {
                 flex-direction: column;
                 gap: 10px;
@@ -1964,7 +1680,6 @@
                 width: 100%;
             }
             
-            /* 移动端表格字体调小 */
             .click-data-table {
                 font-size: 0.75rem;
             }
@@ -1978,13 +1693,11 @@
                 padding: 5px 3px;
             }
             
-            /* 移动端导出按钮字体调小 */
             .export-btn {
                 padding: 8px 12px;
                 font-size: 0.8rem;
             }
             
-            /* 移动端图表区域调整 */
             .chart-wrapper {
                 height: 240px;
                 padding: 12px;
@@ -1995,28 +1708,12 @@
                 padding: 12px;
             }
             
-            /* 移动端详情内容整体字体调整 */
             #modal-content {
                 font-size: 0.9rem;
             }
-            
-            /* 新增：浏览量统计移动端调整 */
-            .stats-card {
-                padding: 15px;
-            }
-            
-            .stats-value {
-                font-size: 2rem;
-            }
-            
-            .stats-modal-content {
-                padding: 20px;
-            }
         }
         
-        /* 小屏幕手机进一步调整 */
         @media (max-width: 480px) {
-            /* 卡片进一步缩小 */
             .analysis-results {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 6px;
@@ -2039,29 +1736,16 @@
                 font-size: 0.6rem;
             }
             
-            /* 表格进一步缩小 */
             .click-data-table {
                 font-size: 0.7rem;
             }
             
-            /* 图表进一步缩小 */
             .chart-wrapper {
                 height: 200px;
                 padding: 10px;
             }
-            
-            /* 新增：浏览量统计小屏幕调整 */
-            .views-count {
-                font-size: 1.8rem;
-            }
-            
-            .stats-chart-container {
-                height: 250px;
-                padding: 15px;
-            }
         }
         
-        /* 横屏模式调整 */
         @media (max-width: 768px) and (orientation: landscape) {
             .analysis-results {
                 grid-template-columns: repeat(3, 1fr);
@@ -2084,19 +1768,8 @@
             .analysis-card small {
                 font-size: 0.65rem;
             }
-            
-            /* 新增：浏览量统计横屏调整 */
-            .stats-cards {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-            
-            .stats-card {
-                padding: 15px;
-            }
         }
         
-        /* 超小屏幕手机特殊处理 */
         @media (max-width: 320px) {
             .analysis-results {
                 grid-template-columns: repeat(3, 1fr);
@@ -2119,20 +1792,6 @@
             
             .analysis-card small {
                 font-size: 0.55rem;
-            }
-            
-            /* 新增：浏览量统计超小屏幕调整 */
-            .views-count {
-                font-size: 1.6rem;
-                padding: 6px 12px;
-            }
-            
-            .stats-card {
-                padding: 12px;
-            }
-            
-            .stats-value {
-                font-size: 1.8rem;
             }
         }
     </style>
@@ -2207,13 +1866,6 @@
             <button id="clear-all-btn" class="btn-clear">清空所有数据</button>
         </div>
         
-        <!-- 新增：浏览量统计区域 -->
-        <div class="views-container">
-            <div class="views-title">全局总浏览量</div>
-            <div class="views-count" id="total-views">加载中...</div>
-            <div class="views-hint">提示：5秒内快速点击5次可查看详细统计</div>
-        </div>
-        
         <div class="import-section">
             <h4>导入文件</h4>
             <div class="file-upload">
@@ -2222,52 +1874,6 @@
             </div>
             <button id="import-btn" class="btn-import">导入文件</button>
             <div id="import-status" style="margin-top: 12px; font-size: 0.9rem; color: #666;"></div>
-        </div>
-    </div>
-
-    <!-- 新增：统计面板模态框 -->
-    <div class="stats-modal" id="stats-modal">
-        <div class="stats-modal-content">
-            <div class="stats-modal-header">
-                <h2>📊 浏览统计报告</h2>
-                <button class="stats-close-btn" id="stats-close-btn">关闭</button>
-            </div>
-            
-            <div class="stats-cards">
-                <div class="stats-card">
-                    <h3>今日浏览量</h3>
-                    <div class="stats-value" id="today-views">0</div>
-                    <div class="stats-card-description">今天 (0:00-23:59)</div>
-                </div>
-                <div class="stats-card">
-                    <h3>本周浏览量</h3>
-                    <div class="stats-value" id="week-views">0</div>
-                    <div class="stats-card-description">本周 (周一到周日)</div>
-                </div>
-                <div class="stats-card">
-                    <h3>历史总浏览量</h3>
-                    <div class="stats-value" id="history-views">0</div>
-                    <div class="stats-card-description">自统计开始以来</div>
-                </div>
-            </div>
-            
-            <div class="stats-chart-container">
-                <canvas id="views-chart"></canvas>
-            </div>
-            
-            <button class="stats-refresh-btn" id="refresh-stats-btn">
-                <span>🔄 刷新统计数据</span>
-            </button>
-            
-            <div class="stats-info">
-                <strong>统计说明：</strong>
-                <ul style="margin-top: 8px; padding-left: 20px;">
-                    <li>所有数据基于真实访问统计，使用CountAPI全球同步</li>
-                    <li>不同设备、不同浏览器访问时数据完全一致</li>
-                    <li>数据每5分钟自动更新一次，可手动刷新</li>
-                    <li>统计从启用功能开始计算，历史数据仅供参考</li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -2446,7 +2052,7 @@
 
     <script>
         // ============================================
-        // 原手速测试器代码（保持不变）
+        // 手速测试器核心代码 (已移除浏览量统计系统)
         // ============================================
         
         // 获取DOM元素
@@ -2487,8 +2093,6 @@
         const exportForViewBtn = document.getElementById('export-for-view');
         const exportNormalBtn = document.getElementById('export-normal');
         const exportCancelBtn = document.getElementById('export-cancel');
-        const viewDetailModal = document.getElementById('view-detail-modal');
-        const viewModalContent = document.getElementById('view-modal-content');
         const detailModalTitle = document.getElementById('detail-modal-title');
         const keyOptionsContainer = document.getElementById('key-options-container');
         const resultDialog = document.getElementById('result-dialog');
@@ -2615,35 +2219,30 @@
             settingsModal.style.display = 'none';
         }
         
-        // 显示结果弹窗（优化版，防止误触）
+        // 显示结果弹窗
         function showResultDialog(avgSpeed, maxSpeed, testId) {
             resultAvgSpeedDisplay.innerHTML = `${avgSpeed}<span class="result-stat-unit">次/秒</span>`;
             resultMaxSpeedDisplay.innerHTML = `${maxSpeed}<span class="result-stat-unit">次/秒</span>`;
             lastTestData = {avgSpeed, maxSpeed, testId};
             
-            // 启用按钮
             resultDetailBtn.disabled = false;
             resultExitBtn.disabled = false;
             
-            // 显示弹窗
             resultDialog.style.display = 'flex';
             
-            // 设置冷却时间，防止立即点击
             resultDialogCooldown = true;
             resultDialogClickTime = Date.now();
             
-            // 500毫秒后关闭冷却
             setTimeout(() => {
                 resultDialogCooldown = false;
             }, 500);
         }
         
-        // 关闭结果弹窗（优化版）
+        // 关闭结果弹窗
         function closeResultDialog() {
-            // 检查冷却时间
             const now = Date.now();
             if (resultDialogCooldown && (now - resultDialogClickTime < 500)) {
-                return; // 在冷却时间内，不执行关闭操作
+                return;
             }
             
             resultDialog.style.display = 'none';
@@ -2695,7 +2294,6 @@
                     isViewOnly: true
                 };
                 
-                // 直接显示详细分析报告
                 showTestDetails(testData);
                 return testData;
             } catch (e) {
@@ -2882,9 +2480,7 @@
             
             settingsBtn.addEventListener('click', openSettingsModal);
             
-            // 优化结果弹窗按钮点击事件
             resultDetailBtn.addEventListener('click', function(e) {
-                // 防止连续快速点击
                 if (resultDialogCooldown) return;
                 
                 if (lastTestData && lastTestData.testId) {
@@ -2896,17 +2492,9 @@
             });
             
             resultExitBtn.addEventListener('click', function(e) {
-                // 防止连续快速点击
                 if (resultDialogCooldown) return;
                 closeResultDialog();
             });
-            
-            // 移除结果弹窗点击外部关闭的功能
-            // resultDialog.addEventListener('click', function(e) {
-            //     if (e.target === resultDialog) {
-            //         closeResultDialog();
-            //     }
-            // });
             
             settingsModal.addEventListener('click', function(e) {
                 if (e.target === settingsModal) {
@@ -2986,11 +2574,6 @@
                     clearTimeout(longPressTimer);
                 });
             }
-            
-            // ============================================
-            // 新增：初始化浏览量统计系统
-            // ============================================
-            initViewsSystem();
         }
         
         // 显示确认对话框
@@ -3822,7 +3405,6 @@
             const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds).toFixed(1) : 0;
             avgSpeedDisplay.innerHTML = `${avgSpeed}<span class="stat-unit">次/秒</span>`;
             
-            // 修复稳定性计算问题
             if (settings.stabilityAnalysis && clickTimes.length > 5) {
                 const speeds = clickTimes.slice(-10).map(click => click.instantSpeed);
                 const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
@@ -4206,7 +3788,7 @@
             });
         }
         
-        // 修改showTestDetails以支持直接传入测试数据对象
+        // 显示测试详情（支持直接传入测试数据对象）
         function showTestDetails(testIdOrData) {
             let testData;
             if (typeof testIdOrData === 'number') {
@@ -4815,363 +4397,6 @@
                 hideExportModeDialog();
             }
         });
-        
-        // ============================================
-        // 新增：浏览量统计系统
-        // ============================================
-        
-        // 获取浏览量统计相关DOM元素
-        const totalViewsDisplay = document.getElementById('total-views');
-        const statsModal = document.getElementById('stats-modal');
-        const statsCloseBtn = document.getElementById('stats-close-btn');
-        const todayViewsDisplay = document.getElementById('today-views');
-        const weekViewsDisplay = document.getElementById('week-views');
-        const historyViewsDisplay = document.getElementById('history-views');
-        const refreshStatsBtn = document.getElementById('refresh-stats-btn');
-        const viewsChartCanvas = document.getElementById('views-chart');
-        
-        // 浏览量统计变量
-        let viewsChart = null;
-        let clickCount = 0;
-        let lastClickTime = 0;
-        let clickTimeout = null;
-        
-        // CountAPI配置
-        const countApiConfig = {
-            namespace: 'hand-speed-test',
-            baseUrl: 'https://api.countapi.xyz'
-        };
-        
-        // 获取当前日期和周的key
-        function getDateKeys() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            
-            // 计算周数
-            const firstDayOfYear = new Date(year, 0, 1);
-            const pastDaysOfYear = (now - firstDayOfYear) / 86400000;
-            const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-            
-            return {
-                today: `${year}-${month}-${day}`,
-                week: `${year}-W${weekNumber}`,
-                total: 'total'
-            };
-        }
-        
-        // 更新CountAPI计数
-        async function updateCount(key) {
-            const keys = getDateKeys();
-            const apiKey = key === 'today' ? keys.today : 
-                           key === 'week' ? keys.week : 
-                           keys.total;
-            
-            try {
-                // 先尝试获取当前值
-                const getResponse = await fetch(
-                    `${countApiConfig.baseUrl}/get/${countApiConfig.namespace}/${apiKey}`
-                );
-                
-                if (getResponse.ok) {
-                    const data = await getResponse.json();
-                    // 如果存在，则增加计数
-                    const hitResponse = await fetch(
-                        `${countApiConfig.baseUrl}/hit/${countApiConfig.namespace}/${apiKey}`
-                    );
-                    if (hitResponse.ok) {
-                        return await hitResponse.json();
-                    }
-                } else {
-                    // 如果不存在，创建并设为1
-                    const createResponse = await fetch(
-                        `${countApiConfig.baseUrl}/set/${countApiConfig.namespace}/${apiKey}?value=1`
-                    );
-                    if (createResponse.ok) {
-                        return await createResponse.json();
-                    }
-                }
-            } catch (error) {
-                console.error('更新CountAPI失败:', error);
-                // 如果API失败，使用本地存储作为后备
-                return updateLocalCount(key);
-            }
-            
-            return { value: 0 };
-        }
-        
-        // 获取CountAPI计数
-        async function getCount(key) {
-            const keys = getDateKeys();
-            const apiKey = key === 'today' ? keys.today : 
-                           key === 'week' ? keys.week : 
-                           keys.total;
-            
-            try {
-                const response = await fetch(
-                    `${countApiConfig.baseUrl}/get/${countApiConfig.namespace}/${apiKey}`
-                );
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    return data.value || 0;
-                } else {
-                    // 如果API失败，尝试从本地存储获取
-                    return getLocalCount(key);
-                }
-            } catch (error) {
-                console.error('获取CountAPI失败:', error);
-                return getLocalCount(key);
-            }
-        }
-        
-        // 更新本地存储计数（后备方案）
-        function updateLocalCount(key) {
-            const keys = getDateKeys();
-            const storageKey = `views_${key}`;
-            let count = localStorage.getItem(storageKey);
-            count = count ? parseInt(count) + 1 : 1;
-            localStorage.setItem(storageKey, count);
-            return { value: count };
-        }
-        
-        // 获取本地存储计数（后备方案）
-        function getLocalCount(key) {
-            const storageKey = `views_${key}`;
-            const count = localStorage.getItem(storageKey);
-            return count ? parseInt(count) : 0;
-        }
-        
-        // 初始化浏览量统计
-        async function initViewsSystem() {
-            // 更新总浏览量（当前访问）
-            const totalResult = await updateCount('total');
-            await updateCount('today');
-            await updateCount('week');
-            
-            // 显示总浏览量
-            totalViewsDisplay.textContent = totalResult.value.toLocaleString();
-            
-            // 添加点击事件监听
-            totalViewsDisplay.addEventListener('click', handleViewsClick);
-            
-            // 添加统计面板关闭事件
-            statsCloseBtn.addEventListener('click', closeStatsModal);
-            statsModal.addEventListener('click', function(e) {
-                if (e.target === statsModal) {
-                    closeStatsModal();
-                }
-            });
-            
-            // 添加刷新按钮事件
-            refreshStatsBtn.addEventListener('click', refreshStats);
-            
-            // 每5分钟自动刷新浏览量
-            setInterval(refreshViews, 5 * 60 * 1000);
-        }
-        
-        // 处理浏览量点击事件
-        function handleViewsClick(e) {
-            const now = Date.now();
-            
-            // 重置超时
-            if (clickTimeout) {
-                clearTimeout(clickTimeout);
-            }
-            
-            // 如果超过5秒，重置计数
-            if (now - lastClickTime > 5000) {
-                clickCount = 0;
-            }
-            
-            clickCount++;
-            lastClickTime = now;
-            
-            // 显示点击反馈
-            createClickFeedback(e.clientX, e.clientY, clickCount);
-            
-            // 设置5秒后重置计数
-            clickTimeout = setTimeout(() => {
-                clickCount = 0;
-            }, 5000);
-            
-            // 如果5秒内点击了5次，显示统计面板
-            if (clickCount >= 5) {
-                clickCount = 0;
-                showStatsModal();
-            }
-        }
-        
-        // 创建点击反馈动画
-        function createClickFeedback(x, y, count) {
-            const feedback = document.createElement('div');
-            feedback.className = 'click-feedback';
-            feedback.textContent = `+${count}`;
-            feedback.style.left = `${x}px`;
-            feedback.style.top = `${y}px`;
-            
-            document.body.appendChild(feedback);
-            
-            // 动画结束后移除元素
-            setTimeout(() => {
-                feedback.remove();
-            }, 800);
-        }
-        
-        // 显示统计面板
-        async function showStatsModal() {
-            statsModal.style.display = 'flex';
-            await loadStatsData();
-            renderViewsChart();
-        }
-        
-        // 关闭统计面板
-        function closeStatsModal() {
-            statsModal.style.display = 'none';
-        }
-        
-        // 加载统计数据
-        async function loadStatsData() {
-            try {
-                // 获取所有统计数据
-                const [todayViews, weekViews, totalViews] = await Promise.all([
-                    getCount('today'),
-                    getCount('week'),
-                    getCount('total')
-                ]);
-                
-                // 更新显示
-                todayViewsDisplay.textContent = todayViews.toLocaleString();
-                weekViewsDisplay.textContent = weekViews.toLocaleString();
-                historyViewsDisplay.textContent = totalViews.toLocaleString();
-                totalViewsDisplay.textContent = totalViews.toLocaleString();
-                
-                return { todayViews, weekViews, totalViews };
-            } catch (error) {
-                console.error('加载统计数据失败:', error);
-                return { todayViews: 0, weekViews: 0, totalViews: 0 };
-            }
-        }
-        
-        // 刷新统计数据
-        async function refreshStats() {
-            refreshStatsBtn.disabled = true;
-            refreshStatsBtn.innerHTML = '<span>🔄 刷新中...</span>';
-            
-            const stats = await loadStatsData();
-            renderViewsChart(stats);
-            
-            setTimeout(() => {
-                refreshStatsBtn.disabled = false;
-                refreshStatsBtn.innerHTML = '<span>🔄 刷新统计数据</span>';
-            }, 1000);
-        }
-        
-        // 刷新浏览量显示
-        async function refreshViews() {
-            try {
-                const totalViews = await getCount('total');
-                totalViewsDisplay.textContent = totalViews.toLocaleString();
-            } catch (error) {
-                console.error('刷新浏览量失败:', error);
-            }
-        }
-        
-        // 渲染浏览量图表
-        function renderViewsChart(stats = null) {
-            const ctx = viewsChartCanvas.getContext('2d');
-            
-            if (viewsChart) {
-                viewsChart.destroy();
-            }
-            
-            // 如果没有提供统计数据，使用默认值
-            if (!stats) {
-                stats = {
-                    todayViews: parseInt(todayViewsDisplay.textContent.replace(/,/g, '')) || 0,
-                    weekViews: parseInt(weekViewsDisplay.textContent.replace(/,/g, '')) || 0,
-                    totalViews: parseInt(historyViewsDisplay.textContent.replace(/,/g, '')) || 0
-                };
-            }
-            
-            // 计算历史平均值（假设统计已运行30天）
-            const historicalAvg = Math.floor(stats.totalViews / 30);
-            
-            viewsChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['今日', '本周', '历史平均', '历史总计'],
-                    datasets: [{
-                        label: '浏览量',
-                        data: [
-                            stats.todayViews,
-                            stats.weekViews,
-                            historicalAvg,
-                            Math.min(stats.totalViews, historicalAvg * 5) // 限制显示高度
-                        ],
-                        backgroundColor: [
-                            'rgba(102, 126, 234, 0.7)',
-                            'rgba(118, 75, 162, 0.7)',
-                            'rgba(79, 172, 254, 0.7)',
-                            'rgba(245, 87, 108, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(102, 126, 234, 1)',
-                            'rgba(118, 75, 162, 1)',
-                            'rgba(79, 172, 254, 1)',
-                            'rgba(245, 87, 108, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: '浏览量统计对比',
-                            font: { size: 14, weight: 'bold' }
-                        },
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.dataIndex === 3) {
-                                        // 历史总计显示实际值
-                                        label += stats.totalViews.toLocaleString();
-                                    } else {
-                                        label += context.parsed.y.toLocaleString();
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: '浏览量'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
         
         // 初始化
         init();

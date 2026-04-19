@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手速测试器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>手速测试器 · 专业分析</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.3.0/dist/chartjs-plugin-zoom.min.js"></script>
     <style>
@@ -2052,7 +2052,7 @@
 
     <script>
         // ============================================
-        // 手速测试器核心代码 (已移除浏览量统计系统)
+        // 手速测试器核心代码 (已删除“点击数量累计”图表)
         // ============================================
         
         // 获取DOM元素
@@ -3671,7 +3671,7 @@
             return { labels, speeds: processedSpeeds };
         }
         
-        // 渲染详情图表
+        // 渲染详情图表 (增加饼图调用)
         function renderDetailChart(testId) {
             const testData = history.find(item => item.id === testId);
             if (!testData) return;
@@ -3788,6 +3788,95 @@
             });
         }
         
+        // 新增：绘制手速区间占比饼图
+        function renderSpeedDistributionChart(testData) {
+            const pieCtx = document.getElementById('speed-distribution-chart');
+            if (!pieCtx) return;
+            
+            if (charts.distributionChart) {
+                charts.distributionChart.destroy();
+            }
+            
+            // 定义速度区间 (次/秒): 低速:0-4, 中速:4-8, 高速:8-12, 极速:>12
+            const ranges = [
+                { label: '低速 (0-4 次/秒)', min: 0, max: 4, color: '#36A2EB' },
+                { label: '中速 (4-8 次/秒)', min: 4, max: 8, color: '#FFCE56' },
+                { label: '高速 (8-12 次/秒)', min: 8, max: 12, color: '#FF6384' },
+                { label: '极速 (>12 次/秒)', min: 12, max: Infinity, color: '#9966FF' }
+            ];
+            
+            // 统计每个区间的点击次数 (排除第一次点击，因为间隔为0)
+            const counts = ranges.map(r => 0);
+            const intervals = testData.clickTimes.slice(1).map(c => c.instantSpeed);
+            
+            intervals.forEach(speed => {
+                for (let i = 0; i < ranges.length; i++) {
+                    if (speed >= ranges[i].min && speed < ranges[i].max) {
+                        counts[i]++;
+                        break;
+                    }
+                }
+            });
+            
+            // 过滤掉计数为0的区间 (可选)
+            const filteredLabels = [];
+            const filteredData = [];
+            const filteredColors = [];
+            counts.forEach((count, idx) => {
+                if (count > 0) {
+                    filteredLabels.push(ranges[idx].label);
+                    filteredData.push(count);
+                    filteredColors.push(ranges[idx].color);
+                }
+            });
+            
+            // 如果没有有效数据，显示提示
+            if (filteredData.length === 0) {
+                filteredLabels.push('无有效数据');
+                filteredData.push(1);
+                filteredColors.push('#ccc');
+            }
+            
+            charts.distributionChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: filteredLabels,
+                    datasets: [{
+                        data: filteredData,
+                        backgroundColor: filteredColors,
+                        borderWidth: 1,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '手速区间占比',
+                            font: { size: 14 }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value} 次 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
         // 显示测试详情（支持直接传入测试数据对象）
         function showTestDetails(testIdOrData) {
             let testData;
@@ -3879,9 +3968,10 @@
                         <button class="chart-fullscreen-btn" onclick="openChartFullscreen('speedChart', '瞬时手速变化')">🔍</button>
                         <canvas id="speedChart"></canvas>
                     </div>
+                    <!-- 手速区间占比饼图 -->
                     <div class="chart-wrapper">
-                        <button class="chart-fullscreen-btn" onclick="openChartFullscreen('clickChart', '点击数量累计')">🔍</button>
-                        <canvas id="clickChart"></canvas>
+                        <button class="chart-fullscreen-btn" onclick="openChartFullscreen('distributionChart', '手速区间占比')">🔍</button>
+                        <canvas id="speed-distribution-chart"></canvas>
                     </div>
                     ${analysis.additionalCharts || ''}
                 </div>
@@ -3924,6 +4014,8 @@
             
             renderDetailChart(testData.id);
             renderDetailCharts(testData);
+            // 绘制饼图
+            renderSpeedDistributionChart(testData);
             
             if (settings.progressTracking) {
                 renderProgressChart();
@@ -4073,55 +4165,7 @@
             const { speedChart, ...otherCharts } = charts;
             charts = { speedChart };
             
-            const clickCtx = document.getElementById('clickChart');
-            if (clickCtx) {
-                const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
-                const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
-                
-                charts.clickChart = new Chart(clickCtx, {
-                    type: 'line',
-                    data: {
-                        labels: timePoints,
-                        datasets: [{
-                            label: '累计点击次数',
-                            data: cumulativeClicks,
-                            borderColor: '#4CAF50',
-                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '点击数量累计',
-                                font: { size: 14 }
-                            },
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: '时间 (秒)'
-                                }
-                            },
-                            y: {
-                                title: {
-                                    display: true,
-                                    text: '点击次数'
-                                },
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
+            // 不再渲染点击数量累计图表
             
             if (settings.aiAnalysis) {
                 renderAdditionalCharts(testData);

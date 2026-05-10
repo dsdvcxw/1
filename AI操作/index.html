@@ -2650,7 +2650,7 @@
             } else if (type === 'view') {
                 const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
                 
-                const simplifiedClicks = testData.clickTimes.slice(0, 20).map((click, index) => 
+                const simplifiedClicks = testData.clickTimes.map((click, index) => 
                     `${index + 1}:${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
                 ).join(';');
                 
@@ -3632,7 +3632,7 @@
             
             closeDetailChartSettings();
             
-            renderDetailChart(testId);
+            renderDetailChart(window.currentDetailTestData);
         }
         
         // 根据设置处理详情图表数据
@@ -3672,8 +3672,13 @@
         }
         
         // 渲染详情图表 (增加饼图调用)
-        function renderDetailChart(testId) {
-            const testData = history.find(item => item.id === testId);
+        function renderDetailChart(testIdOrData) {
+            let testData;
+            if (typeof testIdOrData === 'number') {
+                testData = history.find(item => item.id === testIdOrData);
+            } else {
+                testData = testIdOrData;
+            }
             if (!testData) return;
             
             const speedCtx = document.getElementById('speedChart');
@@ -3887,6 +3892,8 @@
             }
             if (!testData) return;
             
+            window.currentDetailTestData = testData;
+            
             const savedSettings = localStorage.getItem('detailChartSettings');
             if (savedSettings) {
                 const parsedSettings = JSON.parse(savedSettings);
@@ -4012,7 +4019,7 @@
                 });
             });
             
-            renderDetailChart(testData.id);
+            renderDetailChart(testData);
             renderDetailCharts(testData);
             // 绘制饼图
             renderSpeedDistributionChart(testData);

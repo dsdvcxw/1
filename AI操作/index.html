@@ -176,6 +176,9 @@
         
         .click-area:active {
             transform: scale(0.98);
+            box-shadow: 
+                0 8px 20px rgba(102, 126, 234, 0.4),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .click-area.disabled {
@@ -190,6 +193,12 @@
             box-shadow: 
                 0 15px 30px rgba(79, 172, 254, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
         
         .click-text {
@@ -2446,8 +2455,15 @@
         }
         
         // 更新实时折线图
+        let chartUpdateThrottle = false;
         function updateRealTimeChart(timeFromStart, instantSpeed, avgSpeed) {
             if (!settings.realTimeChartDisplay || !realTimeChart) return;
+            
+            if (chartUpdateThrottle) return;
+            chartUpdateThrottle = true;
+            requestAnimationFrame(() => {
+                chartUpdateThrottle = false;
+            });
             
             realTimeChartData.labels.push(timeFromStart.toFixed(1));
             realTimeChartData.instantSpeedData.push(instantSpeed);
@@ -3423,11 +3439,13 @@
             avgSpeedDisplay.innerHTML = `${avgSpeed}<span class="stat-unit">次/秒</span>`;
             
             if (settings.stabilityAnalysis && clickTimes.length > 5) {
-                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed);
-                const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
-                const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
-                const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - (variance / avg * 100))) : 0;
-                stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
+                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed).filter(s => s > 0);
+                if (speeds.length > 1) {
+                    const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+                    const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
+                    const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - (variance / avg * 100))) : 0;
+                    stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
+                }
             }
             
             return {
@@ -4142,6 +4160,7 @@
             
             const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
             const variance = intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length;
+            const stdDev = Math.sqrt(variance);
             
             if (variance < 1000) {
                 return { pattern: '匀速型', description: '点击节奏非常稳定' };

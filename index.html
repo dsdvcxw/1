@@ -3409,7 +3409,7 @@
                 const speeds = clickTimes.slice(-10).map(click => click.instantSpeed);
                 const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
                 const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
-                const stability = avg > 0 ? Math.max(0, 100 - (variance / avg * 100)) : 0;
+                const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - (variance / avg * 100))) : 0;
                 stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
             }
             
@@ -4033,7 +4033,7 @@
                 if (speeds.length > 0) {
                     const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
                     const variance = speeds.reduce((a, b) => a + Math.pow(b - avgSpeed, 2), 0) / speeds.length;
-                    const stability = avgSpeed > 0 ? Math.max(0, 100 - (variance / avgSpeed * 100)) : 0;
+                    const stability = avgSpeed > 0 ? Math.max(0, Math.min(100, 100 - (variance / avgSpeed * 100))) : 0;
                     
                     analysis.cards.push({
                         title: '手速稳定性',
@@ -4058,13 +4058,13 @@
                 const firstAvg = firstHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / firstHalf.length;
                 const secondAvg = secondHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / secondHalf.length;
                 
-                const fatigueRate = ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1);
+                const fatigueRate = firstAvg > 0 ? ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1) : 0;
                 
                 analysis.cards.push({
                     title: '疲劳度',
                     value: `${fatigueRate}%`,
-                    description: fatigueRate > 10 ? '明显疲劳' : fatigueRate > 5 ? '轻微疲劳' : '状态良好',
-                    type: fatigueRate > 10 ? 'danger' : fatigueRate > 5 ? 'warning' : ''
+                    description: parseFloat(fatigueRate) > 10 ? '明显疲劳' : parseFloat(fatigueRate) > 5 ? '轻微疲劳' : '状态良好',
+                    type: parseFloat(fatigueRate) > 10 ? 'danger' : parseFloat(fatigueRate) > 5 ? 'warning' : ''
                 });
             }
             

@@ -2269,14 +2269,31 @@
                     return null;
                 }
                 
-                const clickTimes = data.clickData.split(';').map(item => {
-                    const parts = item.split(':');
-                    return {
-                        timeFromStart: parseFloat(parts[1]),
-                        interval: parseInt(parts[2]),
-                        instantSpeed: parseFloat(parts[3])
-                    };
-                });
+                if (!data.clickData || data.clickData.length === 0) {
+                    return null;
+                }
+                
+                const clickTimes = [];
+                const clickDataItems = data.clickData.split(';');
+                
+                for (let i = 0; i < clickDataItems.length; i++) {
+                    try {
+                        const parts = clickDataItems[i].split(':');
+                        if (parts.length >= 4) {
+                            clickTimes.push({
+                                timeFromStart: parseFloat(parts[1]) || 0,
+                                interval: parseInt(parts[2]) || 0,
+                                instantSpeed: parseFloat(parts[3]) || 0
+                            });
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
+                
+                if (clickTimes.length === 0) {
+                    return null;
+                }
                 
                 const testData = {
                     id: Date.now(),
@@ -2650,7 +2667,7 @@
             } else if (type === 'view') {
                 const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
                 
-                const simplifiedClicks = testData.clickTimes.slice(0, 20).map((click, index) => 
+                const simplifiedClicks = testData.clickTimes.map((click, index) => 
                     `${index + 1}:${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
                 ).join(';');
                 
@@ -3671,9 +3688,14 @@
             return { labels, speeds: processedSpeeds };
         }
         
-        // 渲染详情图表 (增加饼图调用)
-        function renderDetailChart(testId) {
-            const testData = history.find(item => item.id === testId);
+        // 渲染详情图表 (支持直接传入测试数据对象)
+        function renderDetailChart(testIdOrData) {
+            let testData;
+            if (typeof testIdOrData === 'number') {
+                testData = history.find(item => item.id === testIdOrData);
+            } else {
+                testData = testIdOrData;
+            }
             if (!testData) return;
             
             const speedCtx = document.getElementById('speedChart');
@@ -3788,13 +3810,16 @@
             });
         }
         
-        // 新增：绘制手速区间占比饼图
         function renderSpeedDistributionChart(testData) {
             const pieCtx = document.getElementById('speed-distribution-chart');
             if (!pieCtx) return;
             
             if (charts.distributionChart) {
                 charts.distributionChart.destroy();
+            }
+            
+            if (!testData || !testData.clickTimes || testData.clickTimes.length === 0) {
+                return;
             }
             
             // 定义速度区间 (次/秒): 低速:0-4, 中速:4-8, 高速:8-12, 极速:>12
@@ -4012,7 +4037,7 @@
                 });
             });
             
-            renderDetailChart(testData.id);
+            renderDetailChart(testData);
             renderDetailCharts(testData);
             // 绘制饼图
             renderSpeedDistributionChart(testData);
@@ -4055,17 +4080,26 @@
                 const firstHalf = testData.clickTimes.slice(0, Math.floor(testData.clickTimes.length / 2));
                 const secondHalf = testData.clickTimes.slice(Math.floor(testData.clickTimes.length / 2));
                 
-                const firstAvg = firstHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / firstHalf.length;
-                const secondAvg = secondHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / secondHalf.length;
-                
-                const fatigueRate = firstAvg > 0 ? ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1) : 0;
-                
-                analysis.cards.push({
-                    title: '疲劳度',
-                    value: `${fatigueRate}%`,
-                    description: parseFloat(fatigueRate) > 10 ? '明显疲劳' : parseFloat(fatigueRate) > 5 ? '轻微疲劳' : '状态良好',
-                    type: parseFloat(fatigueRate) > 10 ? 'danger' : parseFloat(fatigueRate) > 5 ? 'warning' : ''
-                });
+                if (firstHalf.length === 0 || secondHalf.length === 0) {
+                    analysis.cards.push({
+                        title: '疲劳度',
+                        value: `0.0%`,
+                        description: '数据不足',
+                        type: 'danger'
+                    });
+                } else {
+                    const firstAvg = firstHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / firstHalf.length;
+                    const secondAvg = secondHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / secondHalf.length;
+                    
+                    const fatigueRate = firstAvg > 0 ? ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1) : 0;
+                    
+                    analysis.cards.push({
+                        title: '疲劳度',
+                        value: `${fatigueRate}%`,
+                        description: parseFloat(fatigueRate) > 10 ? '明显疲劳' : parseFloat(fatigueRate) > 5 ? '轻微疲劳' : '状态良好',
+                        type: parseFloat(fatigueRate) > 10 ? 'danger' : parseFloat(fatigueRate) > 5 ? 'warning' : ''
+                    });
+                }
             }
             
             if (settings.patternRecognition) {
@@ -4102,7 +4136,7 @@
         }
         
         function detectClickPattern(intervals) {
-            if (intervals.length < 3) {
+            if (!intervals || intervals.length < 3) {
                 return { pattern: '数据不足', description: '需要更多点击数据进行分析' };
             }
             
@@ -4115,6 +4149,11 @@
             
             const firstThird = intervals.slice(0, Math.floor(intervals.length / 3));
             const lastThird = intervals.slice(-Math.floor(intervals.length / 3));
+            
+            if (firstThird.length === 0 || lastThird.length === 0) {
+                return { pattern: '数据不足', description: '需要更多点击数据进行分析' };
+            }
+            
             const firstAvg = firstThird.reduce((a, b) => a + b, 0) / firstThird.length;
             const lastAvg = lastThird.reduce((a, b) => a + b, 0) / lastThird.length;
             
@@ -4145,10 +4184,12 @@
             
             if (testData.clickTimes.length > 10) {
                 const intervals = testData.clickTimes.slice(1).map(click => click.interval);
-                const consistency = intervals.filter(i => i > 50 && i < 200).length / intervals.length;
-                
-                if (consistency < 0.6) {
-                    advice += '。注意点击节奏的稳定性';
+                if (intervals.length > 0) {
+                    const consistency = intervals.filter(i => i > 50 && i < 200).length / intervals.length;
+                    
+                    if (consistency < 0.6) {
+                        advice += '。注意点击节奏的稳定性';
+                    }
                 }
             }
             

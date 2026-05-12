@@ -2619,12 +2619,13 @@
                 return;
             }
             
+            const validSpeeds = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
+            const maxSpeed = validSpeeds.length > 0 ? Math.max(...validSpeeds).toFixed(1) : '0';
+            
             let content = '';
             let filename = '';
             
             if (type === 'compressed') {
-                const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
-                
                 const clickData = testData.clickTimes.map(click => 
                     `${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
                 ).join(';');
@@ -2648,8 +2649,6 @@
                 downloadFile(content, filename);
                 alert('压缩文件已导出，可用于导入数据！');
             } else if (type === 'view') {
-                const maxSpeed = Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1);
-                
                 const simplifiedClicks = testData.clickTimes.map((click, index) => 
                     `${index + 1}:${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
                 ).join(';');
@@ -2689,6 +2688,9 @@
                 return;
             }
             
+            const validSpeeds = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
+            const maxSpeedValue = validSpeeds.length > 0 ? Math.max(...validSpeeds).toFixed(1) : '0';
+            
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 800;
             tempCanvas.height = 800;
@@ -2706,7 +2708,7 @@
             ctx.fillText(`测试时间: ${testData.time}`, 40, 90);
             ctx.fillText(`总点击次数: ${testData.clicks}次`, 40, 120);
             ctx.fillText(`平均手速: ${testData.speed} 次/秒`, 40, 150);
-            ctx.fillText(`最高手速: ${Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1)} 次/秒`, 40, 180);
+            ctx.fillText(`最高手速: ${maxSpeedValue} 次/秒`, 40, 180);
             ctx.fillText(`测试时长: ${testData.duration.toFixed(1)} 秒`, 40, 210);
             
             ctx.fillStyle = '#f8f9fa';
@@ -2892,10 +2894,13 @@
             report += '手速测试报告\n';
             report += '='.repeat(50) + '\n\n';
             
+            const validSpeeds = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
+            const maxSpeed = validSpeeds.length > 0 ? Math.max(...validSpeeds).toFixed(1) : '0';
+            
             report += `测试时间: ${testData.time}\n`;
             report += `总点击次数: ${testData.clicks}\n`;
             report += `平均手速: ${testData.speed} 次/秒\n`;
-            report += `最高手速: ${Math.max(...testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0)).toFixed(1)} 次/秒\n`;
+            report += `最高手速: ${maxSpeed} 次/秒\n`;
             report += `测试时长: ${testData.duration.toFixed(1)} 秒\n`;
             report += `测试按键: ${getKeyName(testData.settings.testKey, testData.settings.customKey)}\n`;
             report += `测试时间设置: ${testData.settings.testTime} 秒\n\n`;
@@ -3073,36 +3078,40 @@
         
         // 加载设置
         function loadSettings() {
-            const savedSettings = localStorage.getItem('speedTestSettings');
-            if (savedSettings) {
-                const parsedSettings = JSON.parse(savedSettings);
-                settings = {...settings, ...parsedSettings};
-                
-                testTimeInput.value = settings.testTime;
-                timer = settings.testTime;
-                timerDisplay.textContent = timer;
-                
-                document.getElementById('sound-feedback').checked = settings.soundFeedback;
-                document.getElementById('speed-sound').checked = settings.speedSound;
-                document.getElementById('real-time-wave').checked = settings.realTimeWave;
-                document.getElementById('real-time-chart-display').checked = settings.realTimeChartDisplay;
-                document.getElementById('stability-analysis').checked = settings.stabilityAnalysis;
-                document.getElementById('fatigue-analysis').checked = settings.fatigueAnalysis;
-                document.getElementById('pattern-recognition').checked = settings.patternRecognition;
-                document.getElementById('progress-tracking').checked = settings.progressTracking;
-                document.getElementById('ai-analysis').checked = settings.aiAnalysis;
-                
-                document.querySelectorAll('.key-option').forEach(option => {
-                    if (option.dataset.key === settings.testKey) {
-                        option.classList.add('active');
-                        if (option.dataset.key === 'custom') {
-                            customKeyContainer.style.display = 'block';
-                            customKeyInput.value = settings.customKey || '';
+            try {
+                const savedSettings = localStorage.getItem('speedTestSettings');
+                if (savedSettings) {
+                    const parsedSettings = JSON.parse(savedSettings);
+                    settings = {...settings, ...parsedSettings};
+                    
+                    testTimeInput.value = settings.testTime;
+                    timer = settings.testTime;
+                    timerDisplay.textContent = timer;
+                    
+                    document.getElementById('sound-feedback').checked = settings.soundFeedback;
+                    document.getElementById('speed-sound').checked = settings.speedSound;
+                    document.getElementById('real-time-wave').checked = settings.realTimeWave;
+                    document.getElementById('real-time-chart-display').checked = settings.realTimeChartDisplay;
+                    document.getElementById('stability-analysis').checked = settings.stabilityAnalysis;
+                    document.getElementById('fatigue-analysis').checked = settings.fatigueAnalysis;
+                    document.getElementById('pattern-recognition').checked = settings.patternRecognition;
+                    document.getElementById('progress-tracking').checked = settings.progressTracking;
+                    document.getElementById('ai-analysis').checked = settings.aiAnalysis;
+                    
+                    document.querySelectorAll('.key-option').forEach(option => {
+                        if (option.dataset.key === settings.testKey) {
+                            option.classList.add('active');
+                            if (option.dataset.key === 'custom') {
+                                customKeyContainer.style.display = 'block';
+                                customKeyInput.value = settings.customKey || '';
+                            }
+                        } else {
+                            option.classList.remove('active');
                         }
-                    } else {
-                        option.classList.remove('active');
-                    }
-                });
+                    });
+                }
+            } catch (e) {
+                console.error('加载设置失败:', e);
             }
         }
         
@@ -3387,7 +3396,7 @@
         }
         
         function calculateSpeed() {
-            if (clickTimes.length < 2) return;
+            if (clickTimes.length < 2) return null;
             
             const currentTime = performance.now();
             const oneSecondAgo = currentTime - 1000;
@@ -3402,20 +3411,25 @@
             }
             
             const elapsedSeconds = (currentTime - startTime) / 1000;
-            const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds).toFixed(1) : 0;
-            avgSpeedDisplay.innerHTML = `${avgSpeed}<span class="stat-unit">次/秒</span>`;
+            const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds) : 0;
+            avgSpeedDisplay.innerHTML = `${avgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
             if (settings.stabilityAnalysis && clickTimes.length > 5) {
-                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed);
-                const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
-                const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
-                const stability = avg > 0 ? Math.max(0, 100 - (variance / avg * 100)) : 0;
-                stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
+                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed).filter(s => s > 0);
+                if (speeds.length > 0) {
+                    const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+                    const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
+                    const stdDev = Math.sqrt(variance);
+                    const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / avg * 100))) : 0;
+                    stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
+                } else {
+                    stabilityDisplay.innerHTML = `0.0<span class="stat-unit">%</span>`;
+                }
             }
             
             return {
                 instantSpeed: recentClicks,
-                avgSpeed: parseFloat(avgSpeed)
+                avgSpeed: parseFloat(avgSpeed.toFixed(1))
             };
         }
         
@@ -3444,7 +3458,7 @@
             
             const endTime = performance.now();
             const totalTime = (endTime - startTime) / 1000;
-            const avgSpeed = totalTime > 0 ? (clickCount / totalTime).toFixed(1) : 0;
+            const avgSpeed = totalTime > 0 ? (clickCount / totalTime) : 0;
             
             startBtn.disabled = false;
             stopBtn.disabled = true;
@@ -3456,12 +3470,12 @@
             document.removeEventListener('keydown', handleKeyPress);
             removeVolumeKeyListeners();
             
-            avgSpeedDisplay.innerHTML = `${avgSpeed}<span class="stat-unit">次/秒</span>`;
+            avgSpeedDisplay.innerHTML = `${avgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
-            const testId = addToHistory(clickCount, avgSpeed, totalTime);
+            const testId = addToHistory(clickCount, avgSpeed.toFixed(1), totalTime);
             
             const maxSpeed = maxInstantSpeed.toFixed(1);
-            showResultDialog(avgSpeed, maxSpeed, testId);
+            showResultDialog(avgSpeed.toFixed(1), maxSpeed, testId);
         }
         
         function addToHistory(clicks, speed, duration) {
@@ -3509,14 +3523,24 @@
         }
         
         function saveHistory() {
-            localStorage.setItem('speedTestHistory', JSON.stringify(history.slice(0, 50)));
+            try {
+                localStorage.setItem('speedTestHistory', JSON.stringify(history.slice(0, 50)));
+            } catch (e) {
+                console.error('保存历史记录失败:', e);
+                alert('保存历史记录失败，可能存储空间不足');
+            }
         }
         
         function loadHistory() {
-            const savedHistory = localStorage.getItem('speedTestHistory');
-            if (savedHistory) {
-                history = JSON.parse(savedHistory);
-                updateHistoryDisplay();
+            try {
+                const savedHistory = localStorage.getItem('speedTestHistory');
+                if (savedHistory) {
+                    history = JSON.parse(savedHistory);
+                    updateHistoryDisplay();
+                }
+            } catch (e) {
+                console.error('加载历史记录失败:', e);
+                history = [];
             }
             updateInstructions();
         }
@@ -3647,13 +3671,14 @@
                 labels = testData.clickTimes.slice(1).map((click, i) => click.timeFromStart.toFixed(1));
                 processedSpeeds = speeds;
             } else {
-                const interval = detailChartSettings.sequenceInterval;
+                const interval = Math.max(1, detailChartSettings.sequenceInterval);
                 
                 if (detailChartSettings.dataSampling === 'average') {
                     for (let i = 0; i < speeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, speeds.length);
                         const slice = speeds.slice(i, endIdx);
-                        const avg = slice.reduce((a, b) => a + b, 0) / slice.length;
+                        const validSlice = slice.filter(s => s > 0);
+                        const avg = validSlice.length > 0 ? validSlice.reduce((a, b) => a + b, 0) / validSlice.length : 0;
                         labels.push(`${i+1}`);
                         processedSpeeds.push(avg);
                     }
@@ -3661,7 +3686,7 @@
                     for (let i = 0; i < speeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, speeds.length);
                         const slice = speeds.slice(i, endIdx);
-                        const maxVal = Math.max(...slice);
+                        const maxVal = slice.length > 0 ? Math.max(...slice) : 0;
                         labels.push(`${i+1}`);
                         processedSpeeds.push(maxVal);
                     }
@@ -3679,7 +3704,7 @@
             } else {
                 testData = testIdOrData;
             }
-            if (!testData) return;
+            if (!testData || !testData.clickTimes || testData.clickTimes.length === 0) return;
             
             const speedCtx = document.getElementById('speedChart');
             if (!speedCtx) return;
@@ -3689,6 +3714,43 @@
             }
             
             const processedData = processDetailChartData(testData);
+            
+            if (processedData.labels.length === 0 || processedData.speeds.every(s => s === 0)) {
+                charts.speedChart = new Chart(speedCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['无数据'],
+                        datasets: [{
+                            label: '手速 (次/秒)',
+                            data: [0],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '瞬时手速变化',
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                return;
+            }
             
             const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
             const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
@@ -3701,20 +3763,20 @@
             if (detailChartSettings.axisType === 'time') {
                 processedAvgSpeeds = avgSpeeds;
             } else {
-                const interval = detailChartSettings.sequenceInterval;
+                const interval = Math.max(1, detailChartSettings.sequenceInterval);
                 if (detailChartSettings.dataSampling === 'average') {
                     for (let i = 0; i < avgSpeeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, avgSpeeds.length);
                         const slice = avgSpeeds.slice(i, endIdx);
                         const avg = slice.reduce((a, b) => a + b, 0) / slice.length;
-                        processedAvgSpeeds.push(avg);
+                        processedAvgSpeeds.push(isNaN(avg) ? 0 : avg);
                     }
                 } else {
                     for (let i = 0; i < avgSpeeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, avgSpeeds.length);
                         const slice = avgSpeeds.slice(i, endIdx);
                         const maxVal = Math.max(...slice);
-                        processedAvgSpeeds.push(maxVal);
+                        processedAvgSpeeds.push(isNaN(maxVal) ? 0 : maxVal);
                     }
                 }
             }
@@ -3722,7 +3784,7 @@
             const datasets = [
                 {
                     label: '平均手速 (次/秒)',
-                    data: processedAvgSpeeds,
+                    data: processedAvgSpeeds.map(s => isNaN(s) ? 0 : s),
                     borderColor: '#f5576c',
                     backgroundColor: 'rgba(245, 87, 108, 0.1)',
                     tension: 0.4,
@@ -3736,7 +3798,7 @@
                 },
                 {
                     label: '瞬时手速 (次/秒)',
-                    data: processedData.speeds,
+                    data: processedData.speeds.map(s => isNaN(s) ? 0 : s),
                     borderColor: '#667eea',
                     backgroundColor: 'rgba(102, 126, 234, 0.05)',
                     tension: 0.4,
@@ -4040,7 +4102,8 @@
                 if (speeds.length > 0) {
                     const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
                     const variance = speeds.reduce((a, b) => a + Math.pow(b - avgSpeed, 2), 0) / speeds.length;
-                    const stability = avgSpeed > 0 ? Math.max(0, 100 - (variance / avgSpeed * 100)) : 0;
+                    const stdDev = Math.sqrt(variance);
+                    const stability = avgSpeed > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / avgSpeed * 100))) : 0;
                     
                     analysis.cards.push({
                         title: '手速稳定性',
@@ -4062,17 +4125,29 @@
                 const firstHalf = testData.clickTimes.slice(0, Math.floor(testData.clickTimes.length / 2));
                 const secondHalf = testData.clickTimes.slice(Math.floor(testData.clickTimes.length / 2));
                 
-                const firstAvg = firstHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / firstHalf.length;
-                const secondAvg = secondHalf.reduce((sum, click) => sum + click.instantSpeed, 0) / secondHalf.length;
+                const firstSpeeds = firstHalf.filter(c => c.instantSpeed > 0).map(c => c.instantSpeed);
+                const secondSpeeds = secondHalf.filter(c => c.instantSpeed > 0).map(c => c.instantSpeed);
                 
-                const fatigueRate = ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1);
-                
-                analysis.cards.push({
-                    title: '疲劳度',
-                    value: `${fatigueRate}%`,
-                    description: fatigueRate > 10 ? '明显疲劳' : fatigueRate > 5 ? '轻微疲劳' : '状态良好',
-                    type: fatigueRate > 10 ? 'danger' : fatigueRate > 5 ? 'warning' : ''
-                });
+                if (firstSpeeds.length > 0 && secondSpeeds.length > 0) {
+                    const firstAvg = firstSpeeds.reduce((sum, s) => sum + s, 0) / firstSpeeds.length;
+                    const secondAvg = secondSpeeds.reduce((sum, s) => sum + s, 0) / secondSpeeds.length;
+                    
+                    const fatigueRate = firstAvg > 0 ? ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1) : 0;
+                    
+                    analysis.cards.push({
+                        title: '疲劳度',
+                        value: `${fatigueRate}%`,
+                        description: fatigueRate > 10 ? '明显疲劳' : fatigueRate > 5 ? '轻微疲劳' : '状态良好',
+                        type: fatigueRate > 10 ? 'danger' : fatigueRate > 5 ? 'warning' : ''
+                    });
+                } else {
+                    analysis.cards.push({
+                        title: '疲劳度',
+                        value: '0.0%',
+                        description: '无有效数据',
+                        type: ''
+                    });
+                }
             }
             
             if (settings.patternRecognition) {
@@ -4113,8 +4188,13 @@
                 return { pattern: '数据不足', description: '需要更多点击数据进行分析' };
             }
             
-            const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-            const variance = intervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / intervals.length;
+            const validIntervals = intervals.filter(i => i > 0);
+            if (validIntervals.length < 3) {
+                return { pattern: '数据不足', description: '需要更多有效点击数据' };
+            }
+            
+            const avgInterval = validIntervals.reduce((a, b) => a + b, 0) / validIntervals.length;
+            const variance = validIntervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / validIntervals.length;
             
             if (variance < 1000) {
                 return { pattern: '匀速型', description: '点击节奏非常稳定' };
@@ -4122,8 +4202,15 @@
             
             const firstThird = intervals.slice(0, Math.floor(intervals.length / 3));
             const lastThird = intervals.slice(-Math.floor(intervals.length / 3));
-            const firstAvg = firstThird.reduce((a, b) => a + b, 0) / firstThird.length;
-            const lastAvg = lastThird.reduce((a, b) => a + b, 0) / lastThird.length;
+            const validFirstThird = firstThird.filter(i => i > 0);
+            const validLastThird = lastThird.filter(i => i > 0);
+            
+            if (validFirstThird.length === 0 || validLastThird.length === 0) {
+                return { pattern: '波动型', description: '点击节奏有一定波动' };
+            }
+            
+            const firstAvg = validFirstThird.reduce((a, b) => a + b, 0) / validFirstThird.length;
+            const lastAvg = validLastThird.reduce((a, b) => a + b, 0) / validLastThird.length;
             
             if (lastAvg < firstAvg * 0.8) {
                 return { pattern: '加速型', description: '测试后期点击速度加快' };
@@ -4184,6 +4271,10 @@
             if (patternCtx) {
                 const intervals = testData.clickTimes.slice(1).map(click => click.interval);
                 
+                if (intervals.length === 0) {
+                    return;
+                }
+                
                 charts.patternChart = new Chart(patternCtx, {
                     type: 'bar',
                     data: {
@@ -4226,8 +4317,13 @@
                 
                 for (let i = 0; i < testData.clickTimes.length; i += segmentSize) {
                     const segment = testData.clickTimes.slice(i, i + segmentSize);
-                    const avgSpeed = segment.reduce((sum, click) => sum + click.instantSpeed, 0) / segment.length;
-                    segments.push(avgSpeed || 0);
+                    const validSpeeds = segment.filter(c => c.instantSpeed > 0).map(c => c.instantSpeed);
+                    const avgSpeed = validSpeeds.length > 0 ? validSpeeds.reduce((sum, s) => sum + s, 0) / validSpeeds.length : 0;
+                    segments.push(avgSpeed);
+                }
+                
+                if (segments.length === 0) {
+                    segments.push(0);
                 }
                 
                 charts.fatigueChart = new Chart(fatigueCtx, {
@@ -4272,13 +4368,17 @@
             if (progressCtx) {
                 const recentTests = history.slice(0, 10).reverse();
                 
+                if (recentTests.length === 0) {
+                    return;
+                }
+                
                 charts.progressChart = new Chart(progressCtx, {
                     type: 'line',
                     data: {
                         labels: recentTests.map((test, i) => `测试${i+1}`),
                         datasets: [{
                             label: '平均手速',
-                            data: recentTests.map(test => parseFloat(test.speed)),
+                            data: recentTests.map(test => parseFloat(test.speed) || 0),
                             borderColor: '#9C27B0',
                             backgroundColor: 'rgba(156, 39, 176, 0.1)',
                             tension: 0.4,

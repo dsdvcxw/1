@@ -1369,6 +1369,11 @@
             color: white;
         }
         
+        .result-btn.restart {
+            background: linear-gradient(to right, #4CAF50, #45a049);
+            color: white;
+        }
+        
         .result-btn.exit {
             background: #f0f0f0;
             color: #666;
@@ -2148,6 +2153,7 @@
             </div>
             <div class="result-buttons">
                 <button class="result-btn detail" id="result-detail-btn">查看详情</button>
+                <button class="result-btn restart" id="result-restart-btn">快速重测</button>
                 <button class="result-btn exit" id="result-exit-btn">退出</button>
             </div>
         </div>
@@ -2202,6 +2208,7 @@
         const resultAvgSpeedDisplay = document.getElementById('result-avg-speed');
         const resultMaxSpeedDisplay = document.getElementById('result-max-speed');
         const resultDetailBtn = document.getElementById('result-detail-btn');
+        const resultRestartBtn = document.getElementById('result-restart-btn');
         const resultExitBtn = document.getElementById('result-exit-btn');
         
         // 音效元素
@@ -2332,6 +2339,7 @@
             
             resultDetailBtn.disabled = false;
             resultExitBtn.disabled = false;
+            resultRestartBtn.disabled = false;
             
             resultDialog.style.display = 'flex';
             
@@ -2675,6 +2683,14 @@
                 closeResultDialog();
             });
             
+            resultRestartBtn.addEventListener('click', function(e) {
+                if (resultDialogCooldown) return;
+                closeResultDialog();
+                setTimeout(() => {
+                    startTest();
+                }, 100);
+            });
+            
             settingsModal.addEventListener('click', function(e) {
                 if (e.target === settingsModal) {
                     closeSettingsModal();
@@ -2761,7 +2777,7 @@
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
                 
-                if (e.code === 'Space' && !testActive && !countdownActive && !settingsModal.style.display === 'flex') {
+                if (e.code === 'Space' && !testActive && !countdownActive && settingsModal.style.display !== 'flex') {
                     e.preventDefault();
                     startTest();
                 }
@@ -3595,24 +3611,26 @@
             
             const currentTime = performance.now();
             const timeFromStart = (currentTime - startTime) / 1000;
-            const interval = clickTimes.length > 0 ? (currentTime - clickTimes[clickTimes.length - 1].time) : 0;
+            const prevTime = clickTimes.length > 0 ? clickTimes[clickTimes.length - 1].time : currentTime;
+            const interval = currentTime - prevTime;
             const instantSpeed = interval > 0 ? (1000/interval) : 0;
+            const validInstantSpeed = isNaN(instantSpeed) || !isFinite(instantSpeed) ? 0 : instantSpeed;
             
-            if (instantSpeed > maxInstantSpeed) {
-                maxInstantSpeed = instantSpeed;
-                maxSpeedDisplay.innerHTML = `${instantSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
+            if (validInstantSpeed > maxInstantSpeed) {
+                maxInstantSpeed = validInstantSpeed;
+                maxSpeedDisplay.innerHTML = `${validInstantSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             }
             
             const clickData = {
                 time: currentTime,
                 timeFromStart: timeFromStart,
                 interval: interval,
-                instantSpeed: instantSpeed
+                instantSpeed: validInstantSpeed
             };
             clickTimes.push(clickData);
             
-            playClickSound(instantSpeed);
-            updateWaveAnimation(instantSpeed);
+            playClickSound(validInstantSpeed);
+            updateWaveAnimation(validInstantSpeed);
             calculateSpeed();
         }
         
@@ -3624,7 +3642,8 @@
             
             let recentClicks = 0;
             for (let i = clickTimes.length - 1; i >= 0; i--) {
-                if (clickTimes[i].time >= oneSecondAgo) {
+                const clickTime = clickTimes[i].time;
+                if (clickTime >= oneSecondAgo) {
                     recentClicks++;
                 } else {
                     break;
@@ -3633,16 +3652,19 @@
             
             const elapsedSeconds = (currentTime - startTime) / 1000;
             const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds) : 0;
-            avgSpeedDisplay.innerHTML = `${avgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
+            const validAvgSpeed = isNaN(avgSpeed) || !isFinite(avgSpeed) ? 0 : avgSpeed;
+            avgSpeedDisplay.innerHTML = `${validAvgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
             if (settings.stabilityAnalysis && clickTimes.length > 5) {
-                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed).filter(s => s > 0);
+                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
                 if (speeds.length > 0) {
                     const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+                    const validAvg = isNaN(avg) || avg === 0 ? 1 : avg;
                     const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
                     const stdDev = Math.sqrt(variance);
-                    const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / avg * 100))) : 0;
-                    stabilityDisplay.innerHTML = `${stability.toFixed(1)}<span class="stat-unit">%</span>`;
+                    const stability = validAvg > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / validAvg * 100))) : 0;
+                    const validStability = isNaN(stability) || !isFinite(stability) ? 0 : stability;
+                    stabilityDisplay.innerHTML = `${validStability.toFixed(1)}<span class="stat-unit">%</span>`;
                 } else {
                     stabilityDisplay.innerHTML = `0.0<span class="stat-unit">%</span>`;
                 }
@@ -3650,7 +3672,7 @@
             
             return {
                 instantSpeed: recentClicks,
-                avgSpeed: parseFloat(avgSpeed.toFixed(1))
+                avgSpeed: parseFloat(validAvgSpeed.toFixed(1))
             };
         }
         
@@ -3680,6 +3702,7 @@
             const endTime = performance.now();
             const totalTime = (endTime - startTime) / 1000;
             const avgSpeed = totalTime > 0 ? (clickCount / totalTime) : 0;
+            const validAvgSpeed = isNaN(avgSpeed) || !isFinite(avgSpeed) ? 0 : avgSpeed;
             
             startBtn.disabled = false;
             stopBtn.disabled = true;
@@ -3691,16 +3714,16 @@
             document.removeEventListener('keydown', handleKeyPress);
             removeVolumeKeyListeners();
             
-            avgSpeedDisplay.innerHTML = `${avgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
+            avgSpeedDisplay.innerHTML = `${validAvgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
-            const testId = addToHistory(clickCount, avgSpeed.toFixed(1), totalTime);
+            const testId = addToHistory(clickCount, validAvgSpeed.toFixed(1), totalTime);
             
-            const maxSpeed = maxInstantSpeed.toFixed(1);
+            const maxSpeed = isNaN(maxInstantSpeed) || !isFinite(maxInstantSpeed) ? 0 : maxInstantSpeed;
             
-            checkAndUpdateBestSpeed(parseFloat(avgSpeed.toFixed(1)));
-            checkAchievements(parseFloat(avgSpeed.toFixed(1)), maxSpeed, clickCount, totalTime);
+            checkAndUpdateBestSpeed(validAvgSpeed);
+            checkAchievements(validAvgSpeed, maxSpeed.toFixed(1), clickCount, totalTime);
             
-            showResultDialog(avgSpeed.toFixed(1), maxSpeed, testId);
+            showResultDialog(validAvgSpeed.toFixed(1), maxSpeed.toFixed(1), testId);
         }
         
         function addToHistory(clicks, speed, duration) {
@@ -3887,13 +3910,22 @@
         // 根据设置处理详情图表数据
         function processDetailChartData(testData) {
             const intervals = testData.clickTimes.slice(1).map(click => click.interval);
-            const speeds = intervals.map(interval => interval > 0 ? (1000/interval) : 0);
+            const speeds = intervals.map(interval => {
+                if (interval > 0 && isFinite(interval)) {
+                    const speed = 1000/interval;
+                    return isFinite(speed) ? speed : 0;
+                }
+                return 0;
+            });
             
             let labels = [];
             let processedSpeeds = [];
             
             if (detailChartSettings.axisType === 'time') {
-                labels = testData.clickTimes.slice(1).map((click, i) => click.timeFromStart.toFixed(1));
+                labels = testData.clickTimes.slice(1).map((click) => {
+                    const time = parseFloat(click.timeFromStart);
+                    return isFinite(time) ? time.toFixed(1) : '0.0';
+                });
                 processedSpeeds = speeds;
             } else {
                 const interval = Math.max(1, detailChartSettings.sequenceInterval);
@@ -3902,18 +3934,19 @@
                     for (let i = 0; i < speeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, speeds.length);
                         const slice = speeds.slice(i, endIdx);
-                        const validSlice = slice.filter(s => s > 0);
+                        const validSlice = slice.filter(s => s > 0 && isFinite(s));
                         const avg = validSlice.length > 0 ? validSlice.reduce((a, b) => a + b, 0) / validSlice.length : 0;
                         labels.push(`${i+1}`);
-                        processedSpeeds.push(avg);
+                        processedSpeeds.push(isFinite(avg) ? avg : 0);
                     }
                 } else {
                     for (let i = 0; i < speeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, speeds.length);
                         const slice = speeds.slice(i, endIdx);
-                        const maxVal = slice.length > 0 ? Math.max(...slice) : 0;
+                        const validSlice = slice.filter(s => isFinite(s));
+                        const maxVal = validSlice.length > 0 ? Math.max(...validSlice) : 0;
                         labels.push(`${i+1}`);
-                        processedSpeeds.push(maxVal);
+                        processedSpeeds.push(isFinite(maxVal) ? maxVal : 0);
                     }
                 }
             }
@@ -3977,12 +4010,19 @@
                 return;
             }
             
-            const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+            const timePoints = testData.clickTimes.map(click => {
+                const time = parseFloat(click.timeFromStart);
+                return isFinite(time) ? time.toFixed(1) : '0.0';
+            });
             const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
             const avgSpeeds = timePoints.map((time, i) => {
                 const elapsedSeconds = parseFloat(time);
-                return elapsedSeconds > 0 ? (cumulativeClicks[i] / elapsedSeconds) : 0;
-            }).filter(s => !isNaN(s) && isFinite(s));
+                if (elapsedSeconds > 0 && isFinite(elapsedSeconds) && isFinite(cumulativeClicks[i])) {
+                    const speed = cumulativeClicks[i] / elapsedSeconds;
+                    return isFinite(speed) ? speed : 0;
+                }
+                return 0;
+            }).filter(s => isFinite(s));
             
             let processedAvgSpeeds = [];
             if (detailChartSettings.axisType === 'time') {
@@ -3993,15 +4033,17 @@
                     for (let i = 0; i < avgSpeeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, avgSpeeds.length);
                         const slice = avgSpeeds.slice(i, endIdx);
-                        const avg = slice.reduce((a, b) => a + b, 0) / slice.length;
-                        processedAvgSpeeds.push(isNaN(avg) ? 0 : avg);
+                        const validSlice = slice.filter(s => isFinite(s));
+                        const avg = validSlice.length > 0 ? validSlice.reduce((a, b) => a + b, 0) / validSlice.length : 0;
+                        processedAvgSpeeds.push(isFinite(avg) ? avg : 0);
                     }
                 } else {
                     for (let i = 0; i < avgSpeeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, avgSpeeds.length);
                         const slice = avgSpeeds.slice(i, endIdx);
-                        const maxVal = Math.max(...slice);
-                        processedAvgSpeeds.push(isNaN(maxVal) ? 0 : maxVal);
+                        const validSlice = slice.filter(s => isFinite(s));
+                        const maxVal = validSlice.length > 0 ? Math.max(...validSlice) : 0;
+                        processedAvgSpeeds.push(isFinite(maxVal) ? maxVal : 0);
                     }
                 }
             }
@@ -4102,22 +4144,24 @@
             const intervals = testData.clickTimes.slice(1).map(c => c.instantSpeed);
             
             intervals.forEach(speed => {
+                const validSpeed = isFinite(speed) ? speed : 0;
                 for (let i = 0; i < ranges.length; i++) {
-                    if (speed >= ranges[i].min && speed < ranges[i].max) {
+                    if (validSpeed >= ranges[i].min && validSpeed < ranges[i].max) {
                         counts[i]++;
                         break;
                     }
                 }
             });
             
-            // 过滤掉计数为0的区间 (可选)
+            // 过滤掉计数为0的区间
             const filteredLabels = [];
             const filteredData = [];
             const filteredColors = [];
             counts.forEach((count, idx) => {
-                if (count > 0) {
+                const validCount = isFinite(count) ? count : 0;
+                if (validCount > 0) {
                     filteredLabels.push(ranges[idx].label);
-                    filteredData.push(count);
+                    filteredData.push(validCount);
                     filteredColors.push(ranges[idx].color);
                 }
             });
@@ -4157,9 +4201,13 @@
                             callbacks: {
                                 label: (context) => {
                                     const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    const value = typeof context.raw === 'number' && isFinite(context.raw) ? context.raw : 0;
+                                    const dataset = context.dataset && Array.isArray(context.dataset.data) ? context.dataset.data : [];
+                                    const total = dataset.reduce((a, b) => {
+                                        const validB = typeof b === 'number' && isFinite(b) ? b : 0;
+                                        return a + validB;
+                                    }, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
                                     return `${label}: ${value} 次 (${percentage}%)`;
                                 }
                             }

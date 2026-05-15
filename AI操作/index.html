@@ -2337,9 +2337,9 @@
             resultMaxSpeedDisplay.innerHTML = `${maxSpeed}<span class="result-stat-unit">次/秒</span>`;
             lastTestData = {avgSpeed, maxSpeed, testId};
             
-            resultDetailBtn.disabled = false;
-            resultExitBtn.disabled = false;
-            resultRestartBtn.disabled = false;
+            resultDetailBtn.disabled = true;
+            resultExitBtn.disabled = true;
+            if (resultRestartBtn) resultRestartBtn.disabled = true;
             
             resultDialog.style.display = 'flex';
             
@@ -2348,13 +2348,16 @@
             
             setTimeout(() => {
                 resultDialogCooldown = false;
-            }, 500);
+                resultDetailBtn.disabled = false;
+                resultExitBtn.disabled = false;
+                if (resultRestartBtn) resultRestartBtn.disabled = false;
+            }, 1000);
         }
         
         // 关闭结果弹窗
         function closeResultDialog() {
             const now = Date.now();
-            if (resultDialogCooldown && (now - resultDialogClickTime < 500)) {
+            if (resultDialogCooldown && (now - resultDialogClickTime < 1000)) {
                 return;
             }
             
@@ -3655,9 +3658,9 @@
             const validAvgSpeed = isNaN(avgSpeed) || !isFinite(avgSpeed) ? 0 : avgSpeed;
             avgSpeedDisplay.innerHTML = `${validAvgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
-            if (settings.stabilityAnalysis && clickTimes.length > 5) {
-                const speeds = clickTimes.slice(-10).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
-                if (speeds.length > 0) {
+            if (settings.stabilityAnalysis && clickTimes.length > 2) {
+                const speeds = clickTimes.slice(-15).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
+                if (speeds.length >= 2) {
                     const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
                     const validAvg = isNaN(avg) || avg === 0 ? 1 : avg;
                     const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
@@ -3665,8 +3668,10 @@
                     const stability = validAvg > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / validAvg * 100))) : 0;
                     const validStability = isNaN(stability) || !isFinite(stability) ? 0 : stability;
                     stabilityDisplay.innerHTML = `${validStability.toFixed(1)}<span class="stat-unit">%</span>`;
+                } else if (speeds.length === 1) {
+                    stabilityDisplay.innerHTML = `100.0<span class="stat-unit">%</span>`;
                 } else {
-                    stabilityDisplay.innerHTML = `0.0<span class="stat-unit">%</span>`;
+                    stabilityDisplay.innerHTML = `<span class="stat-unit">计算中...</span>`;
                 }
             }
             

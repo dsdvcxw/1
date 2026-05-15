@@ -216,13 +216,14 @@
             right: 20px;
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 165, 0, 0.95));
             color: #333;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
+            padding: 15px 25px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            box-shadow: 0 12px 28px rgba(255, 165, 0, 0.4);
             z-index: 100;
             display: none;
+            border: 2px solid rgba(255, 255, 255, 0.4);
         }
         
         .best-record.show {
@@ -1953,20 +1954,39 @@
         
         <div class="history">
             <h3>测试历史</h3>
+            <div id="history-summary" style="margin-bottom: 15px; padding: 12px; background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(102, 126, 234, 0.1)); border-radius: 10px; text-align: left; font-size: 0.9rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+                    <div>
+                        <strong>总测试次数:</strong> <span id="total-tests">0</span>
+                    </div>
+                    <div>
+                        <strong>历史最佳:</strong> <span id="history-best">0 次/秒</span>
+                    </div>
+                    <div>
+                        <strong>平均水平:</strong> <span id="history-average">0 次/秒</span>
+                    </div>
+                    <div>
+                        <strong>总点击量:</strong> <span id="total-clicks">0</span>
+                    </div>
+                </div>
+            </div>
             <ul id="history-list"></ul>
         </div>
         
         <div class="instructions">
             <h3>使用说明：</h3>
             <ol>
-                <li>点击"开始测试"按钮开始手速测试</li>
+                <li>点击"开始测试"按钮开始手速测试（或按空格键快速开始）</li>
                 <li>等待3秒倒计时结束后开始点击</li>
                 <li>根据设置使用相应按键进行测试</li>
                 <li>手机端可选择音量键进行测试</li>
                 <li>测试时间可在设置中调整(1秒-24小时)</li>
                 <li>开启高级功能可获得更详细的分析报告</li>
-                <li>注意：清空所有数据将删除全部历史记录</li>
+                <li>在测试结果对话框中按 R 键可快速重测</li>
+                <li>可以单独删除某个历史测试记录</li>
+                <li>查看历史汇总统计，了解自己的进步</li>
                 <li>导入文件支持两种模式：导入数据和仅查看</li>
+                <li>按 ESC 键可关闭所有弹窗</li>
             </ol>
         </div>
         
@@ -2161,8 +2181,42 @@
 
     <script>
         // ============================================
-        // 手速测试器核心代码 (已删除“点击数量累计”图表)
+        // 手速测试器核心代码 (已删除"点击数量累计"图表)
         // ============================================
+        
+        // ========== 辅助函数 ==========
+        
+        // 性能优化：避免不必要的重绘和重排
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // 安全的数值解析函数，避免NaN和Infinity
+        function safeParseNumber(value, defaultValue = 0) {
+            const num = parseFloat(value);
+            return isNaN(num) || !isFinite(num) ? defaultValue : num;
+        }
+        
+        // 安全的数组操作
+        function safeArrayOperation(arr, operation) {
+            if (!Array.isArray(arr) || arr.length === 0) return [];
+            try {
+                return operation(arr);
+            } catch (e) {
+                console.error('数组操作错误:', e);
+                return [];
+            }
+        }
+        
+        // ========== 核心代码 ==========
         
         // 获取DOM元素
         const startBtn = document.getElementById('start-btn');
@@ -2780,11 +2834,14 @@
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
                 
-                if (e.code === 'Space' && !testActive && !countdownActive && settingsModal.style.display !== 'flex') {
+                // 空格键开始测试
+                if (e.code === 'Space' && !testActive && !countdownActive && 
+                    settingsModal.style.display !== 'flex' && resultDialog.style.display !== 'flex') {
                     e.preventDefault();
                     startTest();
                 }
                 
+                // ESC键关闭所有弹窗
                 if (e.code === 'Escape') {
                     if (settingsModal.style.display === 'flex') {
                         closeSettingsModal();
@@ -2795,11 +2852,30 @@
                     if (chartModal.style.display === 'flex') {
                         closeChartModal();
                     }
+                    if (confirmDialog.style.display === 'flex') {
+                        hideConfirmDialog();
+                    }
+                    if (exportModeDialog.style.display === 'flex') {
+                        hideExportModeDialog();
+                    }
+                    if (resultDialog.style.display === 'flex') {
+                        closeResultDialog();
+                    }
                 }
                 
+                // Ctrl+R 重置
                 if (e.ctrlKey && e.code === 'KeyR') {
                     e.preventDefault();
                     resetTest();
+                }
+                
+                // R键快速重测（当显示结果对话框时）
+                if (e.code === 'KeyR' && resultDialog.style.display === 'flex' && !resultDialogCooldown) {
+                    e.preventDefault();
+                    closeResultDialog();
+                    setTimeout(() => {
+                        startTest();
+                    }, 100);
                 }
             });
         }
@@ -2819,6 +2895,15 @@
             history = [];
             saveHistory();
             updateHistoryDisplay();
+            updateHistorySummary();
+            
+            // 重置最佳记录
+            bestSpeed = 0;
+            localStorage.removeItem('speedTestBestSpeed');
+            const bestRecordEl = document.getElementById('best-record');
+            const bestSpeedEl = document.getElementById('best-speed');
+            bestSpeedEl.textContent = '0 次/秒';
+            bestRecordEl.classList.remove('show');
             
             resetTest();
             
@@ -3484,31 +3569,47 @@
             }
         }
         
+        // 存储音量键监听器引用，便于正确移除
+        let volumeKeyListener1 = null;
+        let volumeKeyListener2 = null;
+        
         // 音量键事件监听（移动端）
         function setupVolumeKeyListeners() {
-            window.addEventListener('keydown', function(event) {
+            // 先移除之前可能存在的监听器
+            removeVolumeKeyListeners();
+            
+            volumeKeyListener1 = function(event) {
                 if (settings.testKey === 'volume' && testActive) {
                     if (event.code === 'VolumeUp' || event.code === 'VolumeDown') {
                         handleVolumeKey(event);
                     }
                 }
-            });
+            };
+            
+            window.addEventListener('keydown', volumeKeyListener1);
             
             if (isMobileDevice()) {
-                document.addEventListener('keydown', function(event) {
+                volumeKeyListener2 = function(event) {
                     if (settings.testKey === 'volume' && testActive) {
                         if (event.key === 'VolumeUp' || event.key === 'VolumeDown') {
                             handleVolumeKey(event);
                         }
                     }
-                });
+                };
+                document.addEventListener('keydown', volumeKeyListener2);
             }
         }
         
         // 移除音量键事件监听
         function removeVolumeKeyListeners() {
-            window.removeEventListener('keydown', handleVolumeKey);
-            document.removeEventListener('keydown', handleVolumeKey);
+            if (volumeKeyListener1) {
+                window.removeEventListener('keydown', volumeKeyListener1);
+                volumeKeyListener1 = null;
+            }
+            if (volumeKeyListener2) {
+                document.removeEventListener('keydown', volumeKeyListener2);
+                volumeKeyListener2 = null;
+            }
         }
         
         function startTest() {
@@ -3617,7 +3718,7 @@
             const prevTime = clickTimes.length > 0 ? clickTimes[clickTimes.length - 1].time : currentTime;
             const interval = currentTime - prevTime;
             const instantSpeed = interval > 0 ? (1000/interval) : 0;
-            const validInstantSpeed = isNaN(instantSpeed) || !isFinite(instantSpeed) ? 0 : instantSpeed;
+            const validInstantSpeed = safeParseNumber(instantSpeed, 0);
             
             if (validInstantSpeed > maxInstantSpeed) {
                 maxInstantSpeed = validInstantSpeed;
@@ -3655,18 +3756,18 @@
             
             const elapsedSeconds = (currentTime - startTime) / 1000;
             const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds) : 0;
-            const validAvgSpeed = isNaN(avgSpeed) || !isFinite(avgSpeed) ? 0 : avgSpeed;
+            const validAvgSpeed = safeParseNumber(avgSpeed, 0);
             avgSpeedDisplay.innerHTML = `${validAvgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
             if (settings.stabilityAnalysis && clickTimes.length > 2) {
                 const speeds = clickTimes.slice(-15).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
                 if (speeds.length >= 2) {
                     const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
-                    const validAvg = isNaN(avg) || avg === 0 ? 1 : avg;
+                    const validAvg = safeParseNumber(avg, 1);
                     const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
                     const stdDev = Math.sqrt(variance);
                     const stability = validAvg > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / validAvg * 100))) : 0;
-                    const validStability = isNaN(stability) || !isFinite(stability) ? 0 : stability;
+                    const validStability = safeParseNumber(stability, 0);
                     stabilityDisplay.innerHTML = `${validStability.toFixed(1)}<span class="stat-unit">%</span>`;
                 } else if (speeds.length === 1) {
                     stabilityDisplay.innerHTML = `100.0<span class="stat-unit">%</span>`;
@@ -3762,8 +3863,9 @@
                         ${clicks}次点击 | 平均${speed}次/秒 | ${duration.toFixed(1)}秒
                         <br><small>按键: ${keyName} | 时间: ${settings.testTime}秒</small>
                     </div>
-                    <div>
+                    <div style="display: flex; gap: 5px;">
                         <button class="btn-small" onclick="showTestDetails(${testId})">查看详情</button>
+                        <button class="btn-small" style="background: linear-gradient(to right, #ff6b6b, #ff4757);" onclick="deleteHistoryItem(${testId})">删除</button>
                     </div>
                 </div>
             `;
@@ -3795,7 +3897,42 @@
                 console.error('加载历史记录失败:', e);
                 history = [];
             }
+            updateHistorySummary();
             updateInstructions();
+        }
+        
+        function updateHistorySummary() {
+            const totalTests = history.length;
+            document.getElementById('total-tests').textContent = totalTests;
+            
+            if (totalTests > 0) {
+                // 计算历史最佳
+                const speeds = history.map(test => safeParseNumber(test.speed, 0));
+                const bestSpeed = Math.max(...speeds);
+                document.getElementById('history-best').textContent = `${bestSpeed.toFixed(1)} 次/秒`;
+                
+                // 计算平均水平
+                const avgSpeed = speeds.reduce((a, b) => a + b, 0) / totalTests;
+                document.getElementById('history-average').textContent = `${avgSpeed.toFixed(1)} 次/秒`;
+                
+                // 计算总点击量
+                const totalClicks = history.reduce((sum, test) => sum + (test.clicks || 0), 0);
+                document.getElementById('total-clicks').textContent = totalClicks;
+            } else {
+                document.getElementById('history-best').textContent = '0 次/秒';
+                document.getElementById('history-average').textContent = '0 次/秒';
+                document.getElementById('total-clicks').textContent = '0';
+            }
+        }
+        
+        function deleteHistoryItem(testId) {
+            const index = history.findIndex(item => item.id === testId);
+            if (index !== -1) {
+                history.splice(index, 1);
+                saveHistory();
+                updateHistoryDisplay();
+                updateHistorySummary();
+            }
         }
         
         function updateHistoryDisplay() {
@@ -3811,13 +3948,15 @@
                             ${testData.clicks}次点击 | 平均${testData.speed}次/秒 | ${testData.duration.toFixed(1)}秒
                             <br><small>按键: ${keyName} | 时间: ${testData.settings.testTime}秒</small>
                         </div>
-                        <div>
+                        <div style="display: flex; gap: 5px;">
                             <button class="btn-small" onclick="showTestDetails(${testData.id})">查看详情</button>
+                            <button class="btn-small" style="background: linear-gradient(to right, #ff6b6b, #ff4757);" onclick="deleteHistoryItem(${testData.id})">删除</button>
                         </div>
                     </div>
                 `;
                 historyList.appendChild(historyItem);
             });
+            updateHistorySummary();
         }
         
         function getKeyName(key, customKey = '') {
@@ -4529,14 +4668,13 @@
         }
         
         function renderDetailCharts(testData) {
+            // 销毁除了速度图表之外的所有图表
             Object.keys(charts).forEach(key => {
                 if (key !== 'speedChart' && charts[key] && typeof charts[key].destroy === 'function') {
                     charts[key].destroy();
+                    delete charts[key];
                 }
             });
-            
-            const { speedChart, ...otherCharts } = charts;
-            charts = { speedChart };
             
             // 不再渲染点击数量累计图表
             
@@ -4828,8 +4966,11 @@
             }
         });
         
+
+        
         // 初始化
         init();
+
     </script>
 </body>
 </html>

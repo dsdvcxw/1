@@ -1921,6 +1921,27 @@
             <button id="settings-btn" class="btn-settings">高级设置</button>
         </div>
         
+        <div id="speed-goal-container" style="margin: 15px 0; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 10px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <strong>🎯 手速目标:</strong> <span id="speed-goal-display">未设置</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span>设置目标:</span>
+                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
+                    <span>次/秒</span>
+                    <button id="set-goal-btn" class="btn-small">设置</button>
+                    <button id="clear-goal-btn" class="btn-small" style="background: linear-gradient(to right, #ff6b6b, #ff4757);">清除</button>
+                </div>
+            </div>
+            <div style="margin-top: 8px;">
+                <div style="background: #e0e0e0; border-radius: 10px; height: 20px; overflow: hidden; position: relative;">
+                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
+                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; font-weight: bold; color: #333;">0%</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="countdown" id="countdown"></div>
         <div class="timer" id="timer">10</div>
         
@@ -1950,6 +1971,11 @@
                 <h3>稳定性</h3>
                 <div class="stat-value" id="stability">0<span class="stat-unit">%</span></div>
             </div>
+        </div>
+        
+        <div class="shortcut-hint" id="shortcut-hint" style="cursor: pointer;">
+            <div style="margin-bottom: 5px;"><kbd>空格</kbd> 开始测试 | <kbd>R</kbd> 快速重测 | <kbd>ESC</kbd> 关闭弹窗</div>
+            <div style="font-size: 0.75rem; color: #aaa;">点击查看全部快捷键</div>
         </div>
         
         <div class="history">
@@ -2201,8 +2227,20 @@
         
         // 安全的数值解析函数，避免NaN和Infinity
         function safeParseNumber(value, defaultValue = 0) {
+            if (value === null || value === undefined || value === '') {
+                return defaultValue;
+            }
             const num = parseFloat(value);
-            return isNaN(num) || !isFinite(num) ? defaultValue : num;
+            return (isNaN(num) || !isFinite(num)) ? defaultValue : num;
+        }
+        
+        // 安全的除法运算
+        function safeDivide(numerator, denominator, defaultValue = 0) {
+            if (denominator === 0 || denominator === null || denominator === undefined) {
+                return defaultValue;
+            }
+            const result = numerator / denominator;
+            return isFinite(result) ? result : defaultValue;
         }
         
         // 安全的数组操作
@@ -2214,6 +2252,17 @@
                 console.error('数组操作错误:', e);
                 return [];
             }
+        }
+        
+        // 安全的Math.max/min调用
+        function safeMax(arr, defaultValue = 0) {
+            const valid = arr.filter(v => typeof v === 'number' && isFinite(v));
+            return valid.length > 0 ? Math.max(...valid) : defaultValue;
+        }
+        
+        function safeMin(arr, defaultValue = 0) {
+            const valid = arr.filter(v => typeof v === 'number' && isFinite(v));
+            return valid.length > 0 ? Math.min(...valid) : defaultValue;
         }
         
         // ========== 核心代码 ==========
@@ -2499,6 +2548,92 @@
             }, 100);
         }
         
+        // 手速目标功能
+        let speedGoal = null;
+        
+        function initSpeedGoal() {
+            const savedGoal = localStorage.getItem('speedTestGoal');
+            if (savedGoal) {
+                speedGoal = parseFloat(savedGoal);
+                updateGoalDisplay();
+            }
+        }
+        
+        function setSpeedGoal(goal) {
+            speedGoal = parseFloat(goal);
+            if (isFinite(speedGoal) && speedGoal > 0) {
+                localStorage.setItem('speedTestGoal', speedGoal.toString());
+                updateGoalDisplay();
+                checkGoalAchievement();
+            }
+        }
+        
+        function clearSpeedGoal() {
+            speedGoal = null;
+            localStorage.removeItem('speedTestGoal');
+            updateGoalDisplay();
+            resetGoalProgress();
+        }
+        
+        function updateGoalDisplay() {
+            const container = document.getElementById('speed-goal-container');
+            const display = document.getElementById('speed-goal-display');
+            const input = document.getElementById('speed-goal-input');
+            
+            if (speedGoal !== null && isFinite(speedGoal) && speedGoal > 0) {
+                container.style.display = 'block';
+                display.textContent = `${speedGoal.toFixed(1)} 次/秒`;
+                input.value = speedGoal;
+            } else {
+                container.style.display = 'none';
+                display.textContent = '未设置';
+            }
+        }
+        
+        function updateGoalProgress(currentSpeed) {
+            if (speedGoal === null || !isFinite(speedGoal) || speedGoal <= 0) return;
+            
+            const progressBar = document.getElementById('goal-progress-bar');
+            const progressText = document.getElementById('goal-progress-text');
+            const percentage = Math.min(100, safeDivide(currentSpeed * 100, speedGoal, 0));
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${percentage.toFixed(0)}%`;
+            
+            if (percentage >= 100) {
+                progressBar.style.background = 'linear-gradient(to right, #FFD700, #FFA500)';
+            } else if (percentage >= 80) {
+                progressBar.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
+            } else if (percentage >= 50) {
+                progressBar.style.background = 'linear-gradient(to right, #FF9800, #FF5722)';
+            } else {
+                progressBar.style.background = 'linear-gradient(to right, #f44336, #e91e63)';
+            }
+        }
+        
+        function resetGoalProgress() {
+            const progressBar = document.getElementById('goal-progress-bar');
+            const progressText = document.getElementById('goal-progress-text');
+            if (progressBar && progressText) {
+                progressBar.style.width = '0%';
+                progressText.textContent = '0%';
+                progressBar.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
+            }
+        }
+        
+        function checkGoalAchievement() {
+            if (speedGoal === null || !isFinite(speedGoal) || speedGoal <= 0) return;
+            
+            const avgSpeedDisplay = document.getElementById('avg-speed');
+            const currentSpeedText = avgSpeedDisplay.textContent;
+            const match = currentSpeedText.match(/(\d+\.?\d*)/);
+            
+            if (match) {
+                const currentSpeed = parseFloat(match[1]);
+                updateGoalProgress(currentSpeed);
+            }
+        }
+        
         function checkAndUpdateBestSpeed(speed) {
             const bestRecordEl = document.getElementById('best-record');
             const bestSpeedEl = document.getElementById('best-speed');
@@ -2708,8 +2843,41 @@
             loadBestSpeed();
             updateKeyHint();
             loadHistory();
+            initSpeedGoal();
             
             initRealTimeChart();
+            
+            // 手速目标功能事件监听
+            const setGoalBtn = document.getElementById('set-goal-btn');
+            const clearGoalBtn = document.getElementById('clear-goal-btn');
+            const speedGoalInput = document.getElementById('speed-goal-input');
+            
+            if (setGoalBtn) {
+                setGoalBtn.addEventListener('click', function() {
+                    const goal = parseFloat(speedGoalInput.value);
+                    if (isFinite(goal) && goal > 0) {
+                        setSpeedGoal(goal);
+                        alert(`手速目标已设置为 ${goal.toFixed(1)} 次/秒！`);
+                    } else {
+                        alert('请输入有效的目标数值（大于0）！');
+                    }
+                });
+            }
+            
+            if (clearGoalBtn) {
+                clearGoalBtn.addEventListener('click', function() {
+                    clearSpeedGoal();
+                    alert('手速目标已清除！');
+                });
+            }
+            
+            if (speedGoalInput) {
+                speedGoalInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        setGoalBtn.click();
+                    }
+                });
+            }
             
             clickArea.addEventListener('touchstart', function(e) {
                 if (testActive && settings.testKey === 'click') {
@@ -2828,6 +2996,24 @@
             }
             
             addKeyboardShortcuts();
+            initShortcutHint();
+        }
+        
+        function initShortcutHint() {
+            const shortcutHint = document.getElementById('shortcut-hint');
+            if (shortcutHint) {
+                shortcutHint.addEventListener('click', function() {
+                    alert('手速测试器 - 快捷键说明\n\n' +
+                        '空格键 - 开始测试\n' +
+                        'R键 - 快速重测（测试结束后）\n' +
+                        'ESC - 关闭所有弹窗\n' +
+                        'Ctrl+R - 重置测试\n\n' +
+                        '💡 提示：\n' +
+                        '• 在测试期间可以使用A/S/D/F等按键进行测试\n' +
+                        '• 移动端可以使用音量键进行测试\n' +
+                        '• 设置手速目标可以帮助你更有动力地练习');
+                });
+            }
         }
         
         function addKeyboardShortcuts() {
@@ -2932,28 +3118,28 @@
                 return;
             }
             
-            const validSpeeds = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
-            const maxSpeed = validSpeeds.length > 0 ? Math.max(...validSpeeds).toFixed(1) : '0';
+            const speedValues = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0 && isFinite(s));
+            const maxSpeed = safeMax(speedValues, 0).toFixed(1);
             
             let content = '';
             let filename = '';
             
             if (type === 'compressed') {
                 const clickData = testData.clickTimes.map(click => 
-                    `${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
+                    `${safeParseNumber(click.timeFromStart, 0).toFixed(2)}:${parseInt(click.interval) || 0}:${safeParseNumber(click.instantSpeed, 0).toFixed(1)}`
                 ).join(';');
                 
                 const exportData = {
                     version: '2.1',
                     mode: 'import',
-                    time: testData.time,
-                    clicks: testData.clicks,
-                    speed: testData.speed,
+                    time: testData.time || '未知时间',
+                    clicks: safeParseNumber(testData.clicks, 0),
+                    speed: safeParseNumber(testData.speed, 0).toFixed(1),
                     maxSpeed: maxSpeed,
-                    duration: testData.duration.toFixed(1),
-                    testTime: testData.settings.testTime,
-                    testKey: testData.settings.testKey,
-                    customKey: testData.settings.customKey || '',
+                    duration: safeParseNumber(testData.duration, 0).toFixed(1),
+                    testTime: safeParseNumber(testData.settings?.testTime, 10),
+                    testKey: testData.settings?.testKey || 'space',
+                    customKey: testData.settings?.customKey || '',
                     clickData: clickData
                 };
                 
@@ -2963,20 +3149,20 @@
                 alert('压缩文件已导出，可用于导入数据！');
             } else if (type === 'view') {
                 const simplifiedClicks = testData.clickTimes.map((click, index) => 
-                    `${index + 1}:${click.timeFromStart.toFixed(2)}:${click.interval}:${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : '0'}`
+                    `${index + 1}:${safeParseNumber(click.timeFromStart, 0).toFixed(2)}:${parseInt(click.interval) || 0}:${safeParseNumber(click.instantSpeed, 0).toFixed(1)}`
                 ).join(';');
                 
                 const viewData = {
                     version: '2.1',
                     mode: 'view-only',
-                    time: testData.time,
-                    clicks: testData.clicks,
-                    speed: testData.speed,
+                    time: testData.time || '未知时间',
+                    clicks: safeParseNumber(testData.clicks, 0),
+                    speed: safeParseNumber(testData.speed, 0).toFixed(1),
                     maxSpeed: maxSpeed,
-                    duration: testData.duration.toFixed(1),
-                    testTime: testData.settings.testTime,
-                    testKey: testData.settings.testKey,
-                    customKey: testData.settings.customKey || '',
+                    duration: safeParseNumber(testData.duration, 0).toFixed(1),
+                    testTime: safeParseNumber(testData.settings?.testTime, 10),
+                    testKey: testData.settings?.testKey || 'space',
+                    customKey: testData.settings?.customKey || '',
                     clickData: simplifiedClicks,
                     exportTime: new Date().toISOString()
                 };
@@ -3001,8 +3187,8 @@
                 return;
             }
             
-            const validSpeeds = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
-            const maxSpeedValue = validSpeeds.length > 0 ? Math.max(...validSpeeds).toFixed(1) : '0';
+            const speedValues = testData.clickTimes.map(c => safeParseNumber(c.instantSpeed, 0)).filter(s => s > 0);
+            const maxSpeedValue = safeMax(speedValues, 0);
             
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 800;
@@ -3018,11 +3204,11 @@
             
             ctx.font = '16px Microsoft YaHei';
             ctx.fillStyle = '#666';
-            ctx.fillText(`测试时间: ${testData.time}`, 40, 90);
-            ctx.fillText(`总点击次数: ${testData.clicks}次`, 40, 120);
-            ctx.fillText(`平均手速: ${testData.speed} 次/秒`, 40, 150);
-            ctx.fillText(`最高手速: ${maxSpeedValue} 次/秒`, 40, 180);
-            ctx.fillText(`测试时长: ${testData.duration.toFixed(1)} 秒`, 40, 210);
+            ctx.fillText(`测试时间: ${testData.time || '未知时间'}`, 40, 90);
+            ctx.fillText(`总点击次数: ${safeParseNumber(testData.clicks, 0)}次`, 40, 120);
+            ctx.fillText(`平均手速: ${safeParseNumber(testData.speed, 0)} 次/秒`, 40, 150);
+            ctx.fillText(`最高手速: ${maxSpeedValue.toFixed(1)} 次/秒`, 40, 180);
+            ctx.fillText(`测试时长: ${safeParseNumber(testData.duration, 0).toFixed(1)} 秒`, 40, 210);
             
             ctx.fillStyle = '#f8f9fa';
             ctx.fillRect(40, 250, 720, 450);
@@ -3031,25 +3217,31 @@
             ctx.font = 'bold 18px Microsoft YaHei';
             ctx.fillText('手速变化趋势', 60, 280);
             
-            const intervals = testData.clickTimes.slice(1).map(click => click.interval);
-            const speeds = intervals.map(interval => interval > 0 ? (1000/interval) : 0);
+            const intervals = testData.clickTimes.slice(1).map(click => parseInt(click.interval) || 0);
+            const speeds = intervals.map(interval => {
+                if (interval > 0) {
+                    return safeDivide(1000, interval, 0);
+                }
+                return 0;
+            });
             
-            const timePoints = testData.clickTimes.map(click => click.timeFromStart.toFixed(1));
+            const timePoints = testData.clickTimes.map(click => safeParseNumber(click.timeFromStart, 0).toFixed(1));
             const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
             const avgSpeeds = timePoints.map((time, i) => {
-                const elapsedSeconds = parseFloat(time);
-                return elapsedSeconds > 0 ? (cumulativeClicks[i] / elapsedSeconds) : 0;
+                const elapsedSeconds = safeParseNumber(parseFloat(time), 0);
+                const clicksCount = safeParseNumber(cumulativeClicks[i], 0);
+                return safeDivide(clicksCount, elapsedSeconds, 0);
             });
             
             if (speeds.length > 1 && avgSpeeds.length > 1) {
-                const validSpeeds = speeds.filter(s => !isNaN(s) && isFinite(s));
-                const validAvgSpeeds = avgSpeeds.filter(s => !isNaN(s) && isFinite(s));
+                const validSpeeds = speeds.filter(s => isFinite(s));
+                const validAvgSpeeds = avgSpeeds.filter(s => isFinite(s));
                 if (validSpeeds.length === 0 && validAvgSpeeds.length === 0) {
                     ctx.fillStyle = '#666';
                     ctx.font = '16px Microsoft YaHei';
                     ctx.fillText('无有效数据可显示', 280, 400);
                 } else {
-                    const maxSpeed = Math.max(...validSpeeds, ...validAvgSpeeds);
+                    const maxSpeed = Math.max(...validSpeeds, ...validAvgSpeeds, 0);
                     const chartHeight = 350;
                     const chartWidth = 680;
                     const startX = 60;
@@ -3088,9 +3280,9 @@
                     ctx.beginPath();
                     
                     for (let i = 0; i < avgSpeeds.length; i++) {
-                        if (isNaN(avgSpeeds[i]) || !isFinite(avgSpeeds[i])) continue;
-                        const x = startX + (i / (avgSpeeds.length - 1)) * chartWidth;
-                        const y = startY - (avgSpeeds[i] / maxSpeed) * chartHeight;
+                        if (!isFinite(avgSpeeds[i])) continue;
+                        const x = startX + safeDivide(i * chartWidth, avgSpeeds.length - 1, 0);
+                        const y = startY - safeDivide(avgSpeeds[i] * chartHeight, maxSpeed, 0);
                         
                         if (i === 0) {
                             ctx.moveTo(x, y);
@@ -3105,9 +3297,9 @@
                     ctx.beginPath();
                     
                     for (let i = 0; i < speeds.length; i++) {
-                        if (isNaN(speeds[i]) || !isFinite(speeds[i])) continue;
-                        const x = startX + (i / (speeds.length - 1)) * chartWidth;
-                        const y = startY - (speeds[i] / maxSpeed) * chartHeight;
+                        if (!isFinite(speeds[i])) continue;
+                        const x = startX + safeDivide(i * chartWidth, speeds.length - 1, 0);
+                        const y = startY - safeDivide(speeds[i] * chartHeight, maxSpeed, 0);
                         
                         if (i === 0) {
                             ctx.moveTo(x, y);
@@ -3129,20 +3321,20 @@
                     ctx.fillText('瞬时手速', startX + 250, startY - chartHeight - 22);
                     
                     ctx.fillStyle = '#4facfe';
-                    for (let i = 0; i < avgSpeeds.length; i += Math.max(1, Math.floor(avgSpeeds.length / 10))) {
-                        if (isNaN(avgSpeeds[i]) || !isFinite(avgSpeeds[i])) continue;
-                        const x = startX + (i / (avgSpeeds.length - 1)) * chartWidth;
-                        const y = startY - (avgSpeeds[i] / maxSpeed) * chartHeight;
+                    for (let i = 0; i < avgSpeeds.length; i += Math.max(1, Math.floor(safeDivide(avgSpeeds.length, 10, 1)))) {
+                        if (!isFinite(avgSpeeds[i])) continue;
+                        const x = startX + safeDivide(i * chartWidth, avgSpeeds.length - 1, 0);
+                        const y = startY - safeDivide(avgSpeeds[i] * chartHeight, maxSpeed, 0);
                         ctx.beginPath();
                         ctx.arc(x, y, 3, 0, Math.PI * 2);
                         ctx.fill();
                     }
                     
                     ctx.fillStyle = '#f5576c';
-                    for (let i = 0; i < speeds.length; i += Math.max(1, Math.floor(speeds.length / 10))) {
-                        if (isNaN(speeds[i]) || !isFinite(speeds[i])) continue;
-                        const x = startX + (i / (speeds.length - 1)) * chartWidth;
-                        const y = startY - (speeds[i] / maxSpeed) * chartHeight;
+                    for (let i = 0; i < speeds.length; i += Math.max(1, Math.floor(safeDivide(speeds.length, 10, 1)))) {
+                        if (!isFinite(speeds[i])) continue;
+                        const x = startX + safeDivide(i * chartWidth, speeds.length - 1, 0);
+                        const y = startY - safeDivide(speeds[i] * chartHeight, maxSpeed, 0);
                         ctx.beginPath();
                         ctx.arc(x, y, 3, 0, Math.PI * 2);
                         ctx.fill();
@@ -3219,16 +3411,16 @@
             report += '手速测试报告\n';
             report += '='.repeat(50) + '\n\n';
             
-            const validSpeeds = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
-            const maxSpeed = validSpeeds.length > 0 ? Math.max(...validSpeeds).toFixed(1) : '0';
+            const speedValues = testData.clickTimes.map(c => safeParseNumber(c.instantSpeed, 0)).filter(s => s > 0);
+            const maxSpeed = safeMax(speedValues, 0).toFixed(1);
             
-            report += `测试时间: ${testData.time}\n`;
-            report += `总点击次数: ${testData.clicks}\n`;
-            report += `平均手速: ${testData.speed} 次/秒\n`;
+            report += `测试时间: ${testData.time || '未知时间'}\n`;
+            report += `总点击次数: ${safeParseNumber(testData.clicks, 0)}\n`;
+            report += `平均手速: ${safeParseNumber(testData.speed, 0)} 次/秒\n`;
             report += `最高手速: ${maxSpeed} 次/秒\n`;
-            report += `测试时长: ${testData.duration.toFixed(1)} 秒\n`;
-            report += `测试按键: ${getKeyName(testData.settings.testKey, testData.settings.customKey)}\n`;
-            report += `测试时间设置: ${testData.settings.testTime} 秒\n\n`;
+            report += `测试时长: ${safeParseNumber(testData.duration, 0).toFixed(1)} 秒\n`;
+            report += `测试按键: ${getKeyName(testData.settings?.testKey || 'space', testData.settings?.customKey || '')}\n`;
+            report += `测试时间设置: ${safeParseNumber(testData.settings?.testTime, 10)} 秒\n\n`;
             
             report += '-'.repeat(50) + '\n';
             report += '详细点击数据:\n';
@@ -3236,7 +3428,10 @@
             report += '序号\t时间(秒)\t间隔(ms)\t瞬时速度(次/秒)\n';
             
             testData.clickTimes.forEach((click, index) => {
-                report += `${index + 1}\t${click.timeFromStart.toFixed(2)}\t${click.interval}\t${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : 'N/A'}\n`;
+                const timeFromStart = safeParseNumber(click.timeFromStart, 0);
+                const interval = parseInt(click.interval) || 0;
+                const instantSpeed = safeParseNumber(click.instantSpeed, 0);
+                report += `${index + 1}\t${timeFromStart.toFixed(2)}\t${interval}\t${instantSpeed > 0 ? instantSpeed.toFixed(1) : 'N/A'}\n`;
             });
             
             report += '\n' + '='.repeat(50) + '\n';
@@ -3755,18 +3950,19 @@
             }
             
             const elapsedSeconds = (currentTime - startTime) / 1000;
-            const avgSpeed = elapsedSeconds > 0 ? (clickCount / elapsedSeconds) : 0;
+            const avgSpeed = safeDivide(clickCount, elapsedSeconds, 0);
             const validAvgSpeed = safeParseNumber(avgSpeed, 0);
             avgSpeedDisplay.innerHTML = `${validAvgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
+            
+            updateGoalProgress(validAvgSpeed);
             
             if (settings.stabilityAnalysis && clickTimes.length > 2) {
                 const speeds = clickTimes.slice(-15).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
                 if (speeds.length >= 2) {
-                    const avg = speeds.reduce((a, b) => a + b, 0) / speeds.length;
-                    const validAvg = safeParseNumber(avg, 1);
-                    const variance = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / speeds.length;
+                    const avg = safeDivide(speeds.reduce((a, b) => a + b, 0), speeds.length, 1);
+                    const variance = safeDivide(speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0), speeds.length, 0);
                     const stdDev = Math.sqrt(variance);
-                    const stability = validAvg > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / validAvg * 100))) : 0;
+                    const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - safeDivide(stdDev * 100, avg, 0))) : 0;
                     const validStability = safeParseNumber(stability, 0);
                     stabilityDisplay.innerHTML = `${validStability.toFixed(1)}<span class="stat-unit">%</span>`;
                 } else if (speeds.length === 1) {
@@ -3782,7 +3978,7 @@
             };
         }
         
-        // 从数据更新图表
+        // 从数据更新图表（性能优化：减少更新频率）
         function updateChartFromData() {
             if (!testActive || clickTimes.length < 2) return;
             
@@ -3807,8 +4003,8 @@
             
             const endTime = performance.now();
             const totalTime = (endTime - startTime) / 1000;
-            const avgSpeed = totalTime > 0 ? (clickCount / totalTime) : 0;
-            const validAvgSpeed = isNaN(avgSpeed) || !isFinite(avgSpeed) ? 0 : avgSpeed;
+            const avgSpeed = safeDivide(clickCount, totalTime, 0);
+            const validAvgSpeed = safeParseNumber(avgSpeed, 0);
             
             startBtn.disabled = false;
             stopBtn.disabled = true;
@@ -3906,17 +4102,14 @@
             document.getElementById('total-tests').textContent = totalTests;
             
             if (totalTests > 0) {
-                // 计算历史最佳
                 const speeds = history.map(test => safeParseNumber(test.speed, 0));
-                const bestSpeed = Math.max(...speeds);
+                const bestSpeed = safeMax(speeds, 0);
                 document.getElementById('history-best').textContent = `${bestSpeed.toFixed(1)} 次/秒`;
                 
-                // 计算平均水平
-                const avgSpeed = speeds.reduce((a, b) => a + b, 0) / totalTests;
+                const avgSpeed = safeDivide(speeds.reduce((a, b) => a + b, 0), totalTests, 0);
                 document.getElementById('history-average').textContent = `${avgSpeed.toFixed(1)} 次/秒`;
                 
-                // 计算总点击量
-                const totalClicks = history.reduce((sum, test) => sum + (test.clicks || 0), 0);
+                const totalClicks = history.reduce((sum, test) => sum + safeParseNumber(test.clicks, 0), 0);
                 document.getElementById('total-clicks').textContent = totalClicks;
             } else {
                 document.getElementById('history-best').textContent = '0 次/秒';
@@ -4053,10 +4246,10 @@
         
         // 根据设置处理详情图表数据
         function processDetailChartData(testData) {
-            const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+            const intervals = testData.clickTimes.slice(1).map(click => parseInt(click.interval) || 0);
             const speeds = intervals.map(interval => {
                 if (interval > 0 && isFinite(interval)) {
-                    const speed = 1000/interval;
+                    const speed = safeDivide(1000, interval, 0);
                     return isFinite(speed) ? speed : 0;
                 }
                 return 0;
@@ -4067,19 +4260,19 @@
             
             if (detailChartSettings.axisType === 'time') {
                 labels = testData.clickTimes.slice(1).map((click) => {
-                    const time = parseFloat(click.timeFromStart);
+                    const time = safeParseNumber(click.timeFromStart, 0);
                     return isFinite(time) ? time.toFixed(1) : '0.0';
                 });
                 processedSpeeds = speeds;
             } else {
-                const interval = Math.max(1, detailChartSettings.sequenceInterval);
+                const interval = Math.max(1, detailChartSettings.sequenceInterval || 2);
                 
                 if (detailChartSettings.dataSampling === 'average') {
                     for (let i = 0; i < speeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, speeds.length);
                         const slice = speeds.slice(i, endIdx);
                         const validSlice = slice.filter(s => s > 0 && isFinite(s));
-                        const avg = validSlice.length > 0 ? validSlice.reduce((a, b) => a + b, 0) / validSlice.length : 0;
+                        const avg = safeDivide(validSlice.reduce((a, b) => a + b, 0), validSlice.length, 0);
                         labels.push(`${i+1}`);
                         processedSpeeds.push(isFinite(avg) ? avg : 0);
                     }
@@ -4088,7 +4281,7 @@
                         const endIdx = Math.min(i + interval, speeds.length);
                         const slice = speeds.slice(i, endIdx);
                         const validSlice = slice.filter(s => isFinite(s));
-                        const maxVal = validSlice.length > 0 ? Math.max(...validSlice) : 0;
+                        const maxVal = safeMax(validSlice, 0);
                         labels.push(`${i+1}`);
                         processedSpeeds.push(isFinite(maxVal) ? maxVal : 0);
                     }
@@ -4155,14 +4348,15 @@
             }
             
             const timePoints = testData.clickTimes.map(click => {
-                const time = parseFloat(click.timeFromStart);
+                const time = safeParseNumber(click.timeFromStart, 0);
                 return isFinite(time) ? time.toFixed(1) : '0.0';
             });
             const cumulativeClicks = testData.clickTimes.map((_, i) => i + 1);
             const avgSpeeds = timePoints.map((time, i) => {
-                const elapsedSeconds = parseFloat(time);
-                if (elapsedSeconds > 0 && isFinite(elapsedSeconds) && isFinite(cumulativeClicks[i])) {
-                    const speed = cumulativeClicks[i] / elapsedSeconds;
+                const elapsedSeconds = safeParseNumber(parseFloat(time), 0);
+                const clicksCount = safeParseNumber(cumulativeClicks[i], 0);
+                if (elapsedSeconds > 0 && isFinite(elapsedSeconds) && isFinite(clicksCount)) {
+                    const speed = safeDivide(clicksCount, elapsedSeconds, 0);
                     return isFinite(speed) ? speed : 0;
                 }
                 return 0;
@@ -4172,13 +4366,13 @@
             if (detailChartSettings.axisType === 'time') {
                 processedAvgSpeeds = avgSpeeds;
             } else {
-                const interval = Math.max(1, detailChartSettings.sequenceInterval);
+                const interval = Math.max(1, detailChartSettings.sequenceInterval || 2);
                 if (detailChartSettings.dataSampling === 'average') {
                     for (let i = 0; i < avgSpeeds.length; i += interval) {
                         const endIdx = Math.min(i + interval, avgSpeeds.length);
                         const slice = avgSpeeds.slice(i, endIdx);
                         const validSlice = slice.filter(s => isFinite(s));
-                        const avg = validSlice.length > 0 ? validSlice.reduce((a, b) => a + b, 0) / validSlice.length : 0;
+                        const avg = safeDivide(validSlice.reduce((a, b) => a + b, 0), validSlice.length, 0);
                         processedAvgSpeeds.push(isFinite(avg) ? avg : 0);
                     }
                 } else {
@@ -4186,7 +4380,7 @@
                         const endIdx = Math.min(i + interval, avgSpeeds.length);
                         const slice = avgSpeeds.slice(i, endIdx);
                         const validSlice = slice.filter(s => isFinite(s));
-                        const maxVal = validSlice.length > 0 ? Math.max(...validSlice) : 0;
+                        const maxVal = safeMax(validSlice, 0);
                         processedAvgSpeeds.push(isFinite(maxVal) ? maxVal : 0);
                     }
                 }
@@ -4275,7 +4469,6 @@
                 charts.distributionChart.destroy();
             }
             
-            // 定义速度区间 (次/秒): 低速:0-4, 中速:4-8, 高速:8-12, 极速:>12
             const ranges = [
                 { label: '低速 (0-4 次/秒)', min: 0, max: 4, color: '#36A2EB' },
                 { label: '中速 (4-8 次/秒)', min: 4, max: 8, color: '#FFCE56' },
@@ -4283,9 +4476,8 @@
                 { label: '极速 (>12 次/秒)', min: 12, max: Infinity, color: '#9966FF' }
             ];
             
-            // 统计每个区间的点击次数 (排除第一次点击，因为间隔为0)
-            const counts = ranges.map(r => 0);
-            const intervals = testData.clickTimes.slice(1).map(c => c.instantSpeed);
+            const counts = ranges.map(() => 0);
+            const intervals = testData.clickTimes.slice(1).map(c => safeParseNumber(c.instantSpeed, 0));
             
             intervals.forEach(speed => {
                 const validSpeed = isFinite(speed) ? speed : 0;
@@ -4297,7 +4489,6 @@
                 }
             });
             
-            // 过滤掉计数为0的区间
             const filteredLabels = [];
             const filteredData = [];
             const filteredColors = [];
@@ -4310,7 +4501,6 @@
                 }
             });
             
-            // 如果没有有效数据，显示提示
             if (filteredData.length === 0) {
                 filteredLabels.push('无有效数据');
                 filteredData.push(1);
@@ -4351,7 +4541,7 @@
                                         const validB = typeof b === 'number' && isFinite(b) ? b : 0;
                                         return a + validB;
                                     }, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                    const percentage = safeDivide(value * 100, total, 0).toFixed(1);
                                     return `${label}: ${value} 次 (${percentage}%)`;
                                 }
                             }
@@ -4375,28 +4565,32 @@
             
             const savedSettings = localStorage.getItem('detailChartSettings');
             if (savedSettings) {
-                const parsedSettings = JSON.parse(savedSettings);
-                detailChartSettings = {...detailChartSettings, ...parsedSettings};
+                try {
+                    const parsedSettings = JSON.parse(savedSettings);
+                    detailChartSettings = {...detailChartSettings, ...parsedSettings};
+                } catch (e) {
+                    console.error('解析图表设置失败:', e);
+                }
             }
             
             const analysis = generateAnalysisReport(testData);
-            const keyName = getKeyName(testData.settings.testKey, testData.settings.customKey);
+            const keyName = getKeyName(testData.settings?.testKey || 'space', testData.settings?.customKey || '');
             
-            const maxSpeedValues = testData.clickTimes.map(c => c.instantSpeed).filter(s => s > 0);
-            const maxSpeed = maxSpeedValues.length > 0 ? Math.max(...maxSpeedValues).toFixed(1) : '0';
+            const maxSpeedValues = testData.clickTimes.map(c => safeParseNumber(c.instantSpeed, 0)).filter(s => s > 0);
+            const maxSpeed = safeMax(maxSpeedValues, 0).toFixed(1);
             
-            detailModalTitle.textContent = `详细测试分析报告 - ${testData.time}`;
+            detailModalTitle.textContent = `详细测试分析报告 - ${testData.time || '未知时间'}`;
             
             modalContent.innerHTML = `
                 <div class="history-header">
-                    <h3>测试时间: ${testData.time} | 总点击: ${testData.clicks}次</h3>
-                    <p>测试设置: ${keyName} | ${testData.settings.testTime}秒</p>
+                    <h3>测试时间: ${testData.time || '未知时间'} | 总点击: ${safeParseNumber(testData.clicks, 0)}次</h3>
+                    <p>测试设置: ${keyName} | ${safeParseNumber(testData.settings?.testTime, 10)}秒</p>
                 </div>
                 
                 <div class="speed-with-max">
                     <div class="analysis-card">
                         <h4>平均手速</h4>
-                        <p>${testData.speed} 次/秒</p>
+                        <p>${safeParseNumber(testData.speed, 0)} 次/秒</p>
                         <small>整个测试期间的平均点击速度</small>
                     </div>
                     <div class="analysis-card">
@@ -4417,10 +4611,10 @@
                 </div>
                 
                 <div class="export-buttons">
-                    <button class="export-btn export-file" onclick="showExportModeDialog(${testData.id})">
+                    <button class="export-btn export-file" onclick="showExportModeDialog(${testData.id || 0})">
                         <span>导出文件</span>
                     </button>
-                    <button class="export-btn export-image" onclick="exportImage(${testData.id})">
+                    <button class="export-btn export-image" onclick="exportImage(${testData.id || 0})">
                         <span>导出图片</span>
                     </button>
                 </div>
@@ -4440,9 +4634,9 @@
                             ${testData.clickTimes.map((click, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td>${click.timeFromStart.toFixed(2)}</td>
-                                    <td>${click.interval}</td>
-                                    <td>${click.instantSpeed > 0 ? click.instantSpeed.toFixed(1) : 'N/A'}</td>
+                                    <td>${safeParseNumber(click.timeFromStart, 0).toFixed(2)}</td>
+                                    <td>${parseInt(click.interval) || 0}</td>
+                                    <td>${safeParseNumber(click.instantSpeed, 0) > 0 ? safeParseNumber(click.instantSpeed, 0).toFixed(1) : 'N/A'}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -4455,7 +4649,6 @@
                         <button class="chart-fullscreen-btn" onclick="openChartFullscreen('speedChart', '瞬时手速变化')">🔍</button>
                         <canvas id="speedChart"></canvas>
                     </div>
-                    <!-- 手速区间占比饼图 -->
                     <div class="chart-wrapper">
                         <button class="chart-fullscreen-btn" onclick="openChartFullscreen('distributionChart', '手速区间占比')">🔍</button>
                         <canvas id="speed-distribution-chart"></canvas>
@@ -4516,12 +4709,12 @@
             };
             
             if (settings.stabilityAnalysis && testData.clickTimes.length > 5) {
-                const speeds = testData.clickTimes.map(click => click.instantSpeed).filter(s => s > 0);
+                const speeds = testData.clickTimes.map(click => safeParseNumber(click.instantSpeed, 0)).filter(s => s > 0);
                 if (speeds.length > 0) {
-                    const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
-                    const variance = speeds.reduce((a, b) => a + Math.pow(b - avgSpeed, 2), 0) / speeds.length;
+                    const avgSpeed = safeDivide(speeds.reduce((a, b) => a + b, 0), speeds.length, 0);
+                    const variance = safeDivide(speeds.reduce((a, b) => a + Math.pow(b - avgSpeed, 2), 0), speeds.length, 0);
                     const stdDev = Math.sqrt(variance);
-                    const stability = avgSpeed > 0 ? Math.max(0, Math.min(100, 100 - (stdDev / avgSpeed * 100))) : 0;
+                    const stability = avgSpeed > 0 ? Math.max(0, Math.min(100, 100 - safeDivide(stdDev * 100, avgSpeed, 0))) : 0;
                     
                     analysis.cards.push({
                         title: '手速稳定性',
@@ -4543,14 +4736,14 @@
                 const firstHalf = testData.clickTimes.slice(0, Math.floor(testData.clickTimes.length / 2));
                 const secondHalf = testData.clickTimes.slice(Math.floor(testData.clickTimes.length / 2));
                 
-                const firstSpeeds = firstHalf.filter(c => c.instantSpeed > 0).map(c => c.instantSpeed);
-                const secondSpeeds = secondHalf.filter(c => c.instantSpeed > 0).map(c => c.instantSpeed);
+                const firstSpeeds = firstHalf.filter(c => c.instantSpeed > 0).map(c => safeParseNumber(c.instantSpeed, 0));
+                const secondSpeeds = secondHalf.filter(c => c.instantSpeed > 0).map(c => safeParseNumber(c.instantSpeed, 0));
                 
                 if (firstSpeeds.length > 0 && secondSpeeds.length > 0) {
-                    const firstAvg = firstSpeeds.reduce((sum, s) => sum + s, 0) / firstSpeeds.length;
-                    const secondAvg = secondSpeeds.reduce((sum, s) => sum + s, 0) / secondSpeeds.length;
+                    const firstAvg = safeDivide(firstSpeeds.reduce((sum, s) => sum + s, 0), firstSpeeds.length, 0);
+                    const secondAvg = safeDivide(secondSpeeds.reduce((sum, s) => sum + s, 0), secondSpeeds.length, 0);
                     
-                    const fatigueRate = firstAvg > 0 ? ((firstAvg - secondAvg) / firstAvg * 100).toFixed(1) : 0;
+                    const fatigueRate = firstAvg > 0 ? safeDivide((firstAvg - secondAvg) * 100, firstAvg, 0).toFixed(1) : 0;
                     
                     analysis.cards.push({
                         title: '疲劳度',
@@ -4569,7 +4762,7 @@
             }
             
             if (settings.patternRecognition) {
-                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                const intervals = testData.clickTimes.slice(1).map(click => parseInt(click.interval) || 0);
                 const trend = detectClickPattern(intervals);
                 
                 analysis.cards.push({
@@ -4602,33 +4795,34 @@
         }
         
         function detectClickPattern(intervals) {
-            if (intervals.length < 3) {
+            if (!Array.isArray(intervals) || intervals.length < 3) {
                 return { pattern: '数据不足', description: '需要更多点击数据进行分析' };
             }
             
-            const validIntervals = intervals.filter(i => i > 0);
+            const validIntervals = intervals.filter(i => typeof i === 'number' && i > 0 && isFinite(i));
             if (validIntervals.length < 3) {
                 return { pattern: '数据不足', description: '需要更多有效点击数据' };
             }
             
-            const avgInterval = validIntervals.reduce((a, b) => a + b, 0) / validIntervals.length;
-            const variance = validIntervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0) / validIntervals.length;
+            const avgInterval = safeDivide(validIntervals.reduce((a, b) => a + b, 0), validIntervals.length, 0);
+            const variance = safeDivide(validIntervals.reduce((a, b) => a + Math.pow(b - avgInterval, 2), 0), validIntervals.length, 0);
             
             if (variance < 1000) {
                 return { pattern: '匀速型', description: '点击节奏非常稳定' };
             }
             
-            const firstThird = intervals.slice(0, Math.floor(intervals.length / 3));
-            const lastThird = intervals.slice(-Math.floor(intervals.length / 3));
-            const validFirstThird = firstThird.filter(i => i > 0);
-            const validLastThird = lastThird.filter(i => i > 0);
+            const firstThirdEnd = Math.floor(intervals.length / 3);
+            const lastThirdStart = intervals.length - Math.floor(intervals.length / 3);
             
-            if (validFirstThird.length === 0 || validLastThird.length === 0) {
+            const firstThird = intervals.slice(0, firstThirdEnd).filter(i => i > 0 && isFinite(i));
+            const lastThird = intervals.slice(lastThirdStart).filter(i => i > 0 && isFinite(i));
+            
+            if (firstThird.length === 0 || lastThird.length === 0) {
                 return { pattern: '波动型', description: '点击节奏有一定波动' };
             }
             
-            const firstAvg = validFirstThird.reduce((a, b) => a + b, 0) / validFirstThird.length;
-            const lastAvg = validLastThird.reduce((a, b) => a + b, 0) / validLastThird.length;
+            const firstAvg = safeDivide(firstThird.reduce((a, b) => a + b, 0), firstThird.length, 0);
+            const lastAvg = safeDivide(lastThird.reduce((a, b) => a + b, 0), lastThird.length, 0);
             
             if (lastAvg < firstAvg * 0.8) {
                 return { pattern: '加速型', description: '测试后期点击速度加快' };
@@ -4640,8 +4834,8 @@
         }
         
         function generateAIAdvice(testData) {
-            const speed = parseFloat(testData.speed);
-            const clicks = testData.clicks;
+            const speed = safeParseNumber(testData.speed, 0);
+            const clicks = safeParseNumber(testData.clicks, 0);
             
             let advice = '';
             
@@ -4656,8 +4850,9 @@
             }
             
             if (testData.clickTimes.length > 10) {
-                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
-                const consistency = intervals.filter(i => i > 50 && i < 200).length / intervals.length;
+                const intervals = testData.clickTimes.slice(1).map(click => parseInt(click.interval) || 0);
+                const validIntervals = intervals.filter(i => i > 50 && i < 200);
+                const consistency = safeDivide(validIntervals.length, intervals.length, 0);
                 
                 if (consistency < 0.6) {
                     advice += '。注意点击节奏的稳定性';
@@ -4686,7 +4881,7 @@
         function renderAdditionalCharts(testData) {
             const patternCtx = document.getElementById('patternChart');
             if (patternCtx) {
-                const intervals = testData.clickTimes.slice(1).map(click => click.interval);
+                const intervals = testData.clickTimes.slice(1).map(click => parseInt(click.interval) || 0);
                 
                 if (intervals.length === 0) {
                     return;
@@ -4729,13 +4924,13 @@
             
             const fatigueCtx = document.getElementById('fatigueChart');
             if (fatigueCtx) {
-                const segmentSize = Math.max(1, Math.floor(testData.clickTimes.length / 5));
+                const segmentSize = Math.max(1, Math.floor(safeDivide(testData.clickTimes.length, 5, 1)));
                 const segments = [];
                 
                 for (let i = 0; i < testData.clickTimes.length; i += segmentSize) {
                     const segment = testData.clickTimes.slice(i, i + segmentSize);
-                    const validSpeeds = segment.filter(c => c.instantSpeed > 0).map(c => c.instantSpeed);
-                    const avgSpeed = validSpeeds.length > 0 ? validSpeeds.reduce((sum, s) => sum + s, 0) / validSpeeds.length : 0;
+                    const validSpeeds = segment.filter(c => c.instantSpeed > 0 && isFinite(c.instantSpeed)).map(c => safeParseNumber(c.instantSpeed, 0));
+                    const avgSpeed = safeDivide(validSpeeds.reduce((sum, s) => sum + s, 0), validSpeeds.length, 0);
                     segments.push(avgSpeed);
                 }
                 

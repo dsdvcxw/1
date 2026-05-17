@@ -1548,15 +1548,34 @@
             user-select: none;
         }
         
-        @media (max-width: 360px) {
+        /* 手机端专门优化 - 小屏手机 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 18px;
+            }
+            
+            .container {
+                padding: 12px;
+                border-radius: 0;
+            }
+            
             .controls {
-                gap: 6px;
+                padding: 12px;
+                gap: 8px;
+                margin: 15px 0;
             }
             
             button {
-                padding: 10px 14px;
-                font-size: 0.85rem;
-                min-width: 75px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-width: 70px;
+                max-width: 110px;
             }
             
             .btn-clear {
@@ -1564,36 +1583,167 @@
                 padding: 10px 15px;
             }
             
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                margin: 18px 0;
+            }
+            
+            .stat-card {
+                padding: 12px 8px;
+            }
+            
+            .stat-card h3 {
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+            }
+            
+            .stat-value {
+                font-size: 1.3rem;
+            }
+            
+            .stat-unit {
+                font-size: 0.75rem;
+            }
+            
+            .click-area {
+                height: 180px;
+                margin: 15px 0;
+            }
+            
             .click-text {
                 font-size: 1.5rem;
             }
             
             .key-hint {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
             }
             
-            .setting-option {
-                padding: 6px 10px;
+            #speed-goal-container {
+                padding: 10px;
+                margin: 12px 0;
+            }
+            
+            #speed-goal-container > div:first-child {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            #speed-goal-input {
+                width: 100%;
+                padding: 8px;
+            }
+            
+            .shortcut-hint {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                padding: 8px 12px;
+                font-size: 0.75rem;
+            }
+            
+            .best-record {
+                top: 10px;
+                right: 10px;
+                padding: 10px 15px;
                 font-size: 0.85rem;
             }
             
+            .history-item {
+                padding: 10px 12px;
+            }
+            
+            .history-header {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .history-header .btn-small {
+                width: 100%;
+                max-width: 120px;
+            }
+            
+            .charts-container {
+                gap: 10px;
+                margin: 15px 0;
+            }
+            
+            .chart-wrapper {
+                padding: 10px;
+            }
+            
+            .analysis-results {
+                gap: 8px;
+                margin: 12px 0;
+            }
+            
+            .analysis-card {
+                padding: 10px;
+            }
+            
+            .export-buttons {
+                gap: 8px;
+            }
+            
+            .export-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .settings-modal-content {
+                padding: 18px;
+                border-radius: 16px;
+                width: 96%;
+                max-height: 90vh;
+            }
+            
+            .setting-group {
+                padding: 12px;
+            }
+            
+            .setting-option {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .result-content {
+                padding: 20px;
+                width: 96%;
+                max-height: 90vh;
+            }
+            
+            .result-btn {
+                padding: 12px 25px;
+                font-size: 0.95rem;
+            }
+            
+            .click-data-table {
+                font-size: 0.75rem;
+            }
+            
+            .click-data-table th,
+            .click-data-table td {
+                padding: 6px 4px;
+            }
+            
+            .progress-chart {
+                padding: 12px;
+            }
+            
             .detail-chart-settings-panel {
-                width: 220px;
-                right: -10px;
+                width: 240px;
+            }
+            
+            .speed-with-max {
+                flex-direction: column;
             }
             
             .export-mode-content {
                 width: 95%;
                 padding: 20px;
-            }
-            
-            .result-content {
-                width: 95%;
-                padding: 20px;
-            }
-            
-            .speed-with-max {
-                flex-direction: column;
             }
             
             .export-mode-buttons {
@@ -1613,6 +1763,46 @@
             }
         }
         
+        /* 超小屏幕手机优化 */
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            button {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .click-area {
+                height: 150px;
+            }
+            
+            .click-text {
+                font-size: 1.3rem;
+            }
+            
+            .shortcut-hint {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
+            
+            .detail-chart-settings-panel {
+                width: 220px;
+                right: -10px;
+            }
+        }
+        
+        /* 横屏优化 */
         @media (max-width: 768px) and (orientation: landscape) {
             .container {
                 padding: 15px;
@@ -1620,7 +1810,7 @@
             }
             
             .click-area {
-                height: 180px;
+                height: 140px;
             }
             
             .stats {
@@ -1629,11 +1819,11 @@
             }
             
             .stat-card {
-                padding: 12px;
+                padding: 10px;
             }
             
             .stat-value {
-                font-size: 1.5rem;
+                font-size: 1.2rem;
             }
             
             .fullscreen-chart-container {
@@ -1656,6 +1846,27 @@
                 width: 95%;
                 max-height: 85vh;
                 overflow-y: auto;
+            }
+            
+            #speed-goal-container {
+                padding: 8px;
+                margin: 10px 0;
+            }
+            
+            #speed-goal-container > div:first-child {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .shortcut-hint {
+                display: none;
+            }
+            
+            .best-record {
+                top: 5px;
+                right: 5px;
+                padding: 8px 12px;
+                font-size: 0.8rem;
             }
         }
         

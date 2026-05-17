@@ -12,6 +12,9 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
         }
         
         body {
@@ -21,6 +24,7 @@
             justify-content: center;
             align-items: flex-start;
             padding: 0;
+            overscroll-behavior: none;
         }
         
         .container {
@@ -32,10 +36,10 @@
                 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 100%;
-            padding: 20px;
+            padding: 16px;
             text-align: center;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
             min-height: 100vh;
         }
         
@@ -45,84 +49,89 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 2px;
+            height: 3px;
             background: linear-gradient(to right, #667eea, #764ba2, #f5576c);
             z-index: 1;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 10px;
-            font-size: 2.2rem;
+            margin-bottom: 8px;
+            font-size: 1.8rem;
             font-weight: 700;
             background: linear-gradient(to right, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+            line-height: 1.2;
         }
         
         .subtitle {
             color: #666;
-            margin-bottom: 25px;
-            font-size: 1rem;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
             font-weight: 400;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .controls {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin: 20px 0;
+            gap: 10px;
+            margin: 16px 0;
             flex-wrap: wrap;
             background: rgba(248, 249, 250, 0.8);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 12px;
+            border-radius: 16px;
         }
         
         button {
             background: linear-gradient(to right, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 0.95rem;
-            border-radius: 25px;
+            padding: 14px 20px;
+            font-size: 0.9rem;
+            border-radius: 14px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.2s ease-out;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
             font-weight: 600;
-            min-width: 44px;
-            min-height: 44px;
-            flex: 1;
-            max-width: 130px;
+            min-width: 48px;
+            min-height: 48px;
+            flex: 1 1 90px;
+            max-width: 140px;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            letter-spacing: 0.3px;
         }
         
         button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.45);
         }
         
         button:active {
-            transform: translateY(1px);
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
         }
         
         button:disabled {
-            background: #cccccc;
+            background: linear-gradient(to right, #b0b0b0, #999999);
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0.7;
         }
         
         .btn-small {
-            padding: 8px 15px;
+            padding: 10px 16px;
             font-size: 0.85rem;
             background: linear-gradient(to right, #4CAF50, #45a049);
-            min-width: 44px;
-            min-height: 44px;
-            flex: none;
+            min-width: 48px;
+            min-height: 48px;
+            flex: 0 1 auto;
             max-width: none;
+            border-radius: 12px;
         }
         
         .btn-settings {
@@ -164,18 +173,18 @@
         
         .click-area {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            height: 220px;
+            border-radius: 20px;
+            height: 190px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: 25px 0;
+            margin: 20px 0;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-out;
             box-shadow: 
-                0 15px 30px rgba(102, 126, 234, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 12px 28px rgba(102, 126, 234, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
             user-select: none;
             position: relative;
             overflow: hidden;
@@ -183,26 +192,29 @@
         }
         
         .click-area:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
+            box-shadow: 
+                0 6px 16px rgba(102, 126, 234, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
         .click-area.disabled {
-            background: #e0e0e0;
+            background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
             cursor: not-allowed;
             transform: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         
         .click-area.ready {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             box-shadow: 
-                0 15px 30px rgba(79, 172, 254, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 12px 28px rgba(79, 172, 254, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
         
         .click-area.testing {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            animation: pulse 1.5s ease-in-out infinite;
+            animation: pulse 1.4s ease-in-out infinite;
         }
         
         @keyframes pulse {
@@ -368,19 +380,19 @@
         .stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin: 25px 0;
+            gap: 10px;
+            margin: 18px 0;
         }
         
         .stat-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
-            border-radius: 12px;
-            padding: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 249, 250, 0.95));
+            border-radius: 16px;
+            padding: 14px 12px;
             box-shadow: 
-                0 4px 6px rgba(0, 0, 0, 0.05),
-                0 1px 3px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(102, 126, 234, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(102, 126, 234, 0.12);
+            transition: all 0.2s ease-out;
             position: relative;
             overflow: hidden;
         }
@@ -390,30 +402,31 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 2px;
+            width: 3px;
             height: 100%;
             background: linear-gradient(to bottom, #667eea, #764ba2);
         }
         
         .stat-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
             box-shadow: 
-                0 12px 24px rgba(0, 0, 0, 0.1),
-                0 6px 6px rgba(0, 0, 0, 0.1);
+                0 8px 20px rgba(0, 0, 0, 0.12),
+                0 4px 8px rgba(0, 0, 0, 0.08);
         }
         
         .stat-card h3 {
             color: #555;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
             font-weight: 600;
+            letter-spacing: 0.2px;
         }
         
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: bold;
             color: #764ba2;
-            line-height: 1.2;
+            line-height: 1.15;
         }
         
         .stat-unit {
@@ -1573,62 +1586,65 @@
         /* 手机端专门优化 - 小屏手机 */
         @media (max-width: 480px) {
             h1 {
-                font-size: 1.8rem;
-                margin-bottom: 8px;
+                font-size: 1.6rem;
+                margin-bottom: 6px;
+                line-height: 1.2;
             }
             
             .subtitle {
-                font-size: 0.9rem;
-                margin-bottom: 18px;
+                font-size: 0.85rem;
+                margin-bottom: 16px;
             }
             
             .container {
-                padding: 12px;
+                padding: 14px;
                 border-radius: 0;
             }
             
             .controls {
-                padding: 12px;
+                padding: 10px;
                 gap: 8px;
-                margin: 15px 0;
+                margin: 12px 0;
             }
             
             button {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-                min-width: 44px;
-                min-height: 44px;
-                max-width: 110px;
+                padding: 12px 14px;
+                font-size: 0.85rem;
+                min-width: 48px;
+                min-height: 48px;
+                max-width: 120px;
             }
             
             .btn-clear {
-                min-width: 140px;
-                min-height: 44px;
-                padding: 10px 15px;
+                min-width: 150px;
+                min-height: 48px;
+                padding: 12px 20px;
             }
             
             .btn-small {
-                min-width: 44px;
-                min-height: 44px;
+                min-width: 48px;
+                min-height: 48px;
+                padding: 10px 14px;
             }
             
             .stats {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-                margin: 18px 0;
+                gap: 10px;
+                margin: 16px 0;
             }
             
             .stat-card {
-                padding: 12px 8px;
+                padding: 14px 12px;
+                border-radius: 16px;
             }
             
             .stat-card h3 {
                 font-size: 0.8rem;
-                margin-bottom: 4px;
+                margin-bottom: 5px;
             }
             
             .stat-value {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
             
             .stat-unit {
@@ -1636,32 +1652,40 @@
             }
             
             .click-area {
-                height: 180px;
-                margin: 15px 0;
+                height: 170px;
+                margin: 14px 0;
+                border-radius: 20px;
             }
             
             .click-text {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
             
             .key-hint {
                 font-size: 0.8rem;
             }
             
+            /* 优化练习模式按钮 */
+            .mode-btn {
+                min-height: 48px;
+                font-size: 0.9rem;
+            }
+            
             #speed-goal-container {
-                padding: 10px;
+                padding: 12px;
                 margin: 12px 0;
             }
             
             #speed-goal-container > div:first-child {
                 flex-direction: column;
-                gap: 10px;
+                gap: 12px;
                 align-items: stretch;
             }
             
             #speed-goal-input {
                 width: 100%;
-                padding: 8px;
+                padding: 10px;
+                font-size: 1rem;
             }
             
             .shortcut-hint {
@@ -1675,78 +1699,88 @@
             .best-record {
                 top: 10px;
                 right: 10px;
-                padding: 10px 15px;
+                padding: 10px 16px;
                 font-size: 0.85rem;
             }
             
             .history-item {
-                padding: 10px 12px;
+                padding: 12px 14px;
+                border-radius: 12px;
             }
             
             .history-header {
                 flex-direction: column;
-                gap: 6px;
+                gap: 8px;
             }
             
             .history-header .btn-small {
                 width: 100%;
-                max-width: 120px;
+                max-width: 140px;
             }
             
             .charts-container {
-                gap: 10px;
-                margin: 15px 0;
+                gap: 12px;
+                margin: 16px 0;
             }
             
             .chart-wrapper {
-                padding: 10px;
+                padding: 12px;
+                border-radius: 16px;
             }
             
             .analysis-results {
-                gap: 8px;
-                margin: 12px 0;
+                gap: 10px;
+                margin: 14px 0;
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .analysis-card {
                 padding: 10px;
+                border-radius: 12px;
             }
             
             .export-buttons {
-                gap: 8px;
+                gap: 10px;
             }
             
             .export-btn {
-                padding: 10px 15px;
+                padding: 12px 16px;
                 font-size: 0.85rem;
                 flex: 1;
                 min-width: 0;
+                border-radius: 12px;
             }
             
             .settings-modal-content {
-                padding: 18px;
-                border-radius: 16px;
-                width: 96%;
-                max-height: 90vh;
+                padding: 20px;
+                border-radius: 20px;
+                width: 94%;
+                max-height: 88vh;
             }
             
             .setting-group {
-                padding: 12px;
+                padding: 14px;
+                border-radius: 14px;
             }
             
             .setting-option {
-                padding: 8px 10px;
+                padding: 10px 14px;
                 font-size: 0.85rem;
+                border-radius: 10px;
             }
             
             .result-content {
-                padding: 20px;
-                width: 96%;
-                max-height: 90vh;
+                padding: 24px;
+                width: 94%;
+                max-height: 88vh;
+                border-radius: 20px;
             }
             
             .result-btn {
-                padding: 12px 25px;
+                padding: 14px 28px;
                 font-size: 0.95rem;
+                min-height: 50px;
+                border-radius: 14px;
             }
             
             .click-data-table {
@@ -1755,36 +1789,44 @@
             
             .click-data-table th,
             .click-data-table td {
-                padding: 6px 4px;
+                padding: 8px 6px;
             }
             
             .progress-chart {
                 padding: 12px;
+                border-radius: 16px;
             }
             
             .detail-chart-settings-panel {
-                width: 240px;
+                width: 260px;
+                right: 0;
             }
             
             .speed-with-max {
                 flex-direction: column;
+                gap: 12px;
             }
             
             .export-mode-content {
-                width: 95%;
-                padding: 20px;
+                width: 94%;
+                padding: 24px;
+                border-radius: 20px;
             }
             
             .export-mode-buttons {
                 flex-direction: column;
+                gap: 12px;
             }
             
             .export-mode-btn {
                 min-width: 100%;
+                min-height: 50px;
+                border-radius: 12px;
             }
             
             .result-buttons {
                 flex-direction: column;
+                gap: 12px;
             }
             
             .result-btn {
@@ -1795,11 +1837,12 @@
         /* 超小屏幕手机优化 */
         @media (max-width: 360px) {
             h1 {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
             
             .stats {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
             
             .controls {
@@ -1810,13 +1853,13 @@
             button {
                 width: 100%;
                 max-width: none;
-                min-height: 44px;
-                min-width: 44px;
+                min-height: 50px;
+                min-width: 50px;
             }
             
             .btn-small {
-                min-width: 44px;
-                min-height: 44px;
+                min-width: 50px;
+                min-height: 50px;
             }
             
             .click-area {
@@ -1824,7 +1867,7 @@
             }
             
             .click-text {
-                font-size: 1.3rem;
+                font-size: 1.25rem;
             }
             
             .shortcut-hint {
@@ -1834,7 +1877,11 @@
             
             .detail-chart-settings-panel {
                 width: 220px;
-                right: -10px;
+                right: 0;
+            }
+            
+            .analysis-results {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -2329,24 +2376,33 @@
             <button id="settings-btn" class="btn-settings">高级设置</button>
         </div>
         
-        <div id="speed-goal-container" style="margin: 15px 0; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <strong>🎯 手速目标:</strong> <span id="speed-goal-display">未设置</span>
+        <div id="speed-goal-container" style="margin: 14px 0; padding: 14px; background: rgba(248, 249, 250, 0.85); border-radius: 16px; border: 1px solid rgba(102, 126, 234, 0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                <div style="font-size: 0.95rem;">
+                    <strong style="font-weight: 700;">🎯 手速目标:</strong> <span id="speed-goal-display" style="font-weight: 600; color: #764ba2;">未设置</span>
                 </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span>设置目标:</span>
-                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
-                    <span>次/秒</span>
-                    <button id="set-goal-btn" class="btn-small" style="padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #4facfe, #00f2fe); color: white;">设置</button>
-                    <button id="clear-goal-btn" class="btn-small" style="padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white;">清除</button>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <input type="number" id="speed-goal-input" min="1" max="40" step="0.5" value="10" style="width: 80px; padding: 10px; border: 2px solid #e0e0e0; border-radius: 12px; text-align: center; font-size: 0.95rem; font-weight: 600; transition: all 0.2s ease;">
+                    <span style="font-size: 0.9rem; color: #666;">次/秒</span>
+                    <button id="set-goal-btn" class="btn-small" style="padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; background: linear-gradient(to right, #4facfe, #00f2fe); color: white; font-weight: 600; box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3);">设置</button>
+                    <button id="clear-goal-btn" class="btn-small" style="padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white; font-weight: 600; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);">清除</button>
                 </div>
             </div>
-            <div style="margin-top: 8px;">
-                <div style="background: #e0e0e0; border-radius: 10px; height: 20px; overflow: hidden; position: relative;">
-                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
-                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.75rem; font-weight: bold; color: #333;">0%</span>
+            <div>
+                <div style="background: rgba(0, 0, 0, 0.08); border-radius: 14px; height: 24px; overflow: hidden; position: relative; box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);">
+                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #66BB6A, #81C784); height: 100%; width: 0%; transition: width 0.35s ease-out; border-radius: 14px; box-shadow: 0 0 12px rgba(76, 175, 80, 0.4);"></div>
+                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; font-weight: 700; color: #333; text-shadow: 0 1px 2px rgba(255,255,255,0.5);">0%</span>
                 </div>
+            </div>
+        </div>
+        
+        <!-- 新增：练习模式选择 -->
+        <div id="practice-mode-container" style="margin: 14px 0; padding: 14px; background: rgba(248, 249, 250, 0.85); border-radius: 16px; border: 1px solid rgba(102, 126, 234, 0.15);">
+            <div style="font-weight: 700; margin-bottom: 10px; text-align: left; font-size: 0.95rem;">🏆 练习模式</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="mode-normal" class="mode-btn active" style="background: linear-gradient(to right, #667eea, #764ba2); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; min-height: 44px; flex: 1; min-width: 80px;">普通</button>
+                <button id="mode-challenge" class="mode-btn" style="background: rgba(0,0,0,0.05); color: #444; border: 2px solid transparent; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; min-height: 44px; flex: 1; min-width: 80px;">挑战</button>
+                <button id="mode-endurance" class="mode-btn" style="background: rgba(0,0,0,0.05); color: #444; border: 2px solid transparent; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; min-height: 44px; flex: 1; min-width: 80px;">耐力</button>
             </div>
         </div>
         
@@ -3032,16 +3088,21 @@
             
             const progressBar = document.getElementById('goal-progress-bar');
             const progressText = document.getElementById('goal-progress-text');
-            const percentage = Math.min(100, safeDivide(currentSpeed * 100, speedGoal, 0));
             
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${percentage.toFixed(0)}%`;
+            if (!progressBar || !progressText) return;
             
-            if (percentage >= 100) {
+            const validCurrentSpeed = safeParseNumber(currentSpeed, 0);
+            const percentage = Math.min(100, safeDivide(validCurrentSpeed * 100, speedGoal, 0));
+            const validPercentage = safeParseNumber(percentage, 0);
+            
+            progressBar.style.width = `${validPercentage.toFixed(0)}%`;
+            progressText.textContent = `${validPercentage.toFixed(0)}%`;
+            
+            if (validPercentage >= 100) {
                 progressBar.style.background = 'linear-gradient(to right, #FFD700, #FFA500)';
-            } else if (percentage >= 80) {
-                progressBar.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
-            } else if (percentage >= 50) {
+            } else if (validPercentage >= 80) {
+                progressBar.style.background = 'linear-gradient(to right, #4CAF50, #66BB6A)';
+            } else if (validPercentage >= 50) {
                 progressBar.style.background = 'linear-gradient(to right, #FF9800, #FF5722)';
             } else {
                 progressBar.style.background = 'linear-gradient(to right, #f44336, #e91e63)';
@@ -3054,7 +3115,7 @@
             if (progressBar && progressText) {
                 progressBar.style.width = '0%';
                 progressText.textContent = '0%';
-                progressBar.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
+                progressBar.style.background = 'linear-gradient(to right, #4CAF50, #66BB6A)';
             }
         }
         
@@ -3087,57 +3148,55 @@
         
         function checkAchievements(avgSpeed, maxSpeed, totalClicks, duration) {
             const newAchievements = [];
-            const savedAchievements = JSON.parse(localStorage.getItem('speedTestAchievements') || '[]');
+            let savedAchievements = [];
+            try {
+                const saved = safeLocalStorageGet('speedTestAchievements', '[]');
+                savedAchievements = JSON.parse(saved);
+            } catch (e) {
+                console.warn('加载成就失败:', e);
+                savedAchievements = [];
+            }
             
-            if (avgSpeed >= 15 && !savedAchievements.includes('speed_demon')) {
-                newAchievements.push({ id: 'speed_demon', name: '⚡ 速度恶魔', desc: '平均手速达到15次/秒以上' });
-            }
-            if (avgSpeed >= 12 && !savedAchievements.includes('speed_expert')) {
-                newAchievements.push({ id: 'speed_expert', name: '🎯 速度专家', desc: '平均手速达到12次/秒以上' });
-            }
-            if (avgSpeed >= 10 && !savedAchievements.includes('speed_pro')) {
-                newAchievements.push({ id: 'speed_pro', name: '🔥 速度达人', desc: '平均手速达到10次/秒以上' });
-            }
-            if (avgSpeed >= 8 && !savedAchievements.includes('speed_good')) {
-                newAchievements.push({ id: 'speed_good', name: '👍 速度不错', desc: '平均手速达到8次/秒以上' });
-            }
-            if (maxSpeed >= 20 && !savedAchievements.includes('instant_max')) {
-                newAchievements.push({ id: 'instant_max', name: '💥 瞬时爆发', desc: '瞬时手速达到20次/秒以上' });
-            }
-            if (totalClicks >= 200 && duration <= 10 && !savedAchievements.includes('click_master')) {
-                newAchievements.push({ id: 'click_master', name: '🏆 点击大师', desc: '10秒内点击超过200次' });
-            }
-            if (history.length >= 10 && !savedAchievements.includes('persistent')) {
-                newAchievements.push({ id: 'persistent', name: '📊 坚持不懈', desc: '完成10次以上测试' });
-            }
+            const allAchievements = [
+                { id: 'speed_good', name: '👍 速度不错', description: '平均手速达到8次/秒以上', condition: () => avgSpeed >= 8 },
+                { id: 'speed_pro', name: '🔥 速度达人', description: '平均手速达到10次/秒以上', condition: () => avgSpeed >= 10 },
+                { id: 'speed_expert', name: '🎯 速度专家', description: '平均手速达到12次/秒以上', condition: () => avgSpeed >= 12 },
+                { id: 'speed_demon', name: '⚡ 速度恶魔', description: '平均手速达到15次/秒以上', condition: () => avgSpeed >= 15 },
+                { id: 'speed_legend', name: '👑 速度传奇', description: '平均手速达到20次/秒以上', condition: () => avgSpeed >= 20 },
+                { id: 'instant_max', name: '💥 瞬时爆发', description: '瞬时手速达到20次/秒以上', condition: () => maxSpeed >= 20 },
+                { id: 'instant_extreme', name: '⚡ 瞬时极限', description: '瞬时手速达到30次/秒以上', condition: () => maxSpeed >= 30 },
+                { id: 'click_master', name: '🏆 点击大师', description: '10秒内点击超过200次', condition: () => totalClicks >= 200 && duration <= 10 },
+                { id: 'click_legend', name: '👊 点击传奇', description: '10秒内点击超过300次', condition: () => totalClicks >= 300 && duration <= 10 },
+                { id: 'persistent', name: '📊 坚持不懈', description: '完成10次以上测试', condition: () => history.length >= 10 },
+                { id: 'dedicated', name: '💪 全心投入', description: '完成50次以上测试', condition: () => history.length >= 50 },
+                { id: 'challenge_complete', name: '🎮 挑战完成', description: '完成挑战模式测试', condition: () => currentPracticeMode === 'challenge' && avgSpeed > 0 },
+                { id: 'endurance_complete', name: '🏃 耐力考验', description: '完成耐力模式测试', condition: () => currentPracticeMode === 'endurance' && avgSpeed > 0 }
+            ];
+            
+            allAchievements.forEach(achievement => {
+                if (!savedAchievements.includes(achievement.id) && achievement.condition()) {
+                    newAchievements.push(achievement);
+                    savedAchievements.push(achievement.id);
+                }
+            });
             
             if (newAchievements.length > 0) {
-                achievements = [...savedAchievements, ...newAchievements.map(a => a.id)];
-                localStorage.setItem('speedTestAchievements', JSON.stringify(achievements));
-                showAchievementPopup(newAchievements[0]);
+                achievements = savedAchievements;
+                safeLocalStorageSet('speedTestAchievements', JSON.stringify(achievements));
+                newAchievements.forEach(achievement => queueAchievement(achievement));
             }
-        }
-        
-        function showAchievementPopup(achievement) {
-            const popup = document.getElementById('achievement-popup');
-            popup.innerHTML = `
-                <div>${achievement.name}</div>
-                <div style="font-size: 1rem; margin-top: 10px;">${achievement.desc}</div>
-            `;
-            popup.classList.add('show');
-            
-            setTimeout(() => {
-                popup.classList.remove('show');
-            }, 3000);
         }
         
         function loadBestSpeed() {
-            const saved = localStorage.getItem('speedTestBestSpeed');
+            const saved = safeLocalStorageGet('speedTestBestSpeed', null);
             if (saved) {
                 bestSpeed = parseFloat(saved);
+                if (isNaN(bestSpeed) || !isFinite(bestSpeed)) {
+                    bestSpeed = 0;
+                }
                 const bestRecordEl = document.getElementById('best-record');
                 const bestSpeedEl = document.getElementById('best-speed');
-                if (bestSpeed > 0) {
+                if (bestSpeed > 0 && bestRecordEl && bestSpeedEl) {
                     bestSpeedEl.textContent = `${bestSpeed.toFixed(1)} 次/秒`;
                     bestRecordEl.classList.add('show');
                 }
@@ -3319,6 +3378,149 @@
             }
         }
         
+        // 新增：练习模式功能
+        let currentPracticeMode = 'normal';
+        const practiceModeSettings = {
+            normal: { duration: 10, description: '标准10秒测试' },
+            challenge: { duration: 5, description: '5秒极限挑战' },
+            endurance: { duration: 30, description: '30秒耐力测试' }
+        };
+        
+        function initPracticeMode() {
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            modeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 更新UI
+                    modeButtons.forEach(b => {
+                        b.style.background = 'rgba(0,0,0,0.05)';
+                        b.style.color = '#444';
+                        b.style.border = '2px solid transparent';
+                    });
+                    this.style.background = 'linear-gradient(to right, #667eea, #764ba2)';
+                    this.style.color = 'white';
+                    this.style.border = '2px solid transparent';
+                    
+                    // 更新模式
+                    currentPracticeMode = this.id.replace('mode-', '');
+                    
+                    // 应用设置
+                    const modeSetting = practiceModeSettings[currentPracticeMode];
+                    settings.testTime = modeSetting.duration;
+                    testTimeInput.value = modeSetting.duration;
+                    timer = modeSetting.duration;
+                    timerDisplay.textContent = timer;
+                    
+                    triggerHapticFeedback('light');
+                });
+            });
+        }
+        
+        // 优化：更安全的localStorage操作
+        function safeLocalStorageGet(key, defaultValue) {
+            try {
+                const value = localStorage.getItem(key);
+                return value !== null ? value : defaultValue;
+            } catch (e) {
+                console.warn('localStorage读取失败:', e);
+                return defaultValue;
+            }
+        }
+        
+        function safeLocalStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                console.warn('localStorage保存失败:', e);
+            }
+        }
+        
+        // 优化：触摸事件处理，防止双击缩放等
+        let lastTouchTime = 0;
+        function preventDoubleTapZoom(e) {
+            const now = Date.now();
+            if (now - lastTouchTime < 300) {
+                e.preventDefault();
+            }
+            lastTouchTime = now;
+        }
+        
+        // 优化：添加移动端触摸反馈
+        let isAnimating = false;
+        function animateClickArea() {
+            if (isAnimating || !testActive) return;
+            isAnimating = true;
+            clickArea.style.transform = 'scale(0.97)';
+            setTimeout(() => {
+                if (testActive) {
+                    clickArea.style.transform = 'scale(1)';
+                }
+                isAnimating = false;
+            }, 80);
+        }
+        
+        // 修复：改进的统计计算，避免除零错误
+        function safeCalculateStats() {
+            if (clickTimes.length < 2) {
+                return { avgSpeed: 0, maxSpeed: 0, stability: 0 };
+            }
+            
+            const currentTime = performance.now();
+            const elapsedSeconds = (currentTime - startTime) / 1000;
+            const avgSpeed = safeDivide(clickCount, elapsedSeconds, 0);
+            
+            const intervals = clickTimes.slice(1).map((click, i) => {
+                return click.time - clickTimes[i].time;
+            }).filter(interval => interval > 0 && isFinite(interval));
+            
+            const speeds = intervals.map(interval => safeDivide(1000, interval, 0));
+            const maxSpeed = safeMax(speeds, 0);
+            
+            let stability = 0;
+            if (speeds.length >= 2) {
+                const mean = safeDivide(speeds.reduce((a, b) => a + b, 0), speeds.length, 0);
+                if (mean > 0) {
+                    const variance = safeDivide(speeds.reduce((sum, speed) => sum + Math.pow(speed - mean, 2), 0), speeds.length, 0);
+                    const stdDev = Math.sqrt(variance);
+                    stability = Math.max(0, Math.min(100, 100 - safeDivide(stdDev * 100, mean, 0)));
+                }
+            }
+            
+            return { avgSpeed, maxSpeed, stability };
+        }
+        
+        // 优化：改进的成就系统
+        let achievementQueue = [];
+        let isShowingAchievement = false;
+        
+        function queueAchievement(achievement) {
+            achievementQueue.push(achievement);
+            if (!isShowingAchievement) {
+                showNextAchievement();
+            }
+        }
+        
+        function showNextAchievement() {
+            if (achievementQueue.length === 0) {
+                isShowingAchievement = false;
+                return;
+            }
+            
+            isShowingAchievement = true;
+            const achievement = achievementQueue.shift();
+            
+            const popup = document.getElementById('achievement-popup');
+            popup.innerHTML = `
+                <div style="font-size: 1.5rem;">${achievement.name}</div>
+                <div style="font-size: 0.95rem; margin-top: 8px;">${achievement.description}</div>
+            `;
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+                setTimeout(showNextAchievement, 300);
+            }, 2800);
+        }
+        
         // 初始化
         function init() {
             // 应用深色模式
@@ -3327,10 +3529,13 @@
             }
             
             // 启动性能监控
-            if (localStorage.getItem('performanceMonitor') === 'true') {
+            if (safeLocalStorageGet('performanceMonitor', 'false') === 'true') {
                 performanceMonitor.startMonitoring();
             }
             addMobileKeyOptions();
+            
+            // 初始化练习模式
+            initPracticeMode();
             
             loadSettings();
             loadBestSpeed();
@@ -3372,12 +3577,21 @@
                 });
             }
             
+            // 优化触摸事件处理
+            let lastTouchRecordTime = 0;
             clickArea.addEventListener('touchstart', function(e) {
                 if (testActive && settings.testKey === 'click') {
-                    e.preventDefault();
-                    recordClick();
+                    const now = Date.now();
+                    if (now - lastTouchRecordTime > 10) { // 防止误触
+                        e.preventDefault();
+                        recordClick();
+                        lastTouchRecordTime = now;
+                    }
                 }
             }, { passive: false });
+            
+            // 防止双击缩放
+            document.addEventListener('touchstart', preventDoubleTapZoom, { passive: true });
             
             clearAllBtn.addEventListener('click', function(e) {
                 triggerHapticFeedback('medium');
@@ -4438,7 +4652,7 @@
             const timeFromStart = (currentTime - startTime) / 1000;
             const prevTime = clickTimes.length > 0 ? clickTimes[clickTimes.length - 1].time : currentTime;
             const interval = currentTime - prevTime;
-            const instantSpeed = interval > 0 ? (1000/interval) : 0;
+            const instantSpeed = interval > 0 ? (1000 / interval) : 0;
             const validInstantSpeed = safeParseNumber(instantSpeed, 0);
             
             if (validInstantSpeed > maxInstantSpeed) {
@@ -4457,14 +4671,24 @@
             playClickSound(validInstantSpeed);
             updateWaveAnimation(validInstantSpeed);
             calculateSpeed();
+            
+            // 添加触摸动画
+            animateClickArea();
         }
         
         function calculateSpeed() {
             if (clickTimes.length < 2) return null;
             
+            const stats = safeCalculateStats();
+            
+            avgSpeedDisplay.innerHTML = `${stats.avgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
+            stabilityDisplay.innerHTML = `${stats.stability.toFixed(1)}<span class="stat-unit">%</span>`;
+            
+            updateGoalProgress(stats.avgSpeed);
+            
+            // 计算最近1秒的点击数
             const currentTime = performance.now();
             const oneSecondAgo = currentTime - 1000;
-            
             let recentClicks = 0;
             for (let i = clickTimes.length - 1; i >= 0; i--) {
                 const clickTime = clickTimes[i].time;
@@ -4475,32 +4699,9 @@
                 }
             }
             
-            const elapsedSeconds = (currentTime - startTime) / 1000;
-            const avgSpeed = safeDivide(clickCount, elapsedSeconds, 0);
-            const validAvgSpeed = safeParseNumber(avgSpeed, 0);
-            avgSpeedDisplay.innerHTML = `${validAvgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
-            
-            updateGoalProgress(validAvgSpeed);
-            
-            if (settings.stabilityAnalysis && clickTimes.length > 2) {
-                const speeds = clickTimes.slice(-15).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
-                if (speeds.length >= 2) {
-                    const avg = safeDivide(speeds.reduce((a, b) => a + b, 0), speeds.length, 1);
-                    const variance = safeDivide(speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0), speeds.length, 0);
-                    const stdDev = Math.sqrt(variance);
-                    const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - safeDivide(stdDev * 100, avg, 0))) : 0;
-                    const validStability = safeParseNumber(stability, 0);
-                    stabilityDisplay.innerHTML = `${validStability.toFixed(1)}<span class="stat-unit">%</span>`;
-                } else if (speeds.length === 1) {
-                    stabilityDisplay.innerHTML = `100.0<span class="stat-unit">%</span>`;
-                } else {
-                    stabilityDisplay.innerHTML = `<span class="stat-unit">计算中...</span>`;
-                }
-            }
-            
             return {
                 instantSpeed: recentClicks,
-                avgSpeed: parseFloat(validAvgSpeed.toFixed(1))
+                avgSpeed: stats.avgSpeed
             };
         }
         
@@ -4549,9 +4750,12 @@
             const maxSpeed = isNaN(maxInstantSpeed) || !isFinite(maxInstantSpeed) ? 0 : maxInstantSpeed;
             
             checkAndUpdateBestSpeed(validAvgSpeed);
-            checkAchievements(validAvgSpeed, maxSpeed.toFixed(1), clickCount, totalTime);
+            checkAchievements(validAvgSpeed, maxSpeed, clickCount, totalTime);
             
             showResultDialog(validAvgSpeed.toFixed(1), maxSpeed.toFixed(1), testId);
+            
+            // 触发成功反馈
+            triggerHapticFeedback('success');
         }
         
         function addToHistory(clicks, speed, duration) {
@@ -4602,16 +4806,15 @@
         
         function saveHistory() {
             try {
-                localStorage.setItem('speedTestHistory', JSON.stringify(history.slice(0, 50)));
+                safeLocalStorageSet('speedTestHistory', JSON.stringify(history.slice(0, 100)));
             } catch (e) {
                 console.error('保存历史记录失败:', e);
-                alert('保存历史记录失败，可能存储空间不足');
             }
         }
         
         function loadHistory() {
             try {
-                const savedHistory = localStorage.getItem('speedTestHistory');
+                const savedHistory = safeLocalStorageGet('speedTestHistory', null);
                 if (savedHistory) {
                     history = JSON.parse(savedHistory);
                     updateHistoryDisplay();

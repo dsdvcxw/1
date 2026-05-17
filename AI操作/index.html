@@ -1973,6 +1973,27 @@
             </div>
         </div>
         
+        <div id="speed-goal-container" style="margin: 15px 0; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <strong>🎯 手速目标:</strong> <span id="speed-goal-display">未设置</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span>设置目标:</span>
+                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
+                    <span>次/秒</span>
+                    <button id="set-goal-btn" class="btn-small">设置</button>
+                    <button id="clear-goal-btn" class="btn-small" style="background: linear-gradient(to right, #ff6b6b, #ff4757);">清除</button>
+                </div>
+            </div>
+            <div style="margin-top: 8px;">
+                <div style="background: #e0e0e0; border-radius: 10px; height: 20px; overflow: hidden; position: relative;">
+                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
+                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.75rem; font-weight: bold; color: #333;">0%</span>
+                </div>
+            </div>
+        </div>
+        
         <div class="shortcut-hint" id="shortcut-hint" style="cursor: pointer;">
             <div style="margin-bottom: 5px;"><kbd>空格</kbd> 开始测试 | <kbd>R</kbd> 快速重测 | <kbd>ESC</kbd> 关闭弹窗</div>
             <div style="font-size: 0.75rem; color: #aaa;">点击查看全部快捷键</div>
@@ -2580,12 +2601,12 @@
             const display = document.getElementById('speed-goal-display');
             const input = document.getElementById('speed-goal-input');
             
+            container.style.display = 'block'; // 总是显示设置界面
+            
             if (speedGoal !== null && isFinite(speedGoal) && speedGoal > 0) {
-                container.style.display = 'block';
                 display.textContent = `${speedGoal.toFixed(1)} 次/秒`;
                 input.value = speedGoal;
             } else {
-                container.style.display = 'none';
                 display.textContent = '未设置';
             }
         }

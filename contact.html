@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - 联系我们</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Raleway:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-text">NEXUS</span>
+                <span class="logo-sub">Innovate Tomorrow</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="index.html#features" class="nav-link">特色</a></li>
+                <li><a href="index.html#showcase" class="nav-link">展示</a></li>
+                <li><a href="products.html" class="nav-link">产品</a></li>
+                <li><a href="about.html" class="nav-link">关于</a></li>
+                <li><a href="contact.html" class="nav-link cta-btn">联系我们</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="page-hero-bg"></div>
+        <div class="page-hero-content">
+            <h1 class="page-title">联系我们</h1>
+            <p class="page-subtitle">与我们取得联系，开启创新之旅</p>
+        </div>
+    </section>
+
+    <section class="contact-section">
+        <div class="contact-content">
+            <div class="contact-info">
+                <h2 class="contact-title">联系方式</h2>
+                <p class="contact-desc">我们期待与您交流，欢迎随时联系我们</p>
+                
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <svg viewBox="0 0 64 64">
+                                <path d="M16 44l16-12 16 12M32 48V20" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                        <div class="contact-text">
+                            <h4>地址</h4>
+                            <p>北京市海淀区中关村科技园区</p>
+                            <p>创新大厦A座20层</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <svg viewBox="0 0 64 64">
+                                <path d="M8 16h48v32H8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M16 24h32M16 32h24M16 40h16" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="contact-text">
+                            <h4>电话</h4>
+                            <p>400-888-8888</p>
+                            <p>010-88888888</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <svg viewBox="0 0 64 64">
+                                <path d="M8 16h48v32H8z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M16 24h32M16 32h24M16 40h16" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="contact-text">
+                            <h4>邮箱</h4>
+                            <p>contact@nexus-tech.com</p>
+                            <p>sales@nexus-tech.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <svg viewBox="0 0 64 64">
+                                <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                                <path d="M32 20v24M20 32h24" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="contact-text">
+                            <h4>工作时间</h4>
+                            <p>周一至周五: 9:00 - 18:00</p>
+                            <p>周六: 10:00 - 16:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form-container">
+                <h2 class="contact-title">发送消息</h2>
+                <form id="contactForm" class="contact-form">
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" id="name" name="name" placeholder="请输入您的姓名" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email" name="email" placeholder="请输入您的邮箱" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">电话</label>
+                        <input type="tel" id="phone" name="phone" placeholder="请输入您的电话">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">消息内容</label>
+                        <textarea id="message" name="message" placeholder="请输入您想说的内容..." required rows="5"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">发送消息</button>
+                </form>
+                <div id="formSuccess" class="form-success">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <path d="M20 32l8 8 16-16" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    <h3>发送成功！</h3>
+                    <p>感谢您的留言，我们会尽快与您联系。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="locations">
+        <div class="section-header">
+            <span class="section-tag">全球办公室</span>
+            <h2 class="section-title">我们的位置</h2>
+        </div>
+        <div class="locations-grid">
+            <div class="location-card">
+                <div class="location-icon">
+                    <svg viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="32" cy="32" r="8" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h3 class="location-name">北京总部</h3>
+                <p class="location-desc">北京市海淀区中关村科技园区</p>
+            </div>
+            <div class="location-card">
+                <div class="location-icon">
+                    <svg viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="32" cy="32" r="8" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h3 class="location-name">上海分公司</h3>
+                <p class="location-desc">上海市浦东新区陆家嘴金融中心</p>
+            </div>
+            <div class="location-card">
+                <div class="location-icon">
+                    <svg viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="32" cy="32" r="8" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h3 class="location-name">硅谷研发中心</h3>
+                <p class="location-desc">美国加利福尼亚州旧金山湾区</p>
+            </div>
+            <div class="location-card">
+                <div class="location-icon">
+                    <svg viewBox="0 0 64 64">
+                        <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="32" cy="32" r="8" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h3 class="location-name">新加坡办公室</h3>
+                <p class="location-desc">新加坡滨海湾金融中心</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">NEXUS</span>
+                <p class="footer-tagline">Innovate Tomorrow</p>
+                <p class="footer-about">致力于通过创新技术推动企业数字化转型</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-link-group">
+                    <h4>产品服务</h4>
+                    <ul>
+                        <li><a href="products.html">AI解决方案</a></li>
+                        <li><a href="products.html">云计算服务</a></li>
+                        <li><a href="products.html">大数据分析</a></li>
+                    </ul>
+                </div>
+                <div class="footer-link-group">
+                    <h4>关于我们</h4>
+                    <ul>
+                        <li><a href="about.html">公司介绍</a></li>
+                        <li><a href="about.html">团队成员</a></li>
+                        <li><a href="about.html">发展历程</a></li>
+                    </ul>
+                </div>
+                <div class="footer-link-group">
+                    <h4>联系我们</h4>
+                    <ul>
+                        <li><a href="contact.html">联系方式</a></li>
+                        <li><a href="contact.html">加入我们</a></li>
+                        <li><a href="contact.html">合作伙伴</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 NEXUS. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

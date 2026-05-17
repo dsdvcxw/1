@@ -91,9 +91,12 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
             font-weight: 600;
-            min-width: 90px;
+            min-width: 44px;
+            min-height: 44px;
             flex: 1;
             max-width: 130px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         
         button:hover {
@@ -116,13 +119,15 @@
             padding: 8px 15px;
             font-size: 0.85rem;
             background: linear-gradient(to right, #4CAF50, #45a049);
-            min-width: auto;
+            min-width: 44px;
+            min-height: 44px;
             flex: none;
             max-width: none;
         }
         
         .btn-settings {
             background: linear-gradient(to right, #FF9800, #F57C00);
+            min-height: 44px;
         }
         
         .btn-clear {
@@ -131,15 +136,18 @@
             width: auto;
             min-width: 160px;
             max-width: 220px;
+            min-height: 44px;
             padding: 12px 25px;
         }
         
         .btn-export {
             background: linear-gradient(to right, #36D1DC, #5B86E5);
+            min-height: 44px;
         }
         
         .btn-import {
             background: linear-gradient(to right, #9C27B0, #673AB7);
+            min-height: 44px;
         }
         
         .countdown {
@@ -568,6 +576,7 @@
             border-radius: 8px;
             font-size: 1rem;
             width: 100px;
+            min-height: 44px;
             text-align: center;
             transition: all 0.3s ease;
         }
@@ -584,6 +593,7 @@
             border-radius: 8px;
             font-size: 1rem;
             width: 140px;
+            min-height: 44px;
             text-align: center;
             transition: all 0.3s ease;
         }
@@ -1018,6 +1028,10 @@
             background: linear-gradient(to right, #667eea, #764ba2);
             color: white;
             border-radius: 8px;
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
             cursor: pointer;
             font-size: 0.9rem;
             margin: 8px;
@@ -1127,6 +1141,10 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
             font-size: 0.95rem;
             transition: all 0.3s ease;
             flex: 1;
@@ -1360,6 +1378,10 @@
             border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
             font-size: 1rem;
             min-width: 120px;
             transition: all 0.3s ease;
@@ -1574,13 +1596,20 @@
             button {
                 padding: 10px 16px;
                 font-size: 0.9rem;
-                min-width: 70px;
+                min-width: 44px;
+                min-height: 44px;
                 max-width: 110px;
             }
             
             .btn-clear {
                 min-width: 140px;
+                min-height: 44px;
                 padding: 10px 15px;
+            }
+            
+            .btn-small {
+                min-width: 44px;
+                min-height: 44px;
             }
             
             .stats {
@@ -1781,6 +1810,13 @@
             button {
                 width: 100%;
                 max-width: none;
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .btn-small {
+                min-width: 44px;
+                min-height: 44px;
             }
             
             .click-area {
@@ -1810,7 +1846,7 @@
             }
             
             .click-area {
-                height: 140px;
+                height: 160px;
             }
             
             .stats {
@@ -1820,10 +1856,26 @@
             
             .stat-card {
                 padding: 10px;
+                min-height: 70px;
             }
             
             .stat-value {
                 font-size: 1.2rem;
+            }
+            
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .btn-small {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .export-btn {
+                min-height: 44px;
+                min-width: 44px;
             }
             
             .fullscreen-chart-container {
@@ -1876,6 +1928,25 @@
                 max-width: 100%;
             }
             
+            .click-area {
+                height: 180px;
+            }
+            
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .btn-small {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .export-btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
             .fullscreen-chart-container {
                 height: calc(100% - 40px);
             }
@@ -1892,6 +1963,15 @@
             
             .result-content {
                 width: 98%;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-card {
+                min-height: 70px;
             }
         }
         
@@ -2081,6 +2161,123 @@
             .analysis-card small {
                 font-size: 0.65rem;
             }
+        }
+        
+        /* 深色模式样式 */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .container.dark-mode {
+            background: rgba(30, 30, 50, 0.95);
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode h1,
+        .container.dark-mode h2,
+        .container.dark-mode h3,
+        .container.dark-mode h4 {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+        
+        .container.dark-mode .controls {
+            background: rgba(40, 40, 60, 0.8);
+        }
+        
+        .container.dark-mode .stat-card {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .container.dark-mode .stat-card h3 {
+            color: #b0b0b0;
+        }
+        
+        .container.dark-mode .stat-value {
+            color: #667eea;
+        }
+        
+        .container.dark-mode .timer {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .history {
+            background: rgba(40, 40, 60, 0.8);
+        }
+        
+        .container.dark-mode .history-item {
+            background: rgba(50, 50, 70, 0.9);
+            border-left-color: #667eea;
+        }
+        
+        .container.dark-mode .instructions {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .container.dark-mode .instructions li {
+            color: #b0b0b0;
+        }
+        
+        .container.dark-mode .import-section {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+        
+        .container.dark-mode .setting-group {
+            background: rgba(40, 40, 60, 0.8);
+            border-left-color: #667eea;
+        }
+        
+        .container.dark-mode .setting-option {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .time-input,
+        .container.dark-mode .custom-key-input {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .chart-wrapper {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: rgba(221, 221, 221, 0.2);
+        }
+        
+        .container.dark-mode .modal-content,
+        .container.dark-mode .settings-modal-content {
+            background: rgba(30, 30, 50, 0.98);
+        }
+        
+        .container.dark-mode .modal-header {
+            border-bottom-color: rgba(221, 221, 221, 0.2);
+        }
+        
+        .container.dark-mode .click-data-table {
+            background: rgba(50, 50, 70, 0.9);
+        }
+        
+        .container.dark-mode .click-data-table th {
+            background: linear-gradient(to right, #5a6fd8, #6a48a5);
+        }
+        
+        .container.dark-mode .click-data-table tr:nth-child(even) {
+            background: rgba(60, 60, 80, 0.5);
+        }
+        
+        .container.dark-mode .analysis-card {
+            background: rgba(50, 50, 70, 0.8);
+        }
+        
+        .container.dark-mode #speed-goal-container {
+            background: rgba(40, 40, 60, 0.8);
         }
         
         @media (max-width: 320px) {
@@ -2447,7 +2644,10 @@
         
         // 安全的除法运算
         function safeDivide(numerator, denominator, defaultValue = 0) {
-            if (denominator === 0 || denominator === null || denominator === undefined) {
+            if (denominator === 0 || denominator === null || denominator === undefined || !isFinite(denominator)) {
+                return defaultValue;
+            }
+            if (numerator === null || numerator === undefined || !isFinite(numerator)) {
                 return defaultValue;
             }
             const result = numerator / denominator;
@@ -2467,14 +2667,42 @@
         
         // 安全的Math.max/min调用
         function safeMax(arr, defaultValue = 0) {
+            if (!Array.isArray(arr) || arr.length === 0) return defaultValue;
             const valid = arr.filter(v => typeof v === 'number' && isFinite(v));
             return valid.length > 0 ? Math.max(...valid) : defaultValue;
         }
         
         function safeMin(arr, defaultValue = 0) {
+            if (!Array.isArray(arr) || arr.length === 0) return defaultValue;
             const valid = arr.filter(v => typeof v === 'number' && isFinite(v));
             return valid.length > 0 ? Math.min(...valid) : defaultValue;
         }
+        
+        // 触摸震动反馈函数 - 增强版
+        function triggerHapticFeedback(type = 'light') {
+            if (!('vibrate' in navigator)) {
+                return;
+            }
+            
+            const patterns = {
+                light: [10],
+                medium: [20],
+                heavy: [30, 10, 30],
+                success: [10, 50, 20],
+                error: [50, 30, 50]
+            };
+            
+            const pattern = patterns[type] || patterns.light;
+            
+            try {
+                navigator.vibrate(pattern);
+            } catch (e) {
+                console.warn('震动反馈失败:', e);
+            }
+        }
+        
+        // 检测是否为触摸设备
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         
         // ========== 核心代码 ==========
         
@@ -2747,9 +2975,7 @@
             
             recordClick();
             
-            if (navigator.vibrate) {
-                navigator.vibrate(10);
-            }
+            triggerHapticFeedback('light');
             
             clickArea.style.transform = 'scale(0.98)';
             setTimeout(() => {
@@ -3046,8 +3272,64 @@
                 transparent 100%)`;
         }
         
+        // 性能监控
+        const performanceMonitor = {
+            fps: 0,
+            lastFrameTime: 0,
+            frameCount: 0,
+            lastFPSTime: 0,
+            
+            startMonitoring() {
+                this.lastFrameTime = performance.now();
+                this.lastFPSTime = this.lastFrameTime;
+                this.frameCount = 0;
+                this.monitorFrame();
+            },
+            
+            monitorFrame() {
+                const currentTime = performance.now();
+                this.frameCount++;
+                
+                if (currentTime - this.lastFPSTime >= 1000) {
+                    this.fps = this.frameCount;
+                    this.frameCount = 0;
+                    this.lastFPSTime = currentTime;
+                }
+                
+                requestAnimationFrame(() => this.monitorFrame());
+            }
+        };
+        
+        // 深色模式切换
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            applyDarkMode();
+        }
+        
+        function applyDarkMode() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.container').classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.querySelector('.container').classList.remove('dark-mode');
+            }
+        }
+        
         // 初始化
         function init() {
+            // 应用深色模式
+            if (isDarkMode) {
+                applyDarkMode();
+            }
+            
+            // 启动性能监控
+            if (localStorage.getItem('performanceMonitor') === 'true') {
+                performanceMonitor.startMonitoring();
+            }
             addMobileKeyOptions();
             
             loadSettings();
@@ -3097,14 +3379,27 @@
                 }
             }, { passive: false });
             
-            clearAllBtn.addEventListener('click', showConfirmDialog);
-            confirmYesBtn.addEventListener('click', clearAllData);
-            confirmNoBtn.addEventListener('click', hideConfirmDialog);
+            clearAllBtn.addEventListener('click', function(e) {
+                triggerHapticFeedback('medium');
+                showConfirmDialog();
+            });
+            confirmYesBtn.addEventListener('click', function(e) {
+                triggerHapticFeedback('heavy');
+                clearAllData();
+            });
+            confirmNoBtn.addEventListener('click', function(e) {
+                triggerHapticFeedback('light');
+                hideConfirmDialog();
+            });
             
-            settingsBtn.addEventListener('click', openSettingsModal);
+            settingsBtn.addEventListener('click', function(e) {
+                triggerHapticFeedback('light');
+                openSettingsModal();
+            });
             
             resultDetailBtn.addEventListener('click', function(e) {
                 if (resultDialogCooldown) return;
+                triggerHapticFeedback('medium');
                 
                 if (lastTestData && lastTestData.testId) {
                     closeResultDialog();
@@ -3116,11 +3411,13 @@
             
             resultExitBtn.addEventListener('click', function(e) {
                 if (resultDialogCooldown) return;
+                triggerHapticFeedback('light');
                 closeResultDialog();
             });
             
             resultRestartBtn.addEventListener('click', function(e) {
                 if (resultDialogCooldown) return;
+                triggerHapticFeedback('medium');
                 closeResultDialog();
                 setTimeout(() => {
                     startTest();
@@ -3134,6 +3431,7 @@
             });
             
             exportForImportBtn.addEventListener('click', function() {
+                triggerHapticFeedback('medium');
                 if (currentExportTestId) {
                     exportData(currentExportTestId, 'compressed');
                     hideExportModeDialog();
@@ -3141,6 +3439,7 @@
             });
             
             exportForViewBtn.addEventListener('click', function() {
+                triggerHapticFeedback('medium');
                 if (currentExportTestId) {
                     exportData(currentExportTestId, 'view');
                     hideExportModeDialog();
@@ -3148,15 +3447,22 @@
             });
             
             exportNormalBtn.addEventListener('click', function() {
+                triggerHapticFeedback('medium');
                 if (currentExportTestId) {
                     exportData(currentExportTestId, 'normal');
                     hideExportModeDialog();
                 }
             });
             
-            exportCancelBtn.addEventListener('click', hideExportModeDialog);
+            exportCancelBtn.addEventListener('click', function() {
+                triggerHapticFeedback('light');
+                hideExportModeDialog();
+            });
             
-            importBtn.addEventListener('click', importData);
+            importBtn.addEventListener('click', function() {
+                triggerHapticFeedback('light');
+                importData();
+            });
             
             document.querySelector('.file-upload').addEventListener('click', function(e) {
                 if (e.target !== importFileInput) {
@@ -3943,9 +4249,18 @@
         });
         
         // 开始测试
-        startBtn.addEventListener('click', startTest);
-        stopBtn.addEventListener('click', stopTest);
-        resetBtn.addEventListener('click', resetTest);
+        startBtn.addEventListener('click', function(e) {
+            triggerHapticFeedback('medium');
+            startTest();
+        });
+        stopBtn.addEventListener('click', function(e) {
+            triggerHapticFeedback('medium');
+            stopTest();
+        });
+        resetBtn.addEventListener('click', function(e) {
+            triggerHapticFeedback('light');
+            resetTest();
+        });
         clickArea.addEventListener('click', handleClick);
         
         // 键盘按键事件监听

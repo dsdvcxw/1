@@ -97,6 +97,18 @@
             max-width: 130px;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            outline: none;
+        }
+        
+        button:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+        
+        button:focus:not(:focus-visible) {
+            outline: none;
         }
         
         button:hover {
@@ -203,6 +215,7 @@
         .click-area.testing {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             animation: pulse 1.5s ease-in-out infinite;
+            will-change: transform, box-shadow;
         }
         
         @keyframes pulse {
@@ -216,6 +229,10 @@
                     0 15px 40px rgba(102, 126, 234, 0.5),
                     inset 0 1px 0 rgba(255, 255, 255, 0.3);
             }
+        }
+        
+        .click-area {
+            transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
         }
         
         .best-record {
@@ -667,6 +684,12 @@
             margin-top: 15px;
         }
         
+        @media (min-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
         .chart-wrapper {
             position: relative;
             background: white;
@@ -854,7 +877,7 @@
         }
         
         .export-btn {
-            padding: 10px 18px;
+            padding: 12px 18px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -868,6 +891,9 @@
             justify-content: center;
             max-width: 160px;
             transition: all 0.3s ease;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .export-btn:hover {
@@ -953,6 +979,24 @@
             width: 240px;
             text-align: left;
             border: 1px solid rgba(221, 221, 221, 0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        @media (max-width: 480px) {
+            .detail-chart-settings-panel {
+                width: 200px;
+                right: -10px;
+                padding: 12px;
+            }
+            
+            .chart-setting-group h5 {
+                font-size: 0.85rem;
+            }
+            
+            .chart-setting-option {
+                padding: 8px 10px;
+                font-size: 0.85rem;
+            }
         }
         
         .detail-chart-settings-panel.active {
@@ -2104,6 +2148,30 @@
             #modal-content {
                 font-size: 0.9rem;
             }
+            
+            #speed-goal-container {
+                padding: 10px;
+                margin: 12px 0;
+            }
+            
+            #speed-goal-container > div:first-child {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            #speed-goal-input {
+                width: 100%;
+                padding: 8px;
+            }
+            
+            .result-stat-card {
+                padding: 15px;
+            }
+            
+            .result-stat-value {
+                font-size: 1.6rem;
+            }
         }
         
         @media (max-width: 480px) {
@@ -2136,6 +2204,63 @@
             .chart-wrapper {
                 height: 200px;
                 padding: 10px;
+            }
+            
+            .click-area {
+                height: 160px;
+                min-height: 140px;
+            }
+            
+            .shortcut-hint {
+                display: none;
+            }
+            
+            .result-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .result-btn {
+                width: 100%;
+                min-height: 48px;
+            }
+            
+            .setting-group {
+                padding: 10px;
+            }
+            
+            .setting-option {
+                padding: 10px 8px;
+                font-size: 0.85rem;
+            }
+            
+            .modal-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .modal-header h2 {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .close-btn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-mode-buttons {
+                flex-direction: column;
+            }
+            
+            .export-mode-btn {
+                width: 100%;
+                min-height: 48px;
             }
         }
         
@@ -2334,12 +2459,12 @@
                 <div>
                     <strong>🎯 手速目标:</strong> <span id="speed-goal-display">未设置</span>
                 </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <span>设置目标:</span>
-                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 6px; text-align: center;">
+                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; min-height: 40px; font-size: 1rem;">
                     <span>次/秒</span>
-                    <button id="set-goal-btn" class="btn-small" style="padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #4facfe, #00f2fe); color: white;">设置</button>
-                    <button id="clear-goal-btn" class="btn-small" style="padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white;">清除</button>
+                    <button id="set-goal-btn" class="btn-small" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #4facfe, #00f2fe); color: white; min-height: 40px;">设置</button>
+                    <button id="clear-goal-btn" class="btn-small" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white; min-height: 40px;">清除</button>
                 </div>
             </div>
             <div style="margin-top: 8px;">
@@ -2490,6 +2615,23 @@
             </div>
             
             <div class="setting-group">
+                <h4>📳 震动反馈</h4>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="haptic-feedback" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>启用震动反馈</span>
+                </label>
+                <div class="setting-options" style="margin-top: 10px;">
+                    <span style="font-size: 0.85rem; color: #666;">震动强度:</span>
+                    <div class="setting-option haptic-intensity-option active" data-intensity="light" style="min-width: 60px;">轻柔</div>
+                    <div class="setting-option haptic-intensity-option" data-intensity="medium" style="min-width: 60px;">适中</div>
+                    <div class="setting-option haptic-intensity-option" data-intensity="heavy" style="min-width: 60px;">强烈</div>
+                </div>
+            </div>
+            
+            <div class="setting-group">
                 <h4>📊 高级分析功能</h4>
                 <label class="toggle-label">
                     <div class="toggle-switch">
@@ -2633,6 +2775,53 @@
             };
         }
         
+        // 节流函数 - 限制执行频率
+        function throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        }
+        
+        // 安全的localStorage操作
+        const safeStorage = {
+            getItem(key, defaultValue = null) {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item !== null ? JSON.parse(item) : defaultValue;
+                } catch (e) {
+                    console.warn(`localStorage读取失败 [${key}]:`, e);
+                    return defaultValue;
+                }
+            },
+            setItem(key, value) {
+                try {
+                    const serialized = JSON.stringify(value);
+                    localStorage.setItem(key, serialized);
+                    return true;
+                } catch (e) {
+                    console.warn(`localStorage写入失败 [${key}]:`, e);
+                    if (e.name === 'QuotaExceededError') {
+                        alert('存储空间已满，请清理部分历史数据');
+                    }
+                    return false;
+                }
+            },
+            removeItem(key) {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (e) {
+                    console.warn(`localStorage删除失败 [${key}]:`, e);
+                    return false;
+                }
+            }
+        };
+        
         // 安全的数值解析函数，避免NaN和Infinity
         function safeParseNumber(value, defaultValue = 0) {
             if (value === null || value === undefined || value === '') {
@@ -2665,6 +2854,14 @@
             }
         }
         
+        // 安全的数组访问
+        function safeArrayGet(arr, index, defaultValue = undefined) {
+            if (!Array.isArray(arr) || index < 0 || index >= arr.length) {
+                return defaultValue;
+            }
+            return arr[index];
+        }
+        
         // 安全的Math.max/min调用
         function safeMax(arr, defaultValue = 0) {
             if (!Array.isArray(arr) || arr.length === 0) return defaultValue;
@@ -2680,16 +2877,20 @@
         
         // 触摸震动反馈函数 - 增强版
         function triggerHapticFeedback(type = 'light') {
-            if (!('vibrate' in navigator)) {
+            if (!settings.hapticFeedback || !('vibrate' in navigator)) {
                 return;
             }
             
+            const intensity = settings.hapticIntensity || 'light';
+            const intensityMultiplier = { light: 0.5, medium: 1, heavy: 1.5 };
+            const multiplier = intensityMultiplier[intensity] || 1;
+            
             const patterns = {
-                light: [10],
-                medium: [20],
-                heavy: [30, 10, 30],
-                success: [10, 50, 20],
-                error: [50, 30, 50]
+                light: [Math.round(10 * multiplier)],
+                medium: [Math.round(20 * multiplier)],
+                heavy: [Math.round(30 * multiplier), Math.round(10 * multiplier), Math.round(30 * multiplier)],
+                success: [Math.round(10 * multiplier), Math.round(50 * multiplier), Math.round(20 * multiplier)],
+                error: [Math.round(50 * multiplier), Math.round(30 * multiplier), Math.round(50 * multiplier)]
             };
             
             const pattern = patterns[type] || patterns.light;
@@ -2707,29 +2908,92 @@
         // ========== 核心代码 ==========
         
         // 获取DOM元素
-        const startBtn = document.getElementById('start-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const settingsBtn = document.getElementById('settings-btn');
-        const clearAllBtn = document.getElementById('clear-all-btn');
-        const importBtn = document.getElementById('import-btn');
-        const importFileInput = document.getElementById('import-file');
-        const importStatus = document.getElementById('import-status');
-        const settingsModal = document.getElementById('settings-modal');
-        const clickArea = document.getElementById('click-area');
-        const clickText = document.getElementById('click-text');
-        const keyHint = document.getElementById('key-hint');
-        const waveAnimation = document.getElementById('wave-animation');
-        const countdownDisplay = document.getElementById('countdown');
-        const timerDisplay = document.getElementById('timer');
-        const clickCountDisplay = document.getElementById('click-count');
-        const avgSpeedDisplay = document.getElementById('avg-speed');
-        const maxSpeedDisplay = document.getElementById('max-speed');
-        const stabilityDisplay = document.getElementById('stability');
-        const historyList = document.getElementById('history-list');
-        const detailModal = document.getElementById('detail-modal');
-        const chartModal = document.getElementById('chart-modal');
-        const confirmDialog = document.getElementById('confirm-dialog');
+        const domCache = {
+            startBtn: null,
+            stopBtn: null,
+            resetBtn: null,
+            settingsBtn: null,
+            clearAllBtn: null,
+            importBtn: null,
+            importFileInput: null,
+            importStatus: null,
+            settingsModal: null,
+            clickArea: null,
+            clickText: null,
+            keyHint: null,
+            waveAnimation: null,
+            countdownDisplay: null,
+            timerDisplay: null,
+            clickCountDisplay: null,
+            avgSpeedDisplay: null,
+            maxSpeedDisplay: null,
+            stabilityDisplay: null,
+            historyList: null,
+            detailModal: null,
+            chartModal: null,
+            confirmDialog: null,
+            resultDialog: null,
+            
+            init() {
+                this.startBtn = document.getElementById('start-btn');
+                this.stopBtn = document.getElementById('stop-btn');
+                this.resetBtn = document.getElementById('reset-btn');
+                this.settingsBtn = document.getElementById('settings-btn');
+                this.clearAllBtn = document.getElementById('clear-all-btn');
+                this.importBtn = document.getElementById('import-btn');
+                this.importFileInput = document.getElementById('import-file');
+                this.importStatus = document.getElementById('import-status');
+                this.settingsModal = document.getElementById('settings-modal');
+                this.clickArea = document.getElementById('click-area');
+                this.clickText = document.getElementById('click-text');
+                this.keyHint = document.getElementById('key-hint');
+                this.waveAnimation = document.getElementById('wave-animation');
+                this.countdownDisplay = document.getElementById('countdown');
+                this.timerDisplay = document.getElementById('timer');
+                this.clickCountDisplay = document.getElementById('click-count');
+                this.avgSpeedDisplay = document.getElementById('avg-speed');
+                this.maxSpeedDisplay = document.getElementById('max-speed');
+                this.stabilityDisplay = document.getElementById('stability');
+                this.historyList = document.getElementById('history-list');
+                this.detailModal = document.getElementById('detail-modal');
+                this.chartModal = document.getElementById('chart-modal');
+                this.confirmDialog = document.getElementById('confirm-dialog');
+                this.resultDialog = document.getElementById('result-dialog');
+            },
+            
+            get(id) {
+                return document.getElementById(id);
+            }
+        };
+        
+        domCache.init();
+        
+        // 为了向后兼容，保留原始引用
+        const startBtn = domCache.startBtn;
+        const stopBtn = domCache.stopBtn;
+        const resetBtn = domCache.resetBtn;
+        const settingsBtn = domCache.settingsBtn;
+        const clearAllBtn = domCache.clearAllBtn;
+        const importBtn = domCache.importBtn;
+        const importFileInput = domCache.importFileInput;
+        const importStatus = domCache.importStatus;
+        const settingsModal = domCache.settingsModal;
+        const clickArea = domCache.clickArea;
+        const clickText = domCache.clickText;
+        const keyHint = domCache.keyHint;
+        const waveAnimation = domCache.waveAnimation;
+        const countdownDisplay = domCache.countdownDisplay;
+        const timerDisplay = domCache.timerDisplay;
+        const clickCountDisplay = domCache.clickCountDisplay;
+        const avgSpeedDisplay = domCache.avgSpeedDisplay;
+        const maxSpeedDisplay = domCache.maxSpeedDisplay;
+        const stabilityDisplay = domCache.stabilityDisplay;
+        const historyList = domCache.historyList;
+        const detailModal = domCache.detailModal;
+        const chartModal = domCache.chartModal;
+        const confirmDialog = domCache.confirmDialog;
+        const resultDialog = domCache.resultDialog;
+        
         const confirmYesBtn = document.getElementById('confirm-yes');
         const confirmNoBtn = document.getElementById('confirm-no');
         const modalContent = document.getElementById('modal-content');
@@ -2746,7 +3010,6 @@
         const exportCancelBtn = document.getElementById('export-cancel');
         const detailModalTitle = document.getElementById('detail-modal-title');
         const keyOptionsContainer = document.getElementById('key-options-container');
-        const resultDialog = document.getElementById('result-dialog');
         const resultAvgSpeedDisplay = document.getElementById('result-avg-speed');
         const resultMaxSpeedDisplay = document.getElementById('result-max-speed');
         const resultDetailBtn = document.getElementById('result-detail-btn');
@@ -2814,6 +3077,8 @@
             customKey: '',
             soundFeedback: false,
             speedSound: false,
+            hapticFeedback: true,
+            hapticIntensity: 'light',
             realTimeWave: true,
             realTimeChartDisplay: true,
             stabilityAnalysis: true,
@@ -2989,8 +3254,8 @@
         let speedGoal = null;
         
         function initSpeedGoal() {
-            const savedGoal = localStorage.getItem('speedTestGoal');
-            if (savedGoal) {
+            const savedGoal = safeStorage.getItem('speedTestGoal');
+            if (savedGoal !== null) {
                 speedGoal = parseFloat(savedGoal);
                 updateGoalDisplay();
             }
@@ -2999,7 +3264,7 @@
         function setSpeedGoal(goal) {
             speedGoal = parseFloat(goal);
             if (isFinite(speedGoal) && speedGoal > 0) {
-                localStorage.setItem('speedTestGoal', speedGoal.toString());
+                safeStorage.setItem('speedTestGoal', speedGoal);
                 updateGoalDisplay();
                 checkGoalAchievement();
             }
@@ -3007,7 +3272,7 @@
         
         function clearSpeedGoal() {
             speedGoal = null;
-            localStorage.removeItem('speedTestGoal');
+            safeStorage.removeItem('speedTestGoal');
             updateGoalDisplay();
             resetGoalProgress();
         }
@@ -3079,7 +3344,7 @@
                 bestSpeed = speed;
                 bestSpeedEl.textContent = `${bestSpeed.toFixed(1)} 次/秒`;
                 bestRecordEl.classList.add('show');
-                localStorage.setItem('speedTestBestSpeed', bestSpeed.toString());
+                safeStorage.setItem('speedTestBestSpeed', bestSpeed);
                 return true;
             }
             return false;
@@ -3087,7 +3352,7 @@
         
         function checkAchievements(avgSpeed, maxSpeed, totalClicks, duration) {
             const newAchievements = [];
-            const savedAchievements = JSON.parse(localStorage.getItem('speedTestAchievements') || '[]');
+            const savedAchievements = safeStorage.getItem('speedTestAchievements') || [];
             
             if (avgSpeed >= 15 && !savedAchievements.includes('speed_demon')) {
                 newAchievements.push({ id: 'speed_demon', name: '⚡ 速度恶魔', desc: '平均手速达到15次/秒以上' });
@@ -3113,7 +3378,7 @@
             
             if (newAchievements.length > 0) {
                 achievements = [...savedAchievements, ...newAchievements.map(a => a.id)];
-                localStorage.setItem('speedTestAchievements', JSON.stringify(achievements));
+                safeStorage.setItem('speedTestAchievements', achievements);
                 showAchievementPopup(newAchievements[0]);
             }
         }
@@ -3132,8 +3397,8 @@
         }
         
         function loadBestSpeed() {
-            const saved = localStorage.getItem('speedTestBestSpeed');
-            if (saved) {
+            const saved = safeStorage.getItem('speedTestBestSpeed');
+            if (saved !== null) {
                 bestSpeed = parseFloat(saved);
                 const bestRecordEl = document.getElementById('best-record');
                 const bestSpeedEl = document.getElementById('best-speed');
@@ -3301,11 +3566,11 @@
         };
         
         // 深色模式切换
-        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        let isDarkMode = safeStorage.getItem('darkMode') === true;
         
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
-            localStorage.setItem('darkMode', isDarkMode);
+            safeStorage.setItem('darkMode', isDarkMode);
             applyDarkMode();
         }
         
@@ -3327,7 +3592,7 @@
             }
             
             // 启动性能监控
-            if (localStorage.getItem('performanceMonitor') === 'true') {
+            if (safeStorage.getItem('performanceMonitor') === true) {
                 performanceMonitor.startMonitoring();
             }
             addMobileKeyOptions();
@@ -3602,11 +3867,15 @@
             
             // 重置最佳记录
             bestSpeed = 0;
-            localStorage.removeItem('speedTestBestSpeed');
+            safeStorage.removeItem('speedTestBestSpeed');
             const bestRecordEl = document.getElementById('best-record');
             const bestSpeedEl = document.getElementById('best-speed');
             bestSpeedEl.textContent = '0 次/秒';
             bestRecordEl.classList.remove('show');
+            
+            // 重置成就
+            achievements = [];
+            safeStorage.removeItem('speedTestAchievements');
             
             resetTest();
             
@@ -4116,24 +4385,24 @@
         // 加载设置
         function loadSettings() {
             try {
-                const savedSettings = localStorage.getItem('speedTestSettings');
+                const savedSettings = safeStorage.getItem('speedTestSettings');
                 if (savedSettings) {
-                    const parsedSettings = JSON.parse(savedSettings);
-                    settings = {...settings, ...parsedSettings};
+                    settings = {...settings, ...savedSettings};
                     
                     testTimeInput.value = settings.testTime;
                     timer = settings.testTime;
                     timerDisplay.textContent = timer;
                     
-                    document.getElementById('sound-feedback').checked = settings.soundFeedback;
-                    document.getElementById('speed-sound').checked = settings.speedSound;
-                    document.getElementById('real-time-wave').checked = settings.realTimeWave;
-                    document.getElementById('real-time-chart-display').checked = settings.realTimeChartDisplay;
-                    document.getElementById('stability-analysis').checked = settings.stabilityAnalysis;
-                    document.getElementById('fatigue-analysis').checked = settings.fatigueAnalysis;
-                    document.getElementById('pattern-recognition').checked = settings.patternRecognition;
-                    document.getElementById('progress-tracking').checked = settings.progressTracking;
-                    document.getElementById('ai-analysis').checked = settings.aiAnalysis;
+                    document.getElementById('sound-feedback').checked = settings.soundFeedback || false;
+                    document.getElementById('speed-sound').checked = settings.speedSound || false;
+                    document.getElementById('haptic-feedback').checked = settings.hapticFeedback !== false;
+                    document.getElementById('real-time-wave').checked = settings.realTimeWave !== false;
+                    document.getElementById('real-time-chart-display').checked = settings.realTimeChartDisplay !== false;
+                    document.getElementById('stability-analysis').checked = settings.stabilityAnalysis !== false;
+                    document.getElementById('fatigue-analysis').checked = settings.fatigueAnalysis !== false;
+                    document.getElementById('pattern-recognition').checked = settings.patternRecognition !== false;
+                    document.getElementById('progress-tracking').checked = settings.progressTracking !== false;
+                    document.getElementById('ai-analysis').checked = settings.aiAnalysis !== false;
                     
                     document.querySelectorAll('.key-option').forEach(option => {
                         if (option.dataset.key === settings.testKey) {
@@ -4142,6 +4411,14 @@
                                 customKeyContainer.style.display = 'block';
                                 customKeyInput.value = settings.customKey || '';
                             }
+                        } else {
+                            option.classList.remove('active');
+                        }
+                    });
+                    
+                    document.querySelectorAll('.haptic-intensity-option').forEach(option => {
+                        if (option.dataset.intensity === settings.hapticIntensity) {
+                            option.classList.add('active');
                         } else {
                             option.classList.remove('active');
                         }
@@ -4159,6 +4436,7 @@
             
             settings.soundFeedback = document.getElementById('sound-feedback').checked;
             settings.speedSound = document.getElementById('speed-sound').checked;
+            settings.hapticFeedback = document.getElementById('haptic-feedback').checked;
             settings.realTimeWave = document.getElementById('real-time-wave').checked;
             settings.realTimeChartDisplay = document.getElementById('real-time-chart-display').checked;
             settings.stabilityAnalysis = document.getElementById('stability-analysis').checked;
@@ -4182,7 +4460,12 @@
                 }
             }
             
-            localStorage.setItem('speedTestSettings', JSON.stringify(settings));
+            const activeHapticOption = document.querySelector('.haptic-intensity-option.active');
+            if (activeHapticOption) {
+                settings.hapticIntensity = activeHapticOption.dataset.intensity;
+            }
+            
+            safeStorage.setItem('speedTestSettings', settings);
             timer = settings.testTime;
             timerDisplay.textContent = timer;
             updateKeyHint();
@@ -4245,6 +4528,14 @@
                 } else {
                     customKeyContainer.style.display = 'none';
                 }
+            });
+        });
+        
+        // 震动强度选择
+        document.querySelectorAll('.haptic-intensity-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.haptic-intensity-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
             });
         });
         
@@ -4602,7 +4893,7 @@
         
         function saveHistory() {
             try {
-                localStorage.setItem('speedTestHistory', JSON.stringify(history.slice(0, 50)));
+                safeStorage.setItem('speedTestHistory', history.slice(0, 50));
             } catch (e) {
                 console.error('保存历史记录失败:', e);
                 alert('保存历史记录失败，可能存储空间不足');
@@ -4611,9 +4902,9 @@
         
         function loadHistory() {
             try {
-                const savedHistory = localStorage.getItem('speedTestHistory');
-                if (savedHistory) {
-                    history = JSON.parse(savedHistory);
+                const savedHistory = safeStorage.getItem('speedTestHistory');
+                if (savedHistory && Array.isArray(savedHistory)) {
+                    history = savedHistory;
                     updateHistoryDisplay();
                 }
             } catch (e) {
@@ -4764,7 +5055,7 @@
                 dataSampling
             };
             
-            localStorage.setItem('detailChartSettings', JSON.stringify(detailChartSettings));
+            safeStorage.setItem('detailChartSettings', detailChartSettings);
             
             closeDetailChartSettings();
             
@@ -5090,14 +5381,9 @@
             
             window.currentDetailTestData = testData;
             
-            const savedSettings = localStorage.getItem('detailChartSettings');
+            const savedSettings = safeStorage.getItem('detailChartSettings');
             if (savedSettings) {
-                try {
-                    const parsedSettings = JSON.parse(savedSettings);
-                    detailChartSettings = {...detailChartSettings, ...parsedSettings};
-                } catch (e) {
-                    console.error('解析图表设置失败:', e);
-                }
+                detailChartSettings = {...detailChartSettings, ...savedSettings};
             }
             
             const analysis = generateAnalysisReport(testData);

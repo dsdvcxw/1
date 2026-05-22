@@ -100,6 +100,14 @@
             -webkit-touch-callout: none;
             user-select: none;
             outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            button {
+                padding: 14px 22px;
+            }
         }
         
         button:focus {
@@ -192,10 +200,21 @@
             position: relative;
             overflow: hidden;
             touch-action: manipulation;
+            -webkit-touch-callout: none;
         }
         
         .click-area:active {
             transform: scale(0.98);
+        }
+        
+        @media (hover: none) and (pointer: coarse) {
+            .click-area {
+                touch-action: manipulation;
+            }
+            
+            .click-area:active {
+                transform: scale(0.96);
+            }
         }
         
         .click-area.disabled {
@@ -2452,6 +2471,7 @@
             <button id="stop-btn" disabled>结束测试</button>
             <button id="reset-btn">重置</button>
             <button id="settings-btn" class="btn-settings">高级设置</button>
+            <button id="dark-mode-btn" class="btn-settings" style="background: linear-gradient(to right, #343a40, #495057);">🌙 深色模式</button>
         </div>
         
         <div id="speed-goal-container" style="margin: 15px 0; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 10px;">
@@ -2845,7 +2865,11 @@
         
         // 安全的数组操作
         function safeArrayOperation(arr, operation) {
-            if (!Array.isArray(arr) || arr.length === 0) return [];
+            if (!Array.isArray(arr)) {
+                console.warn('safeArrayOperation: 输入不是数组');
+                return [];
+            }
+            if (arr.length === 0) return [];
             try {
                 return operation(arr);
             } catch (e) {
@@ -2860,6 +2884,15 @@
                 return defaultValue;
             }
             return arr[index];
+        }
+        
+        // 安全的数组切片
+        function safeArraySlice(arr, start, end) {
+            if (!Array.isArray(arr)) return [];
+            const validStart = Math.max(0, start || 0);
+            const validEnd = Math.min(arr.length, end || arr.length);
+            if (validStart >= validEnd) return [];
+            return arr.slice(validStart, validEnd);
         }
         
         // 安全的Math.max/min调用
@@ -3192,24 +3225,38 @@
                     return null;
                 }
                 
+                if (!data.clickData || typeof data.clickData !== 'string') {
+                    console.error('查看文件数据格式错误：clickData缺失或类型错误');
+                    return null;
+                }
+                
                 const clickTimes = data.clickData.split(';').map(item => {
                     const parts = item.split(':');
+                    if (parts.length < 4) {
+                        return {
+                            timeFromStart: 0,
+                            interval: 0,
+                            instantSpeed: 0
+                        };
+                    }
                     return {
-                        timeFromStart: parseFloat(parts[1]),
-                        interval: parseInt(parts[2]),
-                        instantSpeed: parseFloat(parts[3])
+                        timeFromStart: parseFloat(parts[1]) || 0,
+                        interval: parseInt(parts[2]) || 0,
+                        instantSpeed: parseFloat(parts[3]) || 0
                     };
+                }).filter(click => {
+                    return isFinite(click.timeFromStart) && isFinite(click.interval) && isFinite(click.instantSpeed);
                 });
                 
                 const testData = {
                     id: Date.now(),
-                    time: data.time,
-                    clicks: data.clicks,
-                    speed: data.speed,
-                    duration: parseFloat(data.duration),
+                    time: data.time || '未知时间',
+                    clicks: parseInt(data.clicks) || 0,
+                    speed: parseFloat(data.speed) || 0,
+                    duration: parseFloat(data.duration) || 0,
                     settings: {
-                        testTime: data.testTime,
-                        testKey: data.testKey,
+                        testTime: parseInt(data.testTime) || 10,
+                        testKey: data.testKey || 'space',
                         customKey: data.customKey || ''
                     },
                     clickTimes: clickTimes,
@@ -3543,6 +3590,8 @@
             lastFrameTime: 0,
             frameCount: 0,
             lastFPSTime: 0,
+            domOperations: 0,
+            maxDOMOperations: 100,
             
             startMonitoring() {
                 this.lastFrameTime = performance.now();
@@ -3559,11 +3608,40 @@
                     this.fps = this.frameCount;
                     this.frameCount = 0;
                     this.lastFPSTime = currentTime;
+                    
+                    if (this.fps < 30) {
+                        console.warn(`性能警告: FPS过低 (${this.fps})`);
+                    }
                 }
                 
                 requestAnimationFrame(() => this.monitorFrame());
+            },
+            
+            trackDOMOperation() {
+                this.domOperations++;
+                if (this.domOperations > this.maxDOMOperations) {
+                    console.warn('DOM操作过于频繁，考虑使用节流或批量更新');
+                    this.domOperations = 0;
+                }
+            },
+            
+            resetDOMCounter() {
+                this.domOperations = 0;
             }
         };
+        
+        // 批量DOM更新优化
+        function batchDOMUpdate(updates) {
+            performanceMonitor.resetDOMCounter();
+            requestAnimationFrame(() => {
+                updates.forEach(update => {
+                    if (typeof update === 'function') {
+                        update();
+                        performanceMonitor.trackDOMOperation();
+                    }
+                });
+            });
+        }
         
         // 深色模式切换
         let isDarkMode = safeStorage.getItem('darkMode') === true;
@@ -3584,12 +3662,20 @@
             }
         }
         
+        function updateDarkModeButton() {
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            if (darkModeBtn) {
+                darkModeBtn.innerHTML = isDarkMode ? '☀️ 浅色模式' : '🌙 深色模式';
+            }
+        }
+        
         // 初始化
         function init() {
             // 应用深色模式
             if (isDarkMode) {
                 applyDarkMode();
             }
+            updateDarkModeButton();
             
             // 启动性能监控
             if (safeStorage.getItem('performanceMonitor') === true) {
@@ -3661,6 +3747,15 @@
                 triggerHapticFeedback('light');
                 openSettingsModal();
             });
+            
+            const darkModeBtn = document.getElementById('dark-mode-btn');
+            if (darkModeBtn) {
+                darkModeBtn.addEventListener('click', function(e) {
+                    triggerHapticFeedback('light');
+                    toggleDarkMode();
+                    updateDarkModeButton();
+                });
+            }
             
             resultDetailBtn.addEventListener('click', function(e) {
                 if (resultDialogCooldown) return;
@@ -3779,6 +3874,37 @@
             
             addKeyboardShortcuts();
             initShortcutHint();
+            
+            // 移动端优化
+            if (isMobileDevice()) {
+                // 禁用双击缩放
+                document.addEventListener('dblclick', function(e) {
+                    e.preventDefault();
+                }, { passive: false });
+                
+                // 优化滚动
+                document.body.style.webkitOverflowScrolling = 'touch';
+                
+                // 添加触摸反馈
+                const allButtons = document.querySelectorAll('button');
+                allButtons.forEach(button => {
+                    button.addEventListener('touchstart', function() {
+                        this.style.transform = 'scale(0.95)';
+                    }, { passive: true });
+                    
+                    button.addEventListener('touchend', function() {
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 150);
+                    }, { passive: true });
+                });
+                
+                // 添加音量键使用提示
+                const shortcutHint = document.getElementById('shortcut-hint');
+                if (shortcutHint && settings.testKey === 'volume') {
+                    shortcutHint.innerHTML = '<div style="color: #4facfe;">📱 请使用音量键进行测试</div>';
+                }
+            }
         }
         
         function initShortcutHint() {
@@ -4065,9 +4191,10 @@
                     ctx.lineWidth = 3;
                     ctx.beginPath();
                     
+                    const avgSpeedsLength = avgSpeeds.length > 1 ? avgSpeeds.length - 1 : 1;
                     for (let i = 0; i < avgSpeeds.length; i++) {
                         if (!isFinite(avgSpeeds[i])) continue;
-                        const x = startX + safeDivide(i * chartWidth, avgSpeeds.length - 1, 0);
+                        const x = startX + safeDivide(i * chartWidth, avgSpeedsLength, 0);
                         const y = startY - safeDivide(avgSpeeds[i] * chartHeight, maxSpeed, 0);
                         
                         if (i === 0) {
@@ -4078,13 +4205,14 @@
                     }
                     ctx.stroke();
                     
+                    const speedsLength = speeds.length > 1 ? speeds.length - 1 : 1;
                     ctx.strokeStyle = '#f5576c';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     
                     for (let i = 0; i < speeds.length; i++) {
                         if (!isFinite(speeds[i])) continue;
-                        const x = startX + safeDivide(i * chartWidth, speeds.length - 1, 0);
+                        const x = startX + safeDivide(i * chartWidth, speedsLength, 0);
                         const y = startY - safeDivide(speeds[i] * chartHeight, maxSpeed, 0);
                         
                         if (i === 0) {
@@ -4106,20 +4234,22 @@
                     ctx.fillStyle = '#333';
                     ctx.fillText('瞬时手速', startX + 250, startY - chartHeight - 22);
                     
+                    const avgSamplingStep = Math.max(1, Math.floor(safeDivide(avgSpeeds.length, 10, 1)));
                     ctx.fillStyle = '#4facfe';
-                    for (let i = 0; i < avgSpeeds.length; i += Math.max(1, Math.floor(safeDivide(avgSpeeds.length, 10, 1)))) {
+                    for (let i = 0; i < avgSpeeds.length; i += avgSamplingStep) {
                         if (!isFinite(avgSpeeds[i])) continue;
-                        const x = startX + safeDivide(i * chartWidth, avgSpeeds.length - 1, 0);
+                        const x = startX + safeDivide(i * chartWidth, avgSpeedsLength, 0);
                         const y = startY - safeDivide(avgSpeeds[i] * chartHeight, maxSpeed, 0);
                         ctx.beginPath();
                         ctx.arc(x, y, 3, 0, Math.PI * 2);
                         ctx.fill();
                     }
                     
+                    const speedsSamplingStep = Math.max(1, Math.floor(safeDivide(speeds.length, 10, 1)));
                     ctx.fillStyle = '#f5576c';
-                    for (let i = 0; i < speeds.length; i += Math.max(1, Math.floor(safeDivide(speeds.length, 10, 1)))) {
+                    for (let i = 0; i < speeds.length; i += speedsSamplingStep) {
                         if (!isFinite(speeds[i])) continue;
-                        const x = startX + safeDivide(i * chartWidth, speeds.length - 1, 0);
+                        const x = startX + safeDivide(i * chartWidth, speedsLength, 0);
                         const y = startY - safeDivide(speeds[i] * chartHeight, maxSpeed, 0);
                         ctx.beginPath();
                         ctx.arc(x, y, 3, 0, Math.PI * 2);
@@ -4162,24 +4292,38 @@
                     return null;
                 }
                 
+                if (!data.clickData || typeof data.clickData !== 'string') {
+                    console.error('压缩文件数据格式错误：clickData缺失或类型错误');
+                    return null;
+                }
+                
                 const clickTimes = data.clickData.split(';').map(item => {
                     const parts = item.split(':');
+                    if (parts.length < 3) {
+                        return {
+                            timeFromStart: 0,
+                            interval: 0,
+                            instantSpeed: 0
+                        };
+                    }
                     return {
-                        timeFromStart: parseFloat(parts[0]),
-                        interval: parseInt(parts[1]),
-                        instantSpeed: parseFloat(parts[2])
+                        timeFromStart: parseFloat(parts[0]) || 0,
+                        interval: parseInt(parts[1]) || 0,
+                        instantSpeed: parseFloat(parts[2]) || 0
                     };
+                }).filter(click => {
+                    return isFinite(click.timeFromStart) && isFinite(click.interval) && isFinite(click.instantSpeed);
                 });
                 
                 return {
                     id: Date.now(),
-                    time: data.time,
-                    clicks: data.clicks,
-                    speed: data.speed,
-                    duration: parseFloat(data.duration),
+                    time: data.time || '未知时间',
+                    clicks: parseInt(data.clicks) || 0,
+                    speed: parseFloat(data.speed) || 0,
+                    duration: parseFloat(data.duration) || 0,
                     settings: {
-                        testTime: data.testTime,
-                        testKey: data.testKey,
+                        testTime: parseInt(data.testTime) || 10,
+                        testKey: data.testKey || 'space',
                         customKey: data.customKey || ''
                     },
                     clickTimes: clickTimes,
@@ -4514,6 +4658,19 @@
                     break;
             }
             keyHint.textContent = hintText;
+            
+            // 更新移动端的快捷键提示
+            if (isMobileDevice()) {
+                const shortcutHint = document.getElementById('shortcut-hint');
+                if (shortcutHint) {
+                    if (settings.testKey === 'volume') {
+                        shortcutHint.innerHTML = '<div style="color: #4facfe;">📱 请使用音量键进行测试</div>';
+                    } else if (settings.testKey === 'click') {
+                        shortcutHint.innerHTML = '<div style="color: #4facfe;">📱 点击测试区域进行测试</div>';
+                    }
+                }
+            }
+            
             return keyName;
         }
         
@@ -4774,10 +4931,13 @@
             updateGoalProgress(validAvgSpeed);
             
             if (settings.stabilityAnalysis && clickTimes.length > 2) {
-                const speeds = clickTimes.slice(-15).map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
+                const lastClicks = safeArraySlice(clickTimes, -15);
+                const speeds = lastClicks.map(click => click.instantSpeed).filter(s => s > 0 && isFinite(s));
                 if (speeds.length >= 2) {
-                    const avg = safeDivide(speeds.reduce((a, b) => a + b, 0), speeds.length, 1);
-                    const variance = safeDivide(speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0), speeds.length, 0);
+                    const sum = speeds.reduce((a, b) => a + b, 0);
+                    const avg = safeDivide(sum, speeds.length, 1);
+                    const varianceSum = speeds.reduce((a, b) => a + Math.pow(b - avg, 2), 0);
+                    const variance = safeDivide(varianceSum, speeds.length, 0);
                     const stdDev = Math.sqrt(variance);
                     const stability = avg > 0 ? Math.max(0, Math.min(100, 100 - safeDivide(stdDev * 100, avg, 0))) : 0;
                     const validStability = safeParseNumber(stability, 0);

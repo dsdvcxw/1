@@ -91,8 +91,8 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
             font-weight: 600;
-            min-width: 44px;
-            min-height: 44px;
+            min-width: 48px;
+            min-height: 48px;
             flex: 1;
             max-width: 130px;
             touch-action: manipulation;
@@ -2498,6 +2498,10 @@
         <div class="countdown" id="countdown"></div>
         <div class="timer" id="timer">10</div>
         
+        <div style="margin: 10px 0; height: 8px; background: rgba(0,0,0,0.1); border-radius: 4px; overflow: hidden;">
+            <div id="test-progress" style="height: 100%; width: 0%; background: linear-gradient(to right, #667eea, #764ba2); transition: width 0.3s ease;"></div>
+        </div>
+        
         <div class="click-area disabled" id="click-area">
             <div class="real-time-chart-container">
                 <canvas id="real-time-chart"></canvas>
@@ -3087,12 +3091,12 @@
         let resultDialogClickTime = 0;
         
         // 详情图表设置
-        let detailChartSettings = {
+        let detailChartSettings = safeStorage.getItem('detailChartSettings', {
             axisType: 'sequence',
             sequenceInterval: 2,
             showAvgSpeed: true,
             dataSampling: 'average'
-        };
+        });
         
         // 实时折线图变量
         let realTimeChart = null;
@@ -3339,6 +3343,7 @@
             }
         }
         
+        let goalAchievedTriggered = false; // To prevent multiple triggers
         function updateGoalProgress(currentSpeed) {
             if (speedGoal === null || !isFinite(speedGoal) || speedGoal <= 0) return;
             
@@ -3351,6 +3356,19 @@
             
             if (percentage >= 100) {
                 progressBar.style.background = 'linear-gradient(to right, #FFD700, #FFA500)';
+                if (!goalAchievedTriggered && testActive) {
+                    goalAchievedTriggered = true;
+                    triggerHapticFeedback('success');
+                    // Add a small animation to the progress bar
+                    progressBar.animate([
+                        { transform: 'scaleY(1)', boxShadow: '0 0 0 rgba(255,215,0,0)' },
+                        { transform: 'scaleY(1.3)', boxShadow: '0 0 15px rgba(255,215,0,0.6)' },
+                        { transform: 'scaleY(1)', boxShadow: '0 0 0 rgba(255,215,0,0)' }
+                    ], {
+                        duration: 500,
+                        iterations: 2
+                    });
+                }
             } else if (percentage >= 80) {
                 progressBar.style.background = 'linear-gradient(to right, #4CAF50, #45a049)';
             } else if (percentage >= 50) {
@@ -3644,7 +3662,7 @@
         }
         
         // 深色模式切换
-        let isDarkMode = safeStorage.getItem('darkMode') === true;
+        let isDarkMode = safeStorage.getItem('darkMode', false);
         
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
@@ -3672,9 +3690,7 @@
         // 初始化
         function init() {
             // 应用深色模式
-            if (isDarkMode) {
-                applyDarkMode();
-            }
+            applyDarkMode();
             updateDarkModeButton();
             
             // 启动性能监控
@@ -4784,6 +4800,9 @@
         function startTest() {
             if (testActive || countdownActive) return;
             
+            goalAchievedTriggered = false;
+            resetGoalProgress();
+            
             countdownActive = true;
             startBtn.disabled = true;
             stopBtn.disabled = true;
@@ -4832,6 +4851,11 @@
             testActive = true;
             startTime = performance.now();
             
+            const progressEl = document.getElementById('test-progress');
+            if (progressEl) {
+                progressEl.style.width = '0%';
+            }
+            
             stopBtn.disabled = false;
             clickArea.classList.remove('disabled');
             clickArea.classList.add('ready');
@@ -4867,6 +4891,12 @@
         function updateTimer() {
             timer--;
             timerDisplay.textContent = timer;
+            const progressEl = document.getElementById('test-progress');
+            if (progressEl) {
+                const totalTime = settings.testTime;
+                const progressPercentage = ((totalTime - timer) / totalTime) * 100;
+                progressEl.style.width = `${Math.max(0, Math.min(100, progressPercentage))}%`;
+            }
             
             if (timer <= 0) {
                 stopTest();

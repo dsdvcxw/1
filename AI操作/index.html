@@ -3335,12 +3335,18 @@
         
         // 打开设置模态框
         function openSettingsModal() {
-            settingsModal.style.display = 'flex';
+            const modal = document.getElementById('settings-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
         }
         
         // 关闭设置模态框
         function closeSettingsModal() {
-            settingsModal.style.display = 'none';
+            const modal = document.getElementById('settings-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
         
         // 显示结果弹窗
@@ -3889,37 +3895,6 @@
             
             initRealTimeChart();
             
-            const setGoalBtn = document.getElementById('set-goal-btn');
-            const clearGoalBtn = document.getElementById('clear-goal-btn');
-            const speedGoalInput = document.getElementById('speed-goal-input');
-            
-            if (setGoalBtn) {
-                setGoalBtn.addEventListener('click', function() {
-                    const goal = safeParseNumber(speedGoalInput.value, 0);
-                    if (goal > 0) {
-                        setSpeedGoal(goal);
-                        alert(`手速目标已设置为 ${goal.toFixed(1)} 次/秒！`);
-                    } else {
-                        alert('请输入有效的目标数值（大于0）！');
-                    }
-                });
-            }
-            
-            if (clearGoalBtn) {
-                clearGoalBtn.addEventListener('click', function() {
-                    clearSpeedGoal();
-                    alert('手速目标已清除！');
-                });
-            }
-            
-            if (speedGoalInput) {
-                speedGoalInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' && setGoalBtn) {
-                        setGoalBtn.click();
-                    }
-                });
-            }
-            
             clickArea.addEventListener('touchstart', function(e) {
                 if (testActive && settings.testKey === 'click') {
                     e.preventDefault();
@@ -3984,11 +3959,14 @@
                 }, 100);
             });
             
-            settingsModal.addEventListener('click', function(e) {
-                if (e.target === settingsModal) {
-                    closeSettingsModal();
-                }
-            });
+            const settingsModalEl = document.getElementById('settings-modal');
+            if (settingsModalEl) {
+                settingsModalEl.addEventListener('click', function(e) {
+                    if (e.target === settingsModalEl) {
+                        closeSettingsModal();
+                    }
+                });
+            }
             
             exportForImportBtn.addEventListener('click', function() {
                 triggerHapticFeedback('medium');

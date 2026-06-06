@@ -254,38 +254,6 @@
             transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
         }
         
-        .best-record {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 165, 0, 0.95));
-            color: #333;
-            padding: 15px 25px;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 700;
-            box-shadow: 0 12px 28px rgba(255, 165, 0, 0.4);
-            z-index: 100;
-            display: none;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-        }
-        
-        .best-record.show {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
         .achievement-popup {
             position: fixed;
             top: 50%;
@@ -1780,14 +1748,6 @@
                 border-radius: 6px;
             }
             
-            .best-record {
-                top: 10px;
-                right: 10px;
-                padding: 10px 15px;
-                font-size: 0.85rem;
-                border-radius: 12px;
-            }
-            
             .history-item {
                 padding: 10px 12px;
                 margin: 6px 0;
@@ -2117,13 +2077,6 @@
             
             .shortcut-hint {
                 display: none;
-            }
-            
-            .best-record {
-                top: 5px;
-                right: 5px;
-                padding: 8px 12px;
-                font-size: 0.8rem;
             }
             
             .charts-container {
@@ -2626,11 +2579,6 @@
         <h1>手速测试器</h1>
         <p class="subtitle">专业手速分析与训练系统</p>
         
-        <div class="best-record" id="best-record">
-            <div>🏆 最佳成绩</div>
-            <div id="best-speed">0 次/秒</div>
-        </div>
-        
         <div class="achievement-popup" id="achievement-popup"></div>
         
         <div class="controls">
@@ -2638,26 +2586,14 @@
             <button id="stop-btn" disabled>结束测试</button>
             <button id="reset-btn">重置</button>
             <button id="settings-btn" class="btn-settings">高级设置</button>
-            <button id="dark-mode-btn" class="btn-settings" style="background: linear-gradient(to right, #343a40, #495057);">🌙 深色模式</button>
         </div>
         
-        <div id="speed-goal-container" style="margin: 15px 0; padding: 12px; background: rgba(248, 249, 250, 0.8); border-radius: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                <div>
-                    <strong>🎯 手速目标:</strong> <span id="speed-goal-display">未设置</span>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <span>设置目标:</span>
-                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; min-height: 40px; font-size: 1rem;">
-                    <span>次/秒</span>
-                    <button id="set-goal-btn" class="btn-small" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #4facfe, #00f2fe); color: white; min-height: 40px;">设置</button>
-                    <button id="clear-goal-btn" class="btn-small" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white; min-height: 40px;">清除</button>
-                </div>
-            </div>
-            <div style="margin-top: 8px;">
-                <div style="background: #e0e0e0; border-radius: 10px; height: 20px; overflow: hidden; position: relative;">
-                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
-                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.75rem; font-weight: bold; color: #333;">0%</span>
+        <div id="speed-goal-container" style="margin: 10px 0; padding: 8px 15px; background: rgba(248, 249, 250, 0.8); border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                <span><strong>🎯 目标进度:</strong> <span id="speed-goal-display">未设置</span></span>
+                <div style="flex: 1; max-width: 150px; background: #e0e0e0; border-radius: 8px; height: 14px; overflow: hidden; position: relative;">
+                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px;"></div>
+                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.65rem; font-weight: bold; color: #333;">0%</span>
                 </div>
             </div>
         </div>
@@ -2815,6 +2751,28 @@
                     <div class="setting-option haptic-intensity-option active" data-intensity="light" style="min-width: 60px;">轻柔</div>
                     <div class="setting-option haptic-intensity-option" data-intensity="medium" style="min-width: 60px;">适中</div>
                     <div class="setting-option haptic-intensity-option" data-intensity="heavy" style="min-width: 60px;">强烈</div>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h4>🎨 界面显示</h4>
+                <label class="toggle-label">
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span>深色模式</span>
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <h4>🎯 手速目标设置</h4>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                    <span style="font-size: 0.9rem;">目标手速:</span>
+                    <input type="number" id="speed-goal-input" min="1" max="30" step="0.5" value="10" style="width: 70px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; font-size: 0.9rem;">
+                    <span style="font-size: 0.9rem;">次/秒</span>
+                    <button id="set-goal-btn" class="btn-small" style="padding: 8px 12px; background: linear-gradient(to right, #4facfe, #00f2fe); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">设置</button>
+                    <button id="clear-goal-btn" class="btn-small" style="padding: 8px 12px; background: linear-gradient(to right, #ff6b6b, #ff4757); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">清除</button>
                 </div>
             </div>
             
@@ -3909,10 +3867,7 @@
         }
         
         function updateDarkModeButton() {
-            const darkModeBtn = document.getElementById('dark-mode-btn');
-            if (darkModeBtn) {
-                darkModeBtn.innerHTML = isDarkMode ? '☀️ 浅色模式' : '🌙 深色模式';
-            }
+            // 移除对旧按钮的引用，保持兼容性
         }
         
         // 初始化
@@ -3990,12 +3945,15 @@
                 openSettingsModal();
             });
             
-            const darkModeBtn = document.getElementById('dark-mode-btn');
-            if (darkModeBtn) {
-                darkModeBtn.addEventListener('click', function(e) {
+            // 深色模式切换监听器
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            if (darkModeToggle) {
+                darkModeToggle.checked = isDarkMode;
+                darkModeToggle.addEventListener('change', function(e) {
                     triggerHapticFeedback('light');
-                    toggleDarkMode();
-                    updateDarkModeButton();
+                    isDarkMode = e.target.checked;
+                    safeStorage.setItem('darkMode', isDarkMode ? '1' : '0');
+                    applyDarkMode();
                 });
             }
             

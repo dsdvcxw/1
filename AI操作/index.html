@@ -3895,6 +3895,28 @@
             
             initRealTimeChart();
             
+            // 手速目标设置按钮事件
+            const setGoalBtn = document.getElementById('set-goal-btn');
+            const clearGoalBtn = document.getElementById('clear-goal-btn');
+            const speedGoalInputInSettings = document.getElementById('speed-goal-input');
+            
+            if (setGoalBtn) {
+                setGoalBtn.addEventListener('click', function() {
+                    triggerHapticFeedback('medium');
+                    const goalValue = parseFloat(speedGoalInputInSettings.value);
+                    if (isFinite(goalValue) && goalValue > 0) {
+                        setSpeedGoal(goalValue);
+                    }
+                });
+            }
+            
+            if (clearGoalBtn) {
+                clearGoalBtn.addEventListener('click', function() {
+                    triggerHapticFeedback('light');
+                    clearSpeedGoal();
+                });
+            }
+            
             clickArea.addEventListener('touchstart', function(e) {
                 if (testActive && settings.testKey === 'click') {
                     e.preventDefault();

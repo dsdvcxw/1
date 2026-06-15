@@ -2544,6 +2544,40 @@
             background: rgba(40, 40, 60, 0.8);
         }
         
+        .container.dark-mode .result-content,
+        .container.dark-mode .confirm-content,
+        .container.dark-mode .export-mode-content {
+            background: rgba(30, 30, 50, 0.98);
+        }
+        
+        .container.dark-mode .result-stat-card {
+            background: rgba(50, 50, 70, 0.9);
+        }
+        
+        .container.dark-mode .detail-chart-settings-panel {
+            background: rgba(50, 50, 70, 0.95);
+            border-color: rgba(221, 221, 221, 0.3);
+        }
+        
+        .container.dark-mode .chart-setting-option {
+            background: rgba(60, 60, 80, 0.9);
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .chart-setting-option.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .container.dark-mode .progress-chart {
+            background: rgba(50, 50, 70, 0.9);
+        }
+        
+        .container.dark-mode .file-upload {
+            background: linear-gradient(to right, #5a6fd8, #6a48a5);
+        }
+        
         @media (max-width: 320px) {
             .analysis-results {
                 grid-template-columns: repeat(3, 1fr);
@@ -3520,10 +3554,18 @@
             
             const progressBar = document.getElementById('goal-progress-bar');
             const progressText = document.getElementById('goal-progress-text');
-            const percentage = Math.min(100, safeDivide(currentSpeed * 100, speedGoal, 0));
+            const percentage = safeDivide(currentSpeed * 100, speedGoal, 0);
             
-            progressBar.style.width = `${percentage}%`;
-            progressText.textContent = `${percentage.toFixed(0)}%`;
+            // 允许超过100%，但进度条宽度最大显示100%
+            const displayWidth = Math.min(100, percentage);
+            progressBar.style.width = `${displayWidth}%`;
+            
+            // 显示实际百分比，包括超过100%的情况
+            if (percentage > 100) {
+                progressText.textContent = `${percentage.toFixed(0)}% (超出)`;
+            } else {
+                progressText.textContent = `${percentage.toFixed(0)}%`;
+            }
             
             if (percentage >= 100) {
                 progressBar.style.background = 'linear-gradient(to right, #FFD700, #FFA500)';

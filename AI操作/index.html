@@ -2588,13 +2588,11 @@
             <button id="settings-btn" class="btn-settings">高级设置</button>
         </div>
         
-        <div id="speed-goal-container" style="margin: 10px 0; padding: 8px 15px; background: rgba(248, 249, 250, 0.8); border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                <span><strong>🎯 目标进度:</strong> <span id="speed-goal-display">未设置</span></span>
-                <div style="flex: 1; max-width: 150px; background: #e0e0e0; border-radius: 8px; height: 14px; overflow: hidden; position: relative;">
-                    <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px;"></div>
-                    <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.65rem; font-weight: bold; color: #333;">0%</span>
-                </div>
+        <div id="speed-goal-container" style="margin: 10px 0; padding: 8px 15px; background: rgba(248, 249, 250, 0.8); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            <span><strong>🎯 目标进度:</strong> <span id="speed-goal-display">未设置</span></span>
+            <div style="min-width: 120px; flex: 0 0 120px; background: #e0e0e0; border-radius: 8px; height: 14px; overflow: hidden; position: relative;">
+                <div id="goal-progress-bar" style="background: linear-gradient(to right, #4CAF50, #45a049); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px;"></div>
+                <span id="goal-progress-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.65rem; font-weight: bold; color: #333;">0%</span>
             </div>
         </div>
         

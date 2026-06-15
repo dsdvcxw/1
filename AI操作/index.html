@@ -2544,6 +2544,10 @@
             background: rgba(40, 40, 60, 0.8);
         }
         
+        .container.dark-mode #speed-goal-display {
+            color: #e0e0e0;
+        }
+        
         .container.dark-mode .result-content,
         .container.dark-mode .confirm-content,
         .container.dark-mode .export-mode-content {
@@ -2576,6 +2580,41 @@
         
         .container.dark-mode .file-upload {
             background: linear-gradient(to right, #5a6fd8, #6a48a5);
+        }
+        
+        .container.dark-mode .result-stat-value,
+        .container.dark-mode .result-stat-unit {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .setting-group h4 {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .export-mode-content h3,
+        .container.dark-mode .export-mode-content p {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .confirm-content h3,
+        .container.dark-mode .confirm-content p {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .result-content h3 {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .modal-header h2 {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .import-section h4 {
+            color: #e0e0e0;
+        }
+        
+        .container.dark-mode .export-btn {
+            color: white;
         }
         
         @media (max-width: 320px) {
@@ -3894,11 +3933,11 @@
         }
         
         // 深色模式切换
-        let isDarkMode = safeStorage.getItem('darkMode') === true;
+        let isDarkMode = safeStorage.getItem('darkMode') === '1';
         
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
-            safeStorage.setItem('darkMode', isDarkMode);
+            safeStorage.setItem('darkMode', isDarkMode ? '1' : '0');
             applyDarkMode();
         }
         

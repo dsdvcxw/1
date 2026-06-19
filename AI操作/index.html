@@ -2847,7 +2847,7 @@
             </div>
             <div class="wave-animation" id="wave-animation"></div>
             <div class="click-text" id="click-text">点击开始测试</div>
-            <div class="key-hint" id="key-hint">使用空格键进行测试</div>
+            <div class="key-hint" id="key-hint">使用鼠标点击进行测试</div>
         </div>
         
         <div class="stats">
@@ -2898,7 +2898,7 @@
         <div class="instructions">
             <h3>使用说明：</h3>
             <ol>
-                <li>点击"开始测试"按钮开始手速测试（或按空格键快速开始）</li>
+                <li>点击"开始测试"按钮开始手速测试（或在设置中选择按键测试）</li>
                 <li>等待3秒倒计时结束后开始点击</li>
                 <li>根据设置使用相应按键进行测试</li>
                 <li>手机端可选择音量键进行测试</li>
@@ -2945,8 +2945,8 @@
             <div class="setting-group">
                 <h4>⌨️ 测试按键设置</h4>
                 <div class="setting-options" id="key-options-container">
-                    <div class="setting-option key-option" data-key="click">鼠标点击</div>
-                    <div class="setting-option key-option active" data-key="space">空格键</div>
+                    <div class="setting-option key-option active" data-key="click">鼠标点击</div>
+                    <div class="setting-option key-option" data-key="space">空格键</div>
                     <div class="setting-option key-option" data-key="a">A键</div>
                     <div class="setting-option key-option" data-key="s">S键</div>
                     <div class="setting-option key-option" data-key="d">D键</div>
@@ -3518,7 +3518,7 @@
         // 设置变量
         let settings = {
             testTime: 10,
-            testKey: 'space',
+            testKey: 'click',
             customKey: '',
             soundFeedback: false,
             speedSound: false,
@@ -3674,7 +3674,7 @@
                     duration: parseFloat(data.duration) || 0,
                     settings: {
                         testTime: parseInt(data.testTime) || 10,
-                        testKey: data.testKey || 'space',
+                        testKey: data.testKey || 'click',
                         customKey: data.customKey || ''
                     },
                     clickTimes: clickTimes,
@@ -4363,7 +4363,7 @@
             if (shortcutHint) {
                 shortcutHint.addEventListener('click', function() {
                     alert('手速测试器 - 快捷键说明\n\n' +
-                        '空格键 - 开始测试\n' +
+                        '空格键 - 开始测试（需在设置中选择按键模式）\n' +
                         'R键 - 快速重测（测试结束后）\n' +
                         'ESC - 关闭所有弹窗\n' +
                         'Ctrl+R - 重置测试\n\n' +
@@ -4501,7 +4501,7 @@
                     maxSpeed: maxSpeed,
                     duration: safeParseNumber(testData.duration, 0).toFixed(1),
                     testTime: safeParseNumber(testData.settings?.testTime, 10),
-                    testKey: testData.settings?.testKey || 'space',
+                    testKey: testData.settings?.testKey || 'click',
                     customKey: testData.settings?.customKey || '',
                     clickData: clickData
                 };
@@ -4524,7 +4524,7 @@
                     maxSpeed: maxSpeed,
                     duration: safeParseNumber(testData.duration, 0).toFixed(1),
                     testTime: safeParseNumber(testData.settings?.testTime, 10),
-                    testKey: testData.settings?.testKey || 'space',
+                    testKey: testData.settings?.testKey || 'click',
                     customKey: testData.settings?.customKey || '',
                     clickData: simplifiedClicks,
                     exportTime: new Date().toISOString()
@@ -4774,7 +4774,7 @@
                     duration: parseFloat(data.duration) || 0,
                     settings: {
                         testTime: parseInt(data.testTime) || 10,
-                        testKey: data.testKey || 'space',
+                        testKey: data.testKey || 'click',
                         customKey: data.customKey || ''
                     },
                     clickTimes: clickTimes,
@@ -4800,7 +4800,7 @@
             report += `平均手速: ${safeParseNumber(testData.speed, 0)} 次/秒\n`;
             report += `最高手速: ${maxSpeed} 次/秒\n`;
             report += `测试时长: ${safeParseNumber(testData.duration, 0).toFixed(1)} 秒\n`;
-            report += `测试按键: ${getKeyName(testData.settings?.testKey || 'space', testData.settings?.customKey || '')}\n`;
+            report += `测试按键: ${getKeyName(testData.settings?.testKey || 'click', testData.settings?.customKey || '')}\n`;
             report += `测试时间设置: ${safeParseNumber(testData.settings?.testTime, 10)} 秒\n\n`;
             
             report += '-'.repeat(50) + '\n';
@@ -4933,7 +4933,7 @@
                                     duration: parseFloat(data.d || data.duration || 0),
                                     settings: {
                                         testTime: data.st || data.testTime || 10,
-                                        testKey: data.k || data.testKey || 'space',
+                                        testKey: data.k || data.testKey || 'click',
                                         customKey: data.ck || data.customKey || ''
                                     },
                                     clickTimes: clickTimes,
@@ -6003,7 +6003,7 @@
             }
             
             const analysis = generateAnalysisReport(testData);
-            const keyName = getKeyName(testData.settings?.testKey || 'space', testData.settings?.customKey || '');
+            const keyName = getKeyName(testData.settings?.testKey || 'click', testData.settings?.customKey || '');
             
             const maxSpeedValues = testData.clickTimes.map(c => safeParseNumber(c.instantSpeed, 0)).filter(s => s > 0);
             const maxSpeed = safeMax(maxSpeedValues, 0).toFixed(1);

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes, viewport-fit=cover">
     <title>手速测试器 · 专业分析</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.3.0/dist/chartjs-plugin-zoom.min.js"></script>
@@ -2901,7 +2901,6 @@
                 <li>点击"开始测试"按钮开始手速测试（或按空格键快速开始）</li>
                 <li>等待3秒倒计时结束后开始点击</li>
                 <li>根据设置使用相应按键进行测试</li>
-                <li>手机端可选择音量键进行测试</li>
                 <li>测试时间可在设置中调整(1秒-24小时)</li>
                 <li>开启高级功能可获得更详细的分析报告</li>
                 <li>在测试结果对话框中按 R 键可快速重测</li>
@@ -2945,8 +2944,8 @@
             <div class="setting-group">
                 <h4>⌨️ 测试按键设置</h4>
                 <div class="setting-options" id="key-options-container">
-                    <div class="setting-option key-option" data-key="click">鼠标点击</div>
-                    <div class="setting-option key-option active" data-key="space">空格键</div>
+                    <div class="setting-option key-option active" data-key="click">鼠标点击</div>
+                    <div class="setting-option key-option" data-key="space">空格键</div>
                     <div class="setting-option key-option" data-key="a">A键</div>
                     <div class="setting-option key-option" data-key="s">S键</div>
                     <div class="setting-option key-option" data-key="d">D键</div>
@@ -3490,10 +3489,6 @@
         let bestSpeed = 0;
         let achievements = [];
         
-        // 音量键事件处理变量
-        let volumeKeyActive = false;
-        let volumeKeyPressTime = 0;
-        
         // 防止结果弹窗误触的变量
         let resultDialogCooldown = false;
         let resultDialogClickTime = 0;
@@ -3513,12 +3508,13 @@
             instantSpeedData: [],
             avgSpeedData: []
         };
-        let chartUpdateInterval = null;
+        let chartUpdateRAF = null;
+        let chartLastUpdateTime = 0;
 
         // 设置变量
         let settings = {
             testTime: 10,
-            testKey: 'space',
+            testKey: 'click',
             customKey: '',
             soundFeedback: false,
             speedSound: false,
@@ -3537,19 +3533,6 @@
         function isMobileDevice() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
                    (window.innerWidth <= 768);
-        }
-        
-        // 添加手机端音量键选项
-        function addMobileKeyOptions() {
-            if (isMobileDevice()) {
-                const volumeKeyOption = document.createElement('div');
-                volumeKeyOption.className = 'setting-option key-option';
-                volumeKeyOption.dataset.key = 'volume';
-                volumeKeyOption.textContent = '音量键';
-                keyOptionsContainer.appendChild(volumeKeyOption);
-                
-                rebindKeyOptions();
-            }
         }
         
         // 重新绑定按键选项事件
@@ -3688,31 +3671,6 @@
                 console.error('解析查看文件失败:', e);
                 return null;
             }
-        }
-        
-        // 音量键处理函数
-        function handleVolumeKey(event) {
-            if (!testActive || settings.testKey !== 'volume') return;
-            
-            event.preventDefault();
-            event.stopPropagation();
-            
-            const currentTime = performance.now();
-            if (currentTime - volumeKeyPressTime < 50) {
-                return;
-            }
-            volumeKeyPressTime = currentTime;
-            
-            recordClick();
-            
-            triggerHapticFeedback('light');
-            
-            clickArea.style.transform = 'scale(0.98)';
-            setTimeout(() => {
-                if (testActive) {
-                    clickArea.style.transform = 'scale(1)';
-                }
-            }, 100);
         }
         
         // 手速目标功能
@@ -4133,8 +4091,6 @@
             
             loadPerformanceSettings();
             
-            addMobileKeyOptions();
-            
             loadSettings();
             loadBestSpeed();
             updateKeyHint();
@@ -4349,12 +4305,6 @@
                         }, 150);
                     }, { passive: true });
                 });
-                
-                // 添加音量键使用提示
-                const shortcutHint = document.getElementById('shortcut-hint');
-                if (shortcutHint && settings.testKey === 'volume') {
-                    shortcutHint.innerHTML = '<div style="color: #4facfe;">📱 请使用音量键进行测试</div>';
-                }
             }
         }
         
@@ -4369,7 +4319,7 @@
                         'Ctrl+R - 重置测试\n\n' +
                         '💡 提示：\n' +
                         '• 在测试期间可以使用A/S/D/F等按键进行测试\n' +
-                        '• 移动端可以使用音量键进行测试\n' +
+                        '• 移动端可以使用鼠标点击或按键进行测试\n' +
                         '• 设置手速目标可以帮助你更有动力地练习');
                 });
             }
@@ -4379,8 +4329,8 @@
             document.addEventListener('keydown', function(e) {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
                 
-                // 空格键开始测试
-                if (e.code === 'Space' && !testActive && !countdownActive && 
+                // 空格键开始测试（仅在按键模式为空格键时）
+                if (e.code === 'Space' && settings.testKey === 'space' && !testActive && !countdownActive && 
                     settingsModal.style.display !== 'flex' && resultDialog.style.display !== 'flex') {
                     e.preventDefault();
                     startTest();
@@ -5103,10 +5053,6 @@
                     hintText = `使用${settings.customKey ? settings.customKey.toUpperCase() : ''}键进行测试`;
                     keyName = `${settings.customKey ? settings.customKey.toUpperCase() : ''}键`;
                     break;
-                case 'volume':
-                    hintText = '使用音量键进行测试';
-                    keyName = '音量键';
-                    break;
             }
             keyHint.textContent = hintText;
             
@@ -5114,9 +5060,7 @@
             if (isMobileDevice()) {
                 const shortcutHint = document.getElementById('shortcut-hint');
                 if (shortcutHint) {
-                    if (settings.testKey === 'volume') {
-                        shortcutHint.innerHTML = '<div style="color: #4facfe;">📱 请使用音量键进行测试</div>';
-                    } else if (settings.testKey === 'click') {
+                    if (settings.testKey === 'click') {
                         shortcutHint.innerHTML = '<div style="color: #4facfe;">📱 点击测试区域进行测试</div>';
                     }
                 }
@@ -5189,49 +5133,6 @@
             }
         }
         
-        // 存储音量键监听器引用，便于正确移除
-        let volumeKeyListener1 = null;
-        let volumeKeyListener2 = null;
-        
-        // 音量键事件监听（移动端）
-        function setupVolumeKeyListeners() {
-            // 先移除之前可能存在的监听器
-            removeVolumeKeyListeners();
-            
-            volumeKeyListener1 = function(event) {
-                if (settings.testKey === 'volume' && testActive) {
-                    if (event.code === 'VolumeUp' || event.code === 'VolumeDown') {
-                        handleVolumeKey(event);
-                    }
-                }
-            };
-            
-            window.addEventListener('keydown', volumeKeyListener1);
-            
-            if (isMobileDevice()) {
-                volumeKeyListener2 = function(event) {
-                    if (settings.testKey === 'volume' && testActive) {
-                        if (event.key === 'VolumeUp' || event.key === 'VolumeDown') {
-                            handleVolumeKey(event);
-                        }
-                    }
-                };
-                document.addEventListener('keydown', volumeKeyListener2);
-            }
-        }
-        
-        // 移除音量键事件监听
-        function removeVolumeKeyListeners() {
-            if (volumeKeyListener1) {
-                window.removeEventListener('keydown', volumeKeyListener1);
-                volumeKeyListener1 = null;
-            }
-            if (volumeKeyListener2) {
-                document.removeEventListener('keydown', volumeKeyListener2);
-                volumeKeyListener2 = null;
-            }
-        }
-        
         function startTest() {
             if (testActive || countdownActive) return;
             
@@ -5289,8 +5190,6 @@
             
             if (settings.testKey === 'click') {
                 clickText.textContent = '疯狂点击！';
-            } else if (settings.testKey === 'volume') {
-                clickText.textContent = '疯狂按音量键！';
             } else {
                 clickText.textContent = '疯狂按键！';
             }
@@ -5303,16 +5202,19 @@
             
             timerInterval = setInterval(updateTimer, 1000);
             
-            if (settings.testKey === 'volume') {
-                setupVolumeKeyListeners();
-            } else {
-                document.addEventListener('keydown', handleKeyPress);
-            }
+            document.addEventListener('keydown', handleKeyPress);
             
-            if (chartUpdateInterval) {
-                clearInterval(chartUpdateInterval);
+            // 使用 requestAnimationFrame 驱动的节流更新（替代 setInterval）
+            chartLastUpdateTime = 0;
+            function rafChartUpdater(timestamp) {
+                if (!testActive) return;
+                if (timestamp - chartLastUpdateTime >= 500) {
+                    updateChartFromData();
+                    chartLastUpdateTime = timestamp;
+                }
+                chartUpdateRAF = requestAnimationFrame(rafChartUpdater);
             }
-            chartUpdateInterval = setInterval(updateChartFromData, 500);
+            chartUpdateRAF = requestAnimationFrame(rafChartUpdater);
         }
         
         function updateTimer() {
@@ -5428,9 +5330,9 @@
             
             testActive = false;
             clearInterval(timerInterval);
-            if (chartUpdateInterval) {
-                clearInterval(chartUpdateInterval);
-                chartUpdateInterval = null;
+            if (chartUpdateRAF) {
+                cancelAnimationFrame(chartUpdateRAF);
+                chartUpdateRAF = null;
             }
             
             const endTime = performance.now();
@@ -5445,7 +5347,6 @@
             clickText.textContent = '测试结束';
             
             document.removeEventListener('keydown', handleKeyPress);
-            removeVolumeKeyListeners();
             
             avgSpeedDisplay.innerHTML = `${avgSpeed.toFixed(1)}<span class="stat-unit">次/秒</span>`;
             
@@ -5594,8 +5495,7 @@
                 's': 'S键',
                 'd': 'D键',
                 'f': 'F键',
-                'custom': customKey ? `${customKey.toUpperCase()}键` : '自定义键',
-                'volume': '音量键'
+                'custom': customKey ? `${customKey.toUpperCase()}键` : '自定义键'
             };
             return keyNames[key] || key;
         }
@@ -6527,9 +6427,9 @@
                 countdownActive = false;
             }
             
-            if (chartUpdateInterval) {
-                clearInterval(chartUpdateInterval);
-                chartUpdateInterval = null;
+            if (chartUpdateRAF) {
+                cancelAnimationFrame(chartUpdateRAF);
+                chartUpdateRAF = null;
             }
             
             clickCount = 0;
